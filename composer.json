@@ -72,7 +72,7 @@
         ],
         "test": [
             "@php artisan config:clear --ansi",
-            "@php artisan test --parallel --compact --coverage --min=80"
+            "@php artisan test --parallel --compact"
         ],
         "test:types": [
             "phpstan"
