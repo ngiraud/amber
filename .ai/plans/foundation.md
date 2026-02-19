@@ -65,7 +65,7 @@ completed(), Session::validated()).
 
 **DTOs** in `app/Data/`:
 
-- `ClientData` — readonly constructor properties, static `fromRequest()` method
+- `ClientData` — readonly constructor properties
 - `ProjectData` — same pattern
 
 **API Resources** in `app/Http/Resources/` (6 files):
@@ -125,23 +125,16 @@ Phase 1 settings: git_author_email, company_name, company_address, default_tjm, 
 ```
 GET  /                        → DashboardController (invokable, redirects to clients.index)
 Resource clients              → ClientController
-Resource projects             → ProjectController
+Resource projects             → ProjectController (nested under client)
 POST projects/{project}/repositories → ProjectRepositoryController@store
-DELETE repositories/{repository}     → ProjectRepositoryController@destroy
+DELETE projects/{project}/repositories/{repository}     → ProjectRepositoryController@destroy
 GET  settings                 → SettingsController@edit
 PUT  settings                 → SettingsController@update
 ```
 
 Create `DashboardController` as invokable — redirects to `clients.index` for now.
 
-## Step 9: HandleInertiaRequests update
-
-**Modify** `app/Http/Middleware/HandleInertiaRequests.php`:
-
-- Remove `auth.user` sharing (desktop app, no auth)
-- Add flash message sharing: `session('success')`, `session('error')`
-
-## Step 10: Vue Layout + Components + Pages
+## Step 9: Vue Layout + Components + Pages
 
 **Layout** `resources/js/layouts/AppLayout.vue`:
 
@@ -172,7 +165,7 @@ Create `DashboardController` as invokable — redirects to `clients.index` for n
 - `Projects/Edit.vue` — same form as Create, pre-filled, delete button
 - `Settings/Edit.vue` — settings form
 
-## Step 11: Seeder
+## Step 10: Seeder
 
 **`database/seeders/DatabaseSeeder.php`**:
 
@@ -183,7 +176,7 @@ Create `DashboardController` as invokable — redirects to `clients.index` for n
 - Activity events and time entries
 - Default app_settings
 
-## Step 12: Tests
+## Step 11: Tests
 
 **Feature tests** (by domain folder, named by action):
 
@@ -199,7 +192,7 @@ Each: `pest()->group('controllers', '<domain>')`, happy path + validation + acti
 - `tests/Unit/Actions/Projects/` — CreateProjectTest, UpdateProjectTest, DeleteProjectTest, AttachRepositoryTest, DetachRepositoryTest
 - `tests/Unit/Models/` — ClientTest, ProjectTest (relationships, scopes, casts)
 
-## Step 13: Verification
+## Step 12: Verification
 
 1. `vendor/bin/pint --dirty --format agent`
 2. `composer test:all` (lint + phpstan + pest)
@@ -210,4 +203,4 @@ Each: `pest()->group('controllers', '<domain>')`, happy path + validation + acti
 
 ## Implementation Order
 
-Steps 1–4 (data layer) → Steps 5–8 (backend CRUD + routes) → Step 9 (middleware) → Step 10 (frontend) → Step 11 (seeder) → Step 12 (tests) → Step 13 (verify)
+Steps 1–4 (data layer) → Steps 5–8 (backend CRUD + routes) → Step 9 (frontend) → Step 10 (seeder) → Step 11 (tests) → Step 12 (verify)

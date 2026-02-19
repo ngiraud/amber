@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Http\Requests\Client;
+namespace App\Http\Requests\Project;
 
+use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreClientRequest extends FormRequest
+class ListProjectRequest extends FormRequest
 {
     /**
      * Get the validation rules that apply to the request.
@@ -16,10 +18,8 @@ class StoreClientRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['required', 'string', 'max:255'],
-            'address' => ['nullable', 'array:line_1,line_2,city,zip'],
-            'contacts' => ['nullable', 'array:phone,email'],
-            'notes' => ['nullable', 'string'],
+            'project_id' => ['nullable', 'array'],
+            'project_id.*' => ['nullable', Rule::exists(Project::class, 'id')],
         ];
     }
 }

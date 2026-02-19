@@ -47,26 +47,26 @@ Route::get('/projects', [ProjectController::class, 'index'])
     ->can('viewAny', Project::class)
     ->name('projects.index');
 
-Route::get('/projects/create', [ProjectController::class, 'create'])
+Route::get('/clients/{client}/projects/create', [ProjectController::class, 'create'])
     ->can('create', Project::class)
     ->name('projects.create');
 
-Route::post('/projects', [ProjectController::class, 'store'])
+Route::post('/clients/{client}/projects', [ProjectController::class, 'store'])
     ->can('create', Project::class)
     ->name('projects.store');
 
-Route::get('/projects/{project}', [ProjectController::class, 'show'])
+Route::get('/clients/{client}/projects/{project}', [ProjectController::class, 'show'])
     ->can('view', 'project')
     ->name('projects.show');
 
-Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])
+Route::get('/clients/{client}/projects/{project}/edit', [ProjectController::class, 'edit'])
     ->can('update', 'project')
     ->name('projects.edit');
 
-Route::patch('/projects/{project}', [ProjectController::class, 'update'])
+Route::patch('/clients/{client}/projects/{project}', [ProjectController::class, 'update'])
     ->can('update', 'project')
     ->name('projects.update');
 
-Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])
+Route::delete('/clients/{client}/projects/{project}', [ProjectController::class, 'destroy'])
     ->can('delete', 'project')
     ->name('clients.destroy');

@@ -22,8 +22,8 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->unsignedTinyInteger('daily_reference_hours')->default(7);
             $table->unsignedTinyInteger('rounding')->default(RoundingStrategy::Quarter);
-            $table->unsignedInteger('hourly_rate_cents')->nullable()->comment('Hourly rate in cents');
-            $table->unsignedInteger('daily_rate_euros')->nullable()->comment('Daily rate in euros');
+            $table->unsignedInteger('hourly_rate')->nullable()->comment('Hourly rate in cents');
+            $table->unsignedInteger('daily_rate')->nullable()->comment('Daily rate in euros');
             $table->timestamps();
 
             $table->index(['client_id', 'is_active']);
