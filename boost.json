@@ -11,6 +11,12 @@
         "wayfinder-development",
         "pest-testing",
         "inertia-vue-development",
-        "tailwindcss-development"
+        "tailwindcss-development",
+        "complete-feature",
+        "create-feature",
+        "create-pr",
+        "implement-feature",
+        "update-boost",
+        "validate-feature"
     ]
 }
