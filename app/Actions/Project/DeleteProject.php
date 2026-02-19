@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace App\Actions\Project;
 
 use App\Actions\Action;
-use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Support\Facades\DB;
 
 class DeleteProject extends Action
 {
-    public function handle(Project $project): Client
+    public function handle(Project $project): void
     {
-        return DB::transaction(function () use ($project) {
-            return $project->delete();
+        DB::transaction(function () use ($project) {
+            $project->delete();
         });
     }
 }

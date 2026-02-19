@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Project;
 
-use App\Models\Client;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class ListProjectRequest extends FormRequest
+class StoreProjectRepositoryRequest extends FormRequest
 {
     /**
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -16,8 +14,8 @@ class ListProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => ['nullable', 'array'],
-            'client_id.*' => ['nullable', Rule::exists(Client::class, 'id')],
+            'local_path' => ['required', 'string', 'max:500'],
+            'name' => ['required', 'string', 'max:255'],
         ];
     }
 }

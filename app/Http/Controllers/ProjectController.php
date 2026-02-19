@@ -72,6 +72,8 @@ class ProjectController extends Controller
      */
     public function show(Client $client, Project $project): Response
     {
+        $project->load('repositories');
+
         return Inertia::render('project/Show', [
             'client' => ClientResource::make($client),
             'project' => ProjectResource::make($project),
@@ -83,7 +85,7 @@ class ProjectController extends Controller
      */
     public function edit(Client $client, Project $project): Response
     {
-        return Inertia::render('project/Show', [
+        return Inertia::render('project/Edit', [
             'client' => ClientResource::make($client),
             'project' => ProjectResource::make($project),
         ]);

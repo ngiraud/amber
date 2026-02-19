@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Project extends Model
 {
@@ -26,14 +27,55 @@ class Project extends Model
         return $this->belongsTo(Client::class);
     }
 
+    /**
+     * @return HasMany<ProjectRepository, $this>
+     */
+    public function repositories(): HasMany
+    {
+        return $this->hasMany(ProjectRepository::class);
+    }
+
+    /**
+     * @return HasMany<Session, $this>
+     */
+    public function sessions(): HasMany
+    {
+        return $this->hasMany(Session::class);
+    }
+
+    /**
+     * @return HasMany<ActivityEvent, $this>
+     */
+    public function activityEvents(): HasMany
+    {
+        return $this->hasMany(ActivityEvent::class);
+    }
+
+    /**
+     * @return HasMany<TimeEntry, $this>
+     */
+    public function timeEntries(): HasMany
+    {
+        return $this->hasMany(TimeEntry::class);
+    }
+
     #[Scope]
     protected function active(Builder $query): void
     {
         $query->where('is_active', true);
     }
 
-    /** @return Attribute<float, int> */
+    /** @return Attribute<float|null, int|null> */
     protected function hourlyRate(): Attribute
+    {
+        return Attribute::make(
+            get: fn (?int $value) => is_null($value) ? null : $value / 100,
+            set: fn (?float $value) => is_null($value) ? null : (int) round($value * 100),
+        );
+    }
+
+    /** @return Attribute<float|null, int|null> */
+    protected function dailyRate(): Attribute
     {
         return Attribute::make(
             get: fn (?int $value) => is_null($value) ? null : $value / 100,

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('daily_reference_hours')->default(7);
             $table->unsignedTinyInteger('rounding')->default(RoundingStrategy::Quarter);
             $table->unsignedInteger('hourly_rate')->nullable()->comment('Hourly rate in cents');
-            $table->unsignedInteger('daily_rate')->nullable()->comment('Daily rate in euros');
+            $table->unsignedInteger('daily_rate')->nullable()->comment('Daily rate in cents');
             $table->timestamps();
 
             $table->index(['client_id', 'is_active']);

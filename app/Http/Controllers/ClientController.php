@@ -24,7 +24,7 @@ class ClientController extends Controller
     public function index(): Response
     {
         return Inertia::render('client/Index', [
-            'clients' => ClientResource::collection(Client::query()->cursorPaginate()),
+            'clients' => ClientResource::collection(Client::query()->withCount('projects')->get()),
         ]);
     }
 
@@ -33,9 +33,7 @@ class ClientController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('client/Create', [
-            'clients' => ClientResource::collection(Client::query()->cursorPaginate()),
-        ]);
+        return Inertia::render('client/Create');
     }
 
     /**

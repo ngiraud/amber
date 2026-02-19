@@ -10,12 +10,11 @@ use Illuminate\Support\Facades\DB;
 
 class DeleteClient extends Action
 {
-    public function handle(Client $client): Client
+    public function handle(Client $client): void
     {
-        return DB::transaction(function () use ($client) {
+        DB::transaction(function () use ($client) {
             $client->projects()->delete();
-
-            return $client->delete();
+            $client->delete();
         });
     }
 }

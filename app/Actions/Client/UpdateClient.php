@@ -14,7 +14,9 @@ class UpdateClient extends Action
     public function handle(Client $client, ClientData $data): Client
     {
         return DB::transaction(function () use ($client, $data) {
-            return $client->update($data->toArray());
+            $client->update($data->toArray());
+
+            return $client;
         });
     }
 }
