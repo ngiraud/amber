@@ -6,7 +6,6 @@
 - Organize tests by domain using **singular** naming: `tests/Feature/Team/`, `tests/Feature/Billing/`
 - Group related controller methods in the same test file
 - Name `describe()` blocks using **action-centric** names: `describe('update team', ...)`
-- API tests belong in their **domain folder** with `pest()->group('api')`
 
 ## Test Groups
 
