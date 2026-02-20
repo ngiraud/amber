@@ -16,5 +16,3 @@ onUnmounted(() => {
     off();
 });
 </script>
-
-<template />

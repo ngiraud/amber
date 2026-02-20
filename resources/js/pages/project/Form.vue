@@ -4,6 +4,9 @@ import { computed, ref } from 'vue';
 import ColorPicker from '@/components/ColorPicker.vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import InputField from '@/components/InputField.vue';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -32,25 +35,37 @@ const confirmDelete = ref(false);
 <template>
     <AppLayout :title="isEditing ? `Edit — ${project!.name}` : 'New project'">
         <div class="max-w-lg">
-            <div class="flex items-center gap-3">
-                <Link :href="clientRoutes.index()" class="text-sm text-gray-500 hover:text-gray-700"> Clients </Link>
-                <span class="text-gray-300">/</span>
-                <Link :href="clientRoutes.show(client)" class="text-sm text-gray-500 hover:text-gray-700">
-                    {{ client.name }}
-                </Link>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink as-child>
+                            <Link :href="clientRoutes.index()">Clients</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbLink as-child>
+                            <Link :href="clientRoutes.show(client)">{{ client.name }}</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
 
-                <template v-if="isEditing">
-                    <span class="text-gray-300">/</span>
-                    <Link :href="projectRoutes.show({ client, project: project! })" class="text-sm text-gray-500 hover:text-gray-700">
-                        {{ project!.name }}
-                    </Link>
-                </template>
+                    <template v-if="isEditing">
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink as-child>
+                                <Link :href="projectRoutes.show({ client, project: project! })">{{ project!.name }}</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                    </template>
 
-                <span class="text-gray-300">/</span>
-                <span class="text-sm text-gray-900">{{ isEditing ? 'Edit' : 'New project' }}</span>
-            </div>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{{ isEditing ? 'Edit' : 'New project' }}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
-            <h1 class="mt-4 text-xl font-semibold text-gray-900">
+            <h1 class="mt-4 text-xl font-semibold">
                 {{ isEditing ? 'Edit project' : 'New project' }}
             </h1>
 
@@ -61,14 +76,7 @@ const confirmDelete = ref(false);
                 #default="{ errors, processing }"
             >
                 <InputField label="Name" :error="errors.name" required>
-                    <input
-                        name="name"
-                        type="text"
-                        :defaultValue="project?.name"
-                        class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                        :placeholder="isEditing ? undefined : 'My project'"
-                        autofocus
-                    />
+                    <Input name="name" type="text" :default-value="project?.name" :placeholder="isEditing ? undefined : 'My project'" autofocus />
                 </InputField>
 
                 <InputField label="Color" :error="errors.color">
@@ -77,25 +85,23 @@ const confirmDelete = ref(false);
 
                 <div class="grid grid-cols-2 gap-4">
                     <InputField label="Hourly rate (€)" :error="errors.hourly_rate">
-                        <input
+                        <Input
                             name="hourly_rate"
                             type="number"
                             min="0"
                             step="0.01"
-                            :defaultValue="project?.hourly_rate ?? undefined"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                            :default-value="project?.hourly_rate ?? undefined"
                             placeholder="0.00"
                         />
                     </InputField>
 
                     <InputField label="Daily rate (€)" :error="errors.daily_rate">
-                        <input
+                        <Input
                             name="daily_rate"
                             type="number"
                             min="0"
                             step="0.01"
-                            :defaultValue="project?.daily_rate ?? undefined"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                            :default-value="project?.daily_rate ?? undefined"
                             placeholder="0.00"
                         />
                     </InputField>
@@ -103,18 +109,14 @@ const confirmDelete = ref(false);
 
                 <div class="grid grid-cols-2 gap-4">
                     <InputField label="Daily reference hours" :error="errors.daily_reference_hours">
-                        <input
-                            name="daily_reference_hours"
-                            type="number"
-                            min="1"
-                            max="24"
-                            :defaultValue="project?.daily_reference_hours ?? 7"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                        />
+                        <Input name="daily_reference_hours" type="number" min="1" max="24" :default-value="project?.daily_reference_hours ?? 7" />
                     </InputField>
 
                     <InputField label="Rounding" :error="errors.rounding">
-                        <select name="rounding" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none">
+                        <select
+                            name="rounding"
+                            class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                        >
                             <option
                                 v-for="option in ROUNDING_OPTIONS"
                                 :key="option.value"
@@ -128,31 +130,37 @@ const confirmDelete = ref(false);
                 </div>
 
                 <label class="flex items-center gap-2.5">
-                    <input type="checkbox" name="is_active" value="1" :checked="project?.is_active ?? true" class="rounded border-gray-300" />
-                    <span class="text-sm text-gray-700">Active project</span>
+                    <input
+                        type="checkbox"
+                        name="is_active"
+                        value="1"
+                        :checked="project?.is_active ?? true"
+                        class="h-4 w-4 rounded border-input accent-foreground"
+                    />
+                    <span class="text-sm">Active project</span>
                 </label>
 
                 <div class="flex items-center justify-between pt-2">
                     <div class="flex items-center gap-3">
-                        <button
-                            type="submit"
-                            :disabled="processing"
-                            class="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-                        >
+                        <Button type="submit" :disabled="processing">
                             {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create project' }}
-                        </button>
+                        </Button>
 
-                        <Link
-                            :href="isEditing ? projectRoutes.show({ client, project: project! }) : clientRoutes.show(client)"
-                            class="text-sm text-gray-500 hover:text-gray-700"
-                        >
-                            Cancel
-                        </Link>
+                        <Button variant="ghost" size="sm" as-child>
+                            <Link :href="isEditing ? projectRoutes.show({ client, project: project! }) : clientRoutes.show(client)"> Cancel </Link>
+                        </Button>
                     </div>
 
-                    <button v-if="isEditing" type="button" class="text-sm text-red-600 hover:text-red-700" @click="confirmDelete = true">
+                    <Button
+                        v-if="isEditing"
+                        variant="ghost"
+                        size="sm"
+                        class="text-destructive hover:text-destructive"
+                        type="button"
+                        @click="confirmDelete = true"
+                    >
                         Delete project
-                    </button>
+                    </Button>
                 </div>
             </Form>
         </div>

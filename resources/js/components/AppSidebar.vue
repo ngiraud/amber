@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { SettingsIcon, UsersIcon } from 'lucide-vue-next';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
+import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import * as clientRoutes from '@/routes/clients';
 import * as settingsRoutes from '@/routes/settings';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
-import { useCurrentUrl } from '@/composables/useCurrentUrl';
 
 const { isCurrentUrl } = useCurrentUrl();
 </script>
