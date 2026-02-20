@@ -2,6 +2,10 @@
 
 - Every documentated code should be exclusively in English.
 
+## NativePHP Desktop Documentation
+
+- Always use Context7 MCP when I need library/API documentation for NativePHP
+
 ## Namespace Imports
 
 - Always import classes with `use` statements at the top of the file

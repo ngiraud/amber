@@ -5,6 +5,10 @@
 
 - Every documentated code should be exclusively in English.
 
+## NativePHP Desktop Documentation
+
+- Always use Context7 MCP when I need library/API documentation for NativePHP
+
 ## Namespace Imports
 
 - Always import classes with `use` statements at the top of the file
@@ -70,7 +74,6 @@
 - Organize tests by domain using **singular** naming: `tests/Feature/Team/`, `tests/Feature/Billing/`
 - Group related controller methods in the same test file
 - Name `describe()` blocks using **action-centric** names: `describe('update team', ...)`
-- API tests belong in their **domain folder** with `pest()->group('api')`
 
 ## Test Groups
 
@@ -270,6 +273,13 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 - The application is served by Laravel Herd and will be available at: `https?://[kebab-case-project-dir].test`. Use the `get-absolute-url` tool to generate valid URLs for the user.
 - You must not run any commands to make the site available via HTTP(S). It is always available through Laravel Herd.
+
+=== tests rules ===
+
+# Test Enforcement
+
+- Every change must be programmatically tested. Write a new test or update an existing test, then run the affected tests to make sure they pass.
+- Run the minimum number of tests needed to ensure code quality and speed. Use `php artisan test --compact` with a specific filename or filter.
 
 === inertia-laravel/core rules ===
 
