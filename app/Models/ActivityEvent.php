@@ -41,9 +41,9 @@ class ActivityEvent extends Model
 
     /**
      * @return array{
-     *   type: class-string<ActivityEventType>,
+     *   type: 'App\\Enums\\ActivityEventType',
      *   occurred_at: 'datetime',
-     *   metadata: 'array',
+     *   metadata: 'array'
      * }
      */
     protected function casts(): array

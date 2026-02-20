@@ -44,7 +44,7 @@ class Session extends Model
      * @return array{
      *   started_at: 'datetime',
      *   ended_at: 'datetime',
-     *   source: class-string<SessionSource>,
+     *   source: 'App\\Enums\\SessionSource',
      *   is_validated: 'boolean',
      * }
      */

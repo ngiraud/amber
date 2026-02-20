@@ -20,11 +20,7 @@ function isActive(prefix: string): boolean {
             <Link
                 :href="clientRoutes.index().url"
                 class="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
-                :class="
-                    isActive('/clients')
-                        ? 'bg-white/10 text-white'
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                "
+                :class="isActive('/clients') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
             >
                 Clients
             </Link>
@@ -34,11 +30,7 @@ function isActive(prefix: string): boolean {
             <Link
                 :href="settingsRoutes.edit().url"
                 class="flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors"
-                :class="
-                    isActive('/settings')
-                        ? 'bg-white/10 text-white'
-                        : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                "
+                :class="isActive('/settings') ? 'bg-white/10 text-white' : 'text-gray-400 hover:bg-white/5 hover:text-white'"
             >
                 Settings
             </Link>

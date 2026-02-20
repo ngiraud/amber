@@ -22,9 +22,7 @@ const ROUNDING_OPTIONS = [
 
 const isEditing = computed(() => !!props.project);
 const action = computed(() =>
-    isEditing.value
-        ? projectRoutes.update({ client: props.client, project: props.project! })
-        : projectRoutes.store(props.client),
+    isEditing.value ? projectRoutes.update({ client: props.client, project: props.project! }) : projectRoutes.store(props.client),
 );
 
 const color = ref(props.project?.color ?? '#6366f1');
@@ -116,10 +114,7 @@ const confirmDelete = ref(false);
                     </InputField>
 
                     <InputField label="Rounding" :error="errors.rounding">
-                        <select
-                            name="rounding"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                        >
+                        <select name="rounding" class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none">
                             <option
                                 v-for="option in ROUNDING_OPTIONS"
                                 :key="option.value"
@@ -133,13 +128,7 @@ const confirmDelete = ref(false);
                 </div>
 
                 <label class="flex items-center gap-2.5">
-                    <input
-                        type="checkbox"
-                        name="is_active"
-                        value="1"
-                        :checked="project?.is_active ?? true"
-                        class="rounded border-gray-300"
-                    />
+                    <input type="checkbox" name="is_active" value="1" :checked="project?.is_active ?? true" class="rounded border-gray-300" />
                     <span class="text-sm text-gray-700">Active project</span>
                 </label>
 
@@ -150,7 +139,7 @@ const confirmDelete = ref(false);
                             :disabled="processing"
                             class="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
                         >
-                            {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : (isEditing ? 'Save changes' : 'Create project') }}
+                            {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create project' }}
                         </button>
 
                         <Link
@@ -161,23 +150,14 @@ const confirmDelete = ref(false);
                         </Link>
                     </div>
 
-                    <button
-                        v-if="isEditing"
-                        type="button"
-                        class="text-sm text-red-600 hover:text-red-700"
-                        @click="confirmDelete = true"
-                    >
+                    <button v-if="isEditing" type="button" class="text-sm text-red-600 hover:text-red-700" @click="confirmDelete = true">
                         Delete project
                     </button>
                 </div>
             </Form>
         </div>
 
-        <Form
-            v-if="isEditing"
-            :action="projectRoutes.destroy({ client, project: project! })"
-            #default="{ submit }"
-        >
+        <Form v-if="isEditing" :action="projectRoutes.destroy({ client, project: project! })" #default="{ submit }">
             <ConfirmDialog
                 :open="confirmDelete"
                 title="Delete project"

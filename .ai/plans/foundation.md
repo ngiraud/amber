@@ -172,25 +172,16 @@ Create `DashboardController` as invokable — redirects to `clients.index` for n
 - 2 Clients (e.g., "Acme Corp", "Startup Inc")
 - 3 Projects across them with different colors/rates
 - 2 repositories per project
-- A few sessions (some completed)
-- Activity events and time entries
-- Default app_settings
 
 ## Step 11: Tests
 
 **Feature tests** (by domain folder, named by action):
 
-- `tests/Feature/Client/` — CreateClientTest, UpdateClientTest, DeleteClientTest
-- `tests/Feature/Project/` — CreateProjectTest, UpdateProjectTest, DeleteProjectTest, ManageRepositoriesTest
-- `tests/Feature/Settings/` — UpdateSettingsTest
+- `tests/Feature/Client` — CreateClientTest, UpdateClientTest, DeleteClientTest
+- `tests/Feature/Project` — CreateProjectTest, UpdateProjectTest, DeleteProjectTest, ManageRepositoriesTest
+- `tests/Feature/Settings` — UpdateSettingsTest
 
-Each: `pest()->group('controllers', '<domain>')`, happy path + validation + action delegation via `Action::fake()`
-
-**Unit tests** (action logic):
-
-- `tests/Unit/Actions/Clients/` — CreateClientTest, UpdateClientTest, DeleteClientTest
-- `tests/Unit/Actions/Projects/` — CreateProjectTest, UpdateProjectTest, DeleteProjectTest, AttachRepositoryTest, DetachRepositoryTest
-- `tests/Unit/Models/` — ClientTest, ProjectTest (relationships, scopes, casts)
+Follow testing conventions.
 
 ## Step 12: Verification
 

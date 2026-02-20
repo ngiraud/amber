@@ -22,11 +22,7 @@ const emit = defineEmits<{
             leave-from-class="opacity-100"
             leave-to-class="opacity-0"
         >
-            <div
-                v-if="open"
-                class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-                @click.self="emit('cancel')"
-            >
+            <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center bg-black/40" @click.self="emit('cancel')">
                 <div class="w-full max-w-sm rounded-xl bg-white p-6 shadow-xl">
                     <h3 class="text-base font-semibold text-gray-900">{{ title }}</h3>
                     <p class="mt-2 text-sm text-gray-500">{{ message }}</p>

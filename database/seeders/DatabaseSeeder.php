@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
+use App\Enums\RoundingStrategy;
+use App\Models\Client;
+use App\Models\Project;
+use App\Models\User;
 use Illuminate\Database\Seeder;
-
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class DatabaseSeeder extends Seeder
 {
@@ -15,6 +17,56 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::factory()->create([
+            'name' => 'Nico',
+            'email' => 'contact@ngiraud.me',
+        ]);
+
+        $acme = Client::factory()->create(['name' => 'Acme Corp']);
+        $startup = Client::factory()->create(['name' => 'Startup Inc']);
+
+        $website = Project::factory()->create([
+            'client_id' => $acme->id,
+            'name' => 'Website Redesign',
+            'color' => '#6366f1',
+            'daily_rate' => 800,
+            'hourly_rate' => null,
+            'rounding' => RoundingStrategy::Quarter,
+            'is_active' => true,
+        ]);
+
+        $website->repositories()->createMany([
+            ['local_path' => '/Users/nico/code/acme-website', 'name' => 'acme-website'],
+            ['local_path' => '/Users/nico/code/acme-api', 'name' => 'acme-api'],
+        ]);
+
+        $mobile = Project::factory()->create([
+            'client_id' => $acme->id,
+            'name' => 'Mobile App',
+            'color' => '#f59e0b',
+            'hourly_rate' => 95,
+            'daily_rate' => null,
+            'rounding' => RoundingStrategy::HalfHour,
+            'is_active' => true,
+        ]);
+
+        $mobile->repositories()->createMany([
+            ['local_path' => '/Users/nico/code/acme-mobile', 'name' => 'acme-mobile'],
+            ['local_path' => '/Users/nico/code/acme-mobile-api', 'name' => 'acme-mobile-api'],
+        ]);
+
+        $saas = Project::factory()->inactive()->create([
+            'client_id' => $startup->id,
+            'name' => 'SaaS Platform',
+            'color' => '#10b981',
+            'daily_rate' => 700,
+            'hourly_rate' => null,
+            'rounding' => RoundingStrategy::Hour,
+        ]);
+
+        $saas->repositories()->createMany([
+            ['local_path' => '/Users/nico/code/startup-saas', 'name' => 'startup-saas'],
+            ['local_path' => '/Users/nico/code/startup-backend', 'name' => 'startup-backend'],
+        ]);
     }
 }

@@ -23,12 +23,6 @@ class Client extends Model
         return $this->hasMany(Project::class);
     }
 
-    /**
-     * @return array{
-     *   address: '\Illuminate\Database\Eloquent\Casts\AsCollection',
-     *   contacts: '\Illuminate\Database\Eloquent\Casts\AsCollection',
-     * }
-     */
     protected function casts(): array
     {
         return [

@@ -107,7 +107,7 @@ const confirmDelete = ref(false);
             <div v-else class="mt-3 text-sm text-gray-500">No repositories linked yet.</div>
 
             <!-- Add repository form -->
-            <Form class="mt-4 flex flex-col gap-3" :action="repositories.store(project)" #default="{ errors, processing, reset }">
+            <Form class="mt-4 flex flex-col gap-3" :action="repositories.store(project)" #default="{ errors, processing }">
                 <div class="grid grid-cols-2 gap-3">
                     <InputField label="Repository name" :error="errors.name">
                         <input

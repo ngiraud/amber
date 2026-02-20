@@ -36,7 +36,7 @@ class TimeEntry extends Model
      *   date: 'date',
      *   started_at: 'datetime',
      *   ended_at: 'datetime',
-     *   source: class-string<TimeEntrySource>,
+     *   source: 'App\\Enums\\TimeEntrySource',
      *   is_validated: 'boolean',
      * }
      */

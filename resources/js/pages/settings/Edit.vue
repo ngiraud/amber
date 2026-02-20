@@ -5,7 +5,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import * as settingsRoutes from '@/routes/settings';
 import type { AppSettings } from '@/types';
 
-const props = defineProps<{
+defineProps<{
     settings: AppSettings;
 }>();
 
@@ -35,21 +35,12 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
         <div class="max-w-lg">
             <h1 class="text-xl font-semibold text-gray-900">Settings</h1>
 
-            <Form
-                class="mt-6 flex flex-col gap-8"
-                :action="settingsRoutes.update()"
-                :transform="transformSettings"
-                #default="{ errors, processing }"
-            >
+            <Form class="mt-6 flex flex-col gap-8" :action="settingsRoutes.update()" :transform="transformSettings" #default="{ errors, processing }">
                 <!-- Git -->
                 <section class="flex flex-col gap-4">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Git</h2>
+                    <h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Git</h2>
 
-                    <InputField
-                        label="Author emails"
-                        :error="errors.git_author_emails"
-                        hint="Comma-separated list of emails used in git commits"
-                    >
+                    <InputField label="Author emails" :error="errors.git_author_emails" hint="Comma-separated list of emails used in git commits">
                         <input
                             name="git_author_emails"
                             type="text"
@@ -62,7 +53,7 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
 
                 <!-- Company -->
                 <section class="flex flex-col gap-4">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Company</h2>
+                    <h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Company</h2>
 
                     <InputField label="Company name" :error="errors.company_name">
                         <input
@@ -85,7 +76,7 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
 
                 <!-- Defaults -->
                 <section class="flex flex-col gap-4">
-                    <h2 class="text-sm font-semibold uppercase tracking-wide text-gray-400">Defaults</h2>
+                    <h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Defaults</h2>
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputField label="Hourly rate (€)" :error="errors.default_hourly_rate">

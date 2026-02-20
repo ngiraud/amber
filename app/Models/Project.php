@@ -86,6 +86,7 @@ class Project extends Model
     /**
      * @return array{
      *   is_active: 'boolean',
+     *   rounding: 'App\\Enums\\RoundingStrategy'
      * }
      */
     protected function casts(): array
