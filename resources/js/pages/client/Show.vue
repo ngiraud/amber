@@ -2,6 +2,9 @@
 import { Form, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -17,27 +20,26 @@ const confirmDelete = ref(false);
 <template>
     <AppLayout :title="client.name">
         <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <Link :href="clientRoutes.index()" class="text-sm text-gray-500 hover:text-gray-700"> Clients </Link>
-                <span class="text-gray-300">/</span>
-                <span class="text-sm text-gray-900">{{ client.name }}</span>
-            </div>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink as-child>
+                            <Link :href="clientRoutes.index()">Clients</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{{ client.name }}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
             <div class="flex gap-2">
-                <Link
-                    :href="clientRoutes.edit(client)"
-                    class="rounded-md border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
-                >
-                    Edit
-                </Link>
+                <Button variant="outline" size="sm" as-child>
+                    <Link :href="clientRoutes.edit(client)">Edit</Link>
+                </Button>
 
-                <button
-                    type="button"
-                    class="cursor-pointer rounded-md border border-red-600 bg-red-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-red-700"
-                    @click="confirmDelete = true"
-                >
-                    Delete
-                </button>
+                <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 
                 <Form :action="clientRoutes.destroy(client!)" #default="{ submit }">
                     <ConfirmDialog
@@ -52,39 +54,42 @@ const confirmDelete = ref(false);
         </div>
 
         <div class="mt-6">
-            <div v-if="client.notes" class="mb-6 text-sm text-gray-600">{{ client.notes }}</div>
+            <p v-if="client.notes" class="mb-6 text-sm text-muted-foreground">{{ client.notes }}</p>
 
             <div class="flex items-center justify-between">
-                <h2 class="text-base font-semibold text-gray-900">Projects</h2>
+                <h2 class="text-base font-semibold">Projects</h2>
 
-                <Link
-                    :href="projectRoutes.create(client)"
-                    class="rounded-md bg-gray-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-gray-700"
-                >
-                    Add project
-                </Link>
+                <Button size="sm" as-child>
+                    <Link :href="projectRoutes.create(client)">Add project</Link>
+                </Button>
             </div>
 
             <div v-if="!client.projects?.length" class="mt-6 text-center">
-                <p class="text-sm text-gray-500">No projects yet.</p>
+                <p class="text-sm text-muted-foreground">No projects yet.</p>
             </div>
 
-            <div v-else class="mt-4 grid grid-cols-2 gap-4">
+            <div v-else class="mt-4 grid grid-cols-2 gap-3">
                 <Link
                     v-for="project in client.projects"
                     :key="project.id"
                     :href="projectRoutes.show({ client: client, project: project })"
-                    class="flex flex-col gap-2 rounded-lg border border-gray-200 bg-white p-4 transition-colors hover:border-gray-300 hover:bg-gray-50"
+                    class="flex flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
                 >
                     <div class="flex items-center gap-2.5">
                         <div class="h-3 w-3 shrink-0 rounded-full" :style="{ backgroundColor: project.color }" />
-                        <span class="text-sm font-medium text-gray-900">{{ project.name }}</span>
-                        <span v-if="!project.is_active" class="ml-auto rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-500"> Inactive </span>
+                        <span class="text-sm font-medium">{{ project.name }}</span>
+                        <Badge v-if="!project.is_active" variant="secondary" class="ml-auto text-xs">Inactive</Badge>
                     </div>
 
-                    <div class="flex gap-4 text-xs text-gray-400">
-                        <span v-if="project.daily_rate_formatted"> {{ project.daily_rate_formatted }}/day </span>
-                        <span v-if="project.hourly_rate_formatted"> {{ project.hourly_rate_formatted }}/hr </span>
+                    <div class="flex gap-4 text-xs text-muted-foreground">
+                        <span v-if="project.daily_rate_formatted">
+                            <span class="font-medium text-foreground">{{ project.daily_rate_formatted }}</span
+                            >/day
+                        </span>
+                        <span v-if="project.hourly_rate_formatted">
+                            <span class="font-medium text-foreground">{{ project.hourly_rate_formatted }}</span
+                            >/hr
+                        </span>
                     </div>
                 </Link>
             </div>

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import InputField from '@/components/InputField.vue';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as settingsRoutes from '@/routes/settings';
 import type { AppSettings } from '@/types';
@@ -33,72 +37,60 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
 <template>
     <AppLayout title="Settings">
         <div class="max-w-lg">
-            <h1 class="text-xl font-semibold text-gray-900">Settings</h1>
+            <h1 class="text-xl font-semibold">Settings</h1>
 
             <Form class="mt-6 flex flex-col gap-8" :action="settingsRoutes.update()" :transform="transformSettings" #default="{ errors, processing }">
-                <!-- Git -->
                 <section class="flex flex-col gap-4">
-                    <h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Git</h2>
+                    <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Git</h2>
 
                     <InputField label="Author emails" :error="errors.git_author_emails" hint="Comma-separated list of emails used in git commits">
-                        <input
+                        <Input
                             name="git_author_emails"
                             type="text"
-                            :defaultValue="settings.git_author_emails?.join(', ')"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                            :default-value="settings.git_author_emails?.join(', ')"
                             placeholder="me@example.com, work@example.com"
                         />
                     </InputField>
                 </section>
 
-                <!-- Company -->
+                <Separator />
+
                 <section class="flex flex-col gap-4">
-                    <h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Company</h2>
+                    <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Company</h2>
 
                     <InputField label="Company name" :error="errors.company_name">
-                        <input
-                            name="company_name"
-                            type="text"
-                            :defaultValue="settings.company_name ?? undefined"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                        />
+                        <Input name="company_name" type="text" :default-value="settings.company_name ?? undefined" />
                     </InputField>
 
                     <InputField label="Company address" :error="errors.company_address">
-                        <textarea
-                            name="company_address"
-                            rows="2"
-                            :defaultValue="settings.company_address ?? undefined"
-                            class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                        />
+                        <Textarea name="company_address" rows="2" :default-value="settings.company_address ?? undefined" />
                     </InputField>
                 </section>
 
-                <!-- Defaults -->
+                <Separator />
+
                 <section class="flex flex-col gap-4">
-                    <h2 class="text-sm font-semibold tracking-wide text-gray-400 uppercase">Defaults</h2>
+                    <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Defaults</h2>
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputField label="Hourly rate (€)" :error="errors.default_hourly_rate">
-                            <input
+                            <Input
                                 name="default_hourly_rate"
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                :defaultValue="settings.default_hourly_rate ?? undefined"
-                                class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                                :default-value="settings.default_hourly_rate ?? undefined"
                                 placeholder="0.00"
                             />
                         </InputField>
 
                         <InputField label="Daily rate (€)" :error="errors.default_daily_rate">
-                            <input
+                            <Input
                                 name="default_daily_rate"
                                 type="number"
                                 min="0"
                                 step="0.01"
-                                :defaultValue="settings.default_daily_rate ?? undefined"
-                                class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                                :default-value="settings.default_daily_rate ?? undefined"
                                 placeholder="0.00"
                             />
                         </InputField>
@@ -106,20 +98,19 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputField label="Daily reference hours" :error="errors.default_daily_reference_hours">
-                            <input
+                            <Input
                                 name="default_daily_reference_hours"
                                 type="number"
                                 min="1"
                                 max="24"
-                                :defaultValue="settings.default_daily_reference_hours ?? 7"
-                                class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                                :default-value="settings.default_daily_reference_hours ?? 7"
                             />
                         </InputField>
 
                         <InputField label="Rounding" :error="errors.default_rounding_strategy">
                             <select
                                 name="default_rounding_strategy"
-                                class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                                class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                             >
                                 <option
                                     v-for="option in ROUNDING_OPTIONS"
@@ -135,13 +126,9 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
                 </section>
 
                 <div class="flex items-center gap-3">
-                    <button
-                        type="submit"
-                        :disabled="processing"
-                        class="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-                    >
+                    <Button type="submit" :disabled="processing">
                         {{ processing ? 'Saving…' : 'Save settings' }}
-                    </button>
+                    </Button>
                 </div>
             </Form>
         </div>
