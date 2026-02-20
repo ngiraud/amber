@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import type { Client, Paginator } from '@/types';
@@ -12,46 +14,52 @@ defineProps<{
 <template>
     <AppLayout title="Clients">
         <div class="flex items-center justify-between">
-            <h1 class="text-xl font-semibold text-gray-900">Clients</h1>
+            <h1 class="text-xl font-semibold">Clients</h1>
 
-            <Link :href="clientRoutes.create()" class="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700">
-                New client
-            </Link>
+            <Button as-child size="sm">
+                <Link :href="clientRoutes.create()">New client</Link>
+            </Button>
         </div>
 
         <div v-if="clients.data.length === 0" class="mt-12 text-center">
-            <p class="text-sm text-gray-500">No clients yet.</p>
-            <Link :href="clientRoutes.create()" class="mt-3 inline-block text-sm font-medium text-gray-900 underline"> Add your first client </Link>
+            <p class="text-sm text-muted-foreground">No clients yet.</p>
+            <Link :href="clientRoutes.create()" class="mt-3 inline-block text-sm font-medium underline underline-offset-4">
+                Add your first client
+            </Link>
         </div>
 
-        <div v-else class="mt-6 flex flex-col gap-2">
+        <div v-else class="mt-6 flex flex-col gap-1.5">
             <Link
                 v-for="client in clients.data"
                 :key="client.id"
                 :href="clientRoutes.show(client)"
-                class="flex items-center justify-between rounded-lg border border-gray-200 bg-white px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-50"
+                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent"
             >
                 <div>
-                    <p class="text-sm font-medium text-gray-900">{{ client.name }}</p>
-                    <p v-if="client.notes" class="mt-0.5 line-clamp-1 text-xs text-gray-400">
+                    <p class="text-sm font-medium">{{ client.name }}</p>
+                    <p v-if="client.notes" class="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
                         {{ client.notes }}
                     </p>
                 </div>
 
-                <span class="text-xs text-gray-400">
+                <Badge variant="secondary">
                     {{ client.projects_count ?? 0 }}
                     {{ (client.projects_count ?? 0) === 1 ? 'project' : 'projects' }}
-                </span>
+                </Badge>
             </Link>
 
             <div v-if="clients.last_page > 1" class="mt-4 flex items-center justify-between">
-                <Link v-if="clients.prev_page_url" :href="clients.prev_page_url" class="text-sm text-gray-500 hover:text-gray-700"> ← Previous </Link>
-                <span v-else class="text-sm text-gray-300">← Previous</span>
+                <Button v-if="clients.prev_page_url" variant="ghost" size="sm" as-child>
+                    <Link :href="clients.prev_page_url">← Previous</Link>
+                </Button>
+                <span v-else class="text-sm text-muted-foreground/40">← Previous</span>
 
-                <span class="text-xs text-gray-400"> Page {{ clients.current_page }} of {{ clients.last_page }} </span>
+                <span class="text-xs text-muted-foreground">Page {{ clients.current_page }} of {{ clients.last_page }}</span>
 
-                <Link v-if="clients.next_page_url" :href="clients.next_page_url" class="text-sm text-gray-500 hover:text-gray-700"> Next → </Link>
-                <span v-else class="text-sm text-gray-300">Next →</span>
+                <Button v-if="clients.next_page_url" variant="ghost" size="sm" as-child>
+                    <Link :href="clients.next_page_url">Next →</Link>
+                </Button>
+                <span v-else class="text-sm text-muted-foreground/40">Next →</span>
             </div>
         </div>
     </AppLayout>

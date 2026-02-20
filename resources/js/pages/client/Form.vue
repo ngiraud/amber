@@ -3,6 +3,10 @@ import { Form, Link } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import InputField from '@/components/InputField.vue';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import type { Client } from '@/types';
@@ -20,64 +24,69 @@ const confirmDelete = ref(false);
 <template>
     <AppLayout :title="isEditing ? `Edit — ${client!.name}` : 'New client'">
         <div class="max-w-lg">
-            <div class="flex items-center gap-3">
-                <Link :href="clientRoutes.index()" class="text-sm text-gray-500 hover:text-gray-700"> Clients </Link>
+            <Breadcrumb>
+                <BreadcrumbList>
+                    <BreadcrumbItem>
+                        <BreadcrumbLink as-child>
+                            <Link :href="clientRoutes.index()">Clients</Link>
+                        </BreadcrumbLink>
+                    </BreadcrumbItem>
 
-                <template v-if="isEditing">
-                    <span class="text-gray-300">/</span>
-                    <Link :href="clientRoutes.show(client!)" class="text-sm text-gray-500 hover:text-gray-700">
-                        {{ client!.name }}
-                    </Link>
-                </template>
+                    <template v-if="isEditing">
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbLink as-child>
+                                <Link :href="clientRoutes.show(client!)">{{ client!.name }}</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                    </template>
 
-                <span class="text-gray-300">/</span>
-                <span class="text-sm text-gray-900">{{ isEditing ? 'Edit' : 'New client' }}</span>
-            </div>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                        <BreadcrumbPage>{{ isEditing ? 'Edit' : 'New client' }}</BreadcrumbPage>
+                    </BreadcrumbItem>
+                </BreadcrumbList>
+            </Breadcrumb>
 
-            <h1 class="mt-4 text-xl font-semibold text-gray-900">
+            <h1 class="mt-4 text-xl font-semibold">
                 {{ isEditing ? 'Edit client' : 'New client' }}
             </h1>
 
             <Form class="mt-6 flex flex-col gap-5" :action="action" #default="{ errors, processing }">
                 <InputField label="Name" :error="errors.name" required>
-                    <input
-                        name="name"
-                        type="text"
-                        :defaultValue="client?.name"
-                        class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
-                        :placeholder="isEditing ? undefined : 'Acme Corp'"
-                        autofocus
-                    />
+                    <Input name="name" type="text" :default-value="client?.name" :placeholder="isEditing ? undefined : 'Acme Corp'" autofocus />
                 </InputField>
 
                 <InputField label="Notes" :error="errors.notes">
-                    <textarea
+                    <Textarea
                         name="notes"
                         rows="3"
-                        :defaultValue="client?.notes ?? undefined"
-                        class="rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-gray-400 focus:outline-none"
+                        :default-value="client?.notes ?? undefined"
                         :placeholder="isEditing ? undefined : 'Optional notes about this client…'"
                     />
                 </InputField>
 
                 <div class="flex items-center justify-between pt-2">
                     <div class="flex items-center gap-3">
-                        <button
-                            type="submit"
-                            :disabled="processing"
-                            class="rounded-md bg-gray-900 px-4 py-2 text-sm font-medium text-white hover:bg-gray-700 disabled:opacity-50"
-                        >
+                        <Button type="submit" :disabled="processing">
                             {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create client' }}
-                        </button>
+                        </Button>
 
-                        <Link :href="isEditing ? clientRoutes.show(client!) : clientRoutes.index()" class="text-sm text-gray-500 hover:text-gray-700">
-                            Cancel
-                        </Link>
+                        <Button variant="ghost" size="sm" as-child>
+                            <Link :href="isEditing ? clientRoutes.show(client!) : clientRoutes.index()">Cancel</Link>
+                        </Button>
                     </div>
 
-                    <button v-if="isEditing" type="button" class="text-sm text-red-600 hover:text-red-700" @click="confirmDelete = true">
+                    <Button
+                        v-if="isEditing"
+                        variant="ghost"
+                        size="sm"
+                        class="text-destructive hover:text-destructive"
+                        type="button"
+                        @click="confirmDelete = true"
+                    >
                         Delete client
-                    </button>
+                    </Button>
                 </div>
             </Form>
         </div>

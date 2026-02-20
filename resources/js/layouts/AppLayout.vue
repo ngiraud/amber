@@ -2,6 +2,8 @@
 import { Head } from '@inertiajs/vue3';
 import AppSidebar from '@/components/AppSidebar.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
+import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
+import { Toaster } from '@/components/ui/sonner';
 
 defineProps<{
     title?: string;
@@ -11,15 +13,15 @@ defineProps<{
 <template>
     <Head :title="title" />
 
-    <div class="flex h-screen overflow-hidden bg-gray-50 text-gray-900">
+    <SidebarProvider class="h-screen overflow-hidden">
         <AppSidebar />
-
-        <div class="flex flex-1 flex-col overflow-hidden">
-            <main class="flex-1 overflow-y-auto p-8">
+        <SidebarInset class="overflow-y-auto">
+            <main class="p-8">
                 <slot />
             </main>
-        </div>
+        </SidebarInset>
+    </SidebarProvider>
 
-        <FlashMessage />
-    </div>
+    <Toaster />
+    <FlashMessage />
 </template>
