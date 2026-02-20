@@ -24,7 +24,9 @@ class ClientController extends Controller
     public function index(): Response
     {
         return Inertia::render('client/Index', [
-            'clients' => ClientResource::collection(Client::query()->withCount('projects')->get()),
+            'clients' => ClientResource::collection(
+                Client::query()->withCount('projects')->latest('id')->paginate()
+            ),
         ]);
     }
 
@@ -33,7 +35,7 @@ class ClientController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('client/Create');
+        return Inertia::render('client/Form');
     }
 
     /**
@@ -63,7 +65,7 @@ class ClientController extends Controller
      */
     public function edit(Client $client): Response
     {
-        return Inertia::render('client/Edit', [
+        return Inertia::render('client/Form', [
             'client' => ClientResource::make($client),
         ]);
     }

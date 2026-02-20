@@ -8,14 +8,12 @@ use App\Actions\Project\CreateProject;
 use App\Actions\Project\DeleteProject;
 use App\Actions\Project\UpdateProject;
 use App\Data\ProjectData;
-use App\Http\Requests\Project\ListProjectRequest;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\ProjectResource;
 use App\Models\Client;
 use App\Models\Project;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -23,36 +21,11 @@ use Inertia\Response;
 class ProjectController extends Controller
 {
     /**
-     * Display a listing of the resource.
-     */
-    public function index(ListProjectRequest $request): Response
-    {
-        $filteredClients = $request->validated('client_id');
-        $hasMoreClients = count($filteredClients) > 1;
-
-        return Inertia::render('project/Index', [
-            'projects' => ProjectResource::collection(
-                Project::query()
-                    ->with('client')
-                    ->when(
-                        ! empty($filteredClients) && $hasMoreClients,
-                        fn (Builder $query) => $query->whereIn('client_id', $filteredClients)
-                    )
-                    ->when(
-                        ! empty($filteredClients) && ! $hasMoreClients,
-                        fn (Builder $query) => $query->where('client_id', $filteredClients)
-                    )
-                    ->cursorPaginate()
-            ),
-        ]);
-    }
-
-    /**
      * Show the form for creating a new resource.
      */
     public function create(Client $client): Response
     {
-        return Inertia::render('project/Create', [
+        return Inertia::render('project/Form', [
             'client' => ClientResource::make($client),
         ]);
     }
@@ -85,7 +58,7 @@ class ProjectController extends Controller
      */
     public function edit(Client $client, Project $project): Response
     {
-        return Inertia::render('project/Edit', [
+        return Inertia::render('project/Form', [
             'client' => ClientResource::make($client),
             'project' => ProjectResource::make($project),
         ]);
@@ -108,6 +81,6 @@ class ProjectController extends Controller
     {
         $action->handle($project);
 
-        return redirect()->route('projects.index');
+        return redirect()->route('clients.show', $client);
     }
 }
