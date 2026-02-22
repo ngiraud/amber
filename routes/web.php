@@ -6,6 +6,7 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
+use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,12 @@ Route::delete('/clients/{client}/projects/{project}', [ProjectController::class,
 // Repositories
 Route::post('/projects/{project}/repositories', [ProjectRepositoryController::class, 'store'])->name('projects.repositories.store');
 Route::delete('/projects/{project}/repositories/{repository}', [ProjectRepositoryController::class, 'destroy'])->name('projects.repositories.destroy');
+
+// Sessions
+Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
+Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
+Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
+Route::patch('/sessions/{session}/stop', [SessionController::class, 'stop'])->name('sessions.stop');
 
 // Settings
 Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

@@ -29,6 +29,8 @@ class SessionResource extends JsonResource
             'is_validated' => $this->is_validated,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+
+            'project' => ProjectResource::make($this->whenLoaded('project')),
         ];
     }
 }

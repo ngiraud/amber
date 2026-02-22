@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import ActiveSessionBanner from '@/components/ActiveSessionBanner.vue';
 import AppSidebar from '@/components/AppSidebar.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
@@ -16,12 +17,13 @@ defineProps<{
     <SidebarProvider class="h-screen overflow-hidden">
         <AppSidebar />
         <SidebarInset class="overflow-y-auto">
+            <ActiveSessionBanner />
             <main class="p-8">
                 <slot />
             </main>
         </SidebarInset>
     </SidebarProvider>
 
-    <Toaster />
+    <Toaster richColors />
     <FlashMessage />
 </template>
