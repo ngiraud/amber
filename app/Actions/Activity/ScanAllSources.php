@@ -32,7 +32,7 @@ class ScanAllSources extends Action
     public function handle(CarbonImmutable $since): Collection
     {
         $repos = ProjectRepository::query()
-            ->whereHas('project', fn ($q) => $q->active())
+            ->forActiveProjects()
             ->get();
 
         $activeSession = Session::findActive();

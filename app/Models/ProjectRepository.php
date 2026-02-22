@@ -4,21 +4,21 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder<static> forActiveProjects()
+ */
 class ProjectRepository extends Model
 {
     /** @use HasFactory<\Database\Factories\ProjectRepositoryFactory> */
     use HasFactory, HasUlids;
-
-    public static function hasGitDirectory(string $path): bool
-    {
-        return is_dir($path.'/.git');
-    }
 
     /**
      * @return BelongsTo<Project, $this>
@@ -34,5 +34,14 @@ class ProjectRepository extends Model
     public function activityEvents(): HasMany
     {
         return $this->hasMany(ActivityEvent::class);
+    }
+
+    #[Scope]
+    protected function forActiveProjects(Builder $query): void
+    {
+        $query->whereHas('project', function (Builder $q) {
+            /** @var \Illuminate\Database\Eloquent\Builder<Project> $q */
+            return $q->active(); // @phpstan-ignore varTag.nativeType
+        });
     }
 }

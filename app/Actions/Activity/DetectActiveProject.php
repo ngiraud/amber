@@ -21,7 +21,7 @@ class DetectActiveProject extends Action
         }
 
         $match = ProjectRepository::query()
-            ->whereHas('project', fn ($q) => $q->active())
+            ->forActiveProjects()
             ->get()
             ->filter(fn (ProjectRepository $repo) => str_starts_with($filePath, $repo->local_path))
             ->sortByDesc(fn (ProjectRepository $repo) => mb_strlen($repo->local_path))

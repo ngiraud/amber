@@ -53,7 +53,7 @@ class FileWatcherService
     protected function watchedPaths(): array
     {
         return ProjectRepository::query()
-            ->whereHas('project', fn ($q) => $q->active())
+            ->forActiveProjects()
             ->pluck('local_path')
             ->filter(fn (string $path) => is_dir($path))
             ->values()
