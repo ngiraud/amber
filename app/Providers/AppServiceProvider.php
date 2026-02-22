@@ -8,6 +8,7 @@ use App\Events\Native\StartSessionFromMenu;
 use App\Events\Native\StopSessionFromMenu;
 use App\Events\Native\SwitchProjectFromMenu;
 use App\Events\Native\ToggleSessionShortcut;
+use App\Events\SessionAlreadyActiveAttempted;
 use App\Events\SessionStarted;
 use App\Events\SessionStopped;
 use App\Listeners\HandleStartSessionFromMenu;
@@ -117,6 +118,6 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(SwitchProjectFromMenu::class, HandleSwitchProjectFromMenu::class);
         Event::listen(ToggleSessionShortcut::class, HandleToggleSessionShortcut::class);
         Event::listen([SessionStarted::class, SessionStopped::class], RefreshMenuBarOnSessionChange::class);
-        Event::listen([SessionStarted::class, SessionStopped::class], SendSessionNotification::class);
+        Event::listen([SessionStarted::class, SessionStopped::class, SessionAlreadyActiveAttempted::class], SendSessionNotification::class);
     }
 }

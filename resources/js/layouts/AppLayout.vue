@@ -24,6 +24,6 @@ defineProps<{
         </SidebarInset>
     </SidebarProvider>
 
-    <Toaster />
+    <Toaster richColors />
     <FlashMessage />
 </template>

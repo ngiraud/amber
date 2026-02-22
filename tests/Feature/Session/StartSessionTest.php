@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Session\StartSession;
 use App\Enums\SessionSource;
+use App\Events\SessionAlreadyActiveAttempted;
 use App\Events\SessionStarted;
 use App\Exceptions\SessionAlreadyActiveException;
 use App\Models\Project;
@@ -37,6 +38,19 @@ describe('start session controller', function () {
     it('validates that project_id must exist', function () {
         $this->post(route('sessions.store'), ['project_id' => 'nonexistent'])
             ->assertInvalid(['project_id']);
+    });
+
+    it('flashes an error and dispatches SessionAlreadyActiveAttempted when a session is already active', function () {
+        Event::fake();
+
+        $project = Project::factory()->create();
+        Session::factory()->create(['project_id' => $project->id]);
+
+        $this->post(route('sessions.store'), ['project_id' => $project->id])
+            ->assertRedirect()
+            ->assertInertiaFlash('error', 'A session is already active.');
+
+        Event::assertDispatched(SessionAlreadyActiveAttempted::class);
     });
 })->group('controllers');
 
