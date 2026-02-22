@@ -14,9 +14,9 @@ use Native\Desktop\Facades\MenuBar;
 
 class MenuBarService
 {
-    public static function make(): static
+    public static function make(): self
     {
-        return new static;
+        return app(self::class);
     }
 
     public function initialize(): void

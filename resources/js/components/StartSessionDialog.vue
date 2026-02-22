@@ -26,7 +26,12 @@ const open = ref(false);
                 <SheetTitle>Start Session</SheetTitle>
             </SheetHeader>
 
-            <Form :action="sessionRoutes.store()" class="mt-6 flex flex-col gap-5 px-4" #default="{ errors, processing }" @success="() => open = false">
+            <Form
+                :action="sessionRoutes.store()"
+                class="mt-6 flex flex-col gap-5 px-4"
+                #default="{ errors, processing }"
+                @success="() => (open = false)"
+            >
                 <div class="flex flex-col gap-2">
                     <Label for="project_id">Project</Label>
                     <select
