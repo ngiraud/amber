@@ -11,6 +11,8 @@ declare module 'vite/client' {
     }
 }
 
+import type { Session } from './resources';
+
 declare module '@inertiajs/core' {
     interface InertiaFlashData {
         success?: string;
@@ -20,6 +22,7 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            activeSession: Session | null;
             [key: string]: unknown;
         };
     }

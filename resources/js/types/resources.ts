@@ -67,6 +67,25 @@ export type Client = {
     projects_count?: number;
 };
 
+export type SessionSource = {
+    value: number;
+    label: string;
+};
+
+export type Session = {
+    id: string;
+    project_id: string;
+    started_at: string;
+    ended_at: string | null;
+    duration_minutes: number | null;
+    source: SessionSource;
+    notes: string | null;
+    is_validated: boolean;
+    created_at: string;
+    updated_at: string;
+    project?: Project;
+};
+
 export type AppSettings = {
     git_author_emails?: string[];
     company_name?: string | null;
