@@ -10,7 +10,7 @@ const activeSession = computed(() => page.props.activeSession);
 </script>
 
 <template>
-    <div v-if="activeSession" class="flex items-center justify-between border-b bg-primary/5 px-8 py-2.5">
+    <div v-if="activeSession" class="sticky top-0 z-10 flex items-center justify-between border-b bg-sidebar px-8 py-2.5 backdrop-blur-sm">
         <div class="flex items-center gap-3 text-sm">
             <span class="h-2 w-2 animate-pulse rounded-full bg-green-500" />
             <span class="font-medium">{{ activeSession.project?.name }}</span>
@@ -20,7 +20,7 @@ const activeSession = computed(() => page.props.activeSession);
         </div>
 
         <Form :action="sessionRoutes.stop(activeSession)" method="patch" #default="{ submit }">
-            <Button variant="outline" size="sm" @click="submit">Stop</Button>
+            <Button variant="destructive" size="sm" @click="submit">Stop</Button>
         </Form>
     </div>
 </template>
