@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\SessionSource;
+use Illuminate\Contracts\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +17,11 @@ class Session extends Model
 {
     /** @use HasFactory<\Database\Factories\SessionFactory> */
     use HasFactory, HasUlids;
+
+    public static function findActive(array $relationships = []): ?static
+    {
+        return static::query()->active()->with($relationships)->first();
+    }
 
     /**
      * @return BelongsTo<Project, $this>
@@ -38,6 +45,12 @@ class Session extends Model
     public function timeEntries(): HasMany
     {
         return $this->hasMany(TimeEntry::class);
+    }
+
+    #[Scope]
+    protected function active(Builder $query): void
+    {
+        $query->whereNull('ended_at');
     }
 
     /**

@@ -5,6 +5,7 @@ import { toast } from 'vue-sonner';
 
 const off = router.on('flash', (event) => {
     const { success, error } = event.detail.flash;
+
     if (success) {
         toast.success(success);
     } else if (error) {

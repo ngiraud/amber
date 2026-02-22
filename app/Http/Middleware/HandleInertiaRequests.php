@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\SessionResource;
+use App\Models\Session;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -40,6 +42,9 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'activeSession' => fn () => ($s = Session::findActive(['project.client']))
+                ? SessionResource::make($s)
+                : null,
         ];
     }
 }
