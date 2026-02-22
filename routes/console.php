@@ -11,3 +11,5 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('menubar:update-timer')->everyMinute();
+Schedule::command('activity:scan')->everyMinute();
+Schedule::command('activity:check-idle')->everyMinute();

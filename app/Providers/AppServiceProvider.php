@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Events\ActivityWithoutSessionDetected;
+use App\Events\IdleTimeoutReached;
 use App\Events\Native\StartSessionFromMenu;
 use App\Events\Native\StopSessionFromMenu;
 use App\Events\Native\SwitchProjectFromMenu;
@@ -11,12 +13,17 @@ use App\Events\Native\ToggleSessionShortcut;
 use App\Events\SessionAlreadyActiveAttempted;
 use App\Events\SessionStarted;
 use App\Events\SessionStopped;
+use App\Listeners\HandleActivityWithoutSessionDetected;
+use App\Listeners\HandleFileWatcherMessage;
+use App\Listeners\HandleIdleTimeout;
+use App\Listeners\HandleNotificationStartSession;
 use App\Listeners\HandleStartSessionFromMenu;
 use App\Listeners\HandleStopSessionFromMenu;
 use App\Listeners\HandleSwitchProjectFromMenu;
 use App\Listeners\HandleToggleSessionShortcut;
 use App\Listeners\RefreshMenuBarOnSessionChange;
 use App\Listeners\SendSessionNotification;
+use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
@@ -28,6 +35,8 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Native\Desktop\Events\ChildProcess\MessageReceived;
+use Native\Desktop\Events\Notifications\NotificationActionClicked;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MenuBarService::class);
+        $this->app->singleton(FileWatcherService::class);
     }
 
     /**
@@ -119,5 +129,9 @@ class AppServiceProvider extends ServiceProvider
         Event::listen(ToggleSessionShortcut::class, HandleToggleSessionShortcut::class);
         Event::listen([SessionStarted::class, SessionStopped::class], RefreshMenuBarOnSessionChange::class);
         Event::listen([SessionStarted::class, SessionStopped::class, SessionAlreadyActiveAttempted::class], SendSessionNotification::class);
+        Event::listen(ActivityWithoutSessionDetected::class, HandleActivityWithoutSessionDetected::class);
+        Event::listen(IdleTimeoutReached::class, HandleIdleTimeout::class);
+        Event::listen(MessageReceived::class, HandleFileWatcherMessage::class);
+        Event::listen(NotificationActionClicked::class, HandleNotificationStartSession::class);
     }
 }

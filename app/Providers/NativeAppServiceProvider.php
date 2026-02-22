@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Events\Native\ToggleSessionShortcut;
+use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use Native\Desktop\Contracts\ProvidesPhpIni;
 use Native\Desktop\Facades\GlobalShortcut;
@@ -27,6 +28,10 @@ class NativeAppServiceProvider implements ProvidesPhpIni
         GlobalShortcut::key('CmdOrCtrl+Shift+T')
             ->event(ToggleSessionShortcut::class)
             ->register();
+
+        if (config('activity.fswatch.enabled')) {
+            FileWatcherService::make()->start();
+        }
     }
 
     /**
