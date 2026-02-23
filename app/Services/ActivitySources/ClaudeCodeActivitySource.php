@@ -11,7 +11,6 @@ use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ClaudeCodeActivitySource implements ActivitySource
@@ -81,7 +80,6 @@ class ClaudeCodeActivitySource implements ActivitySource
                 continue;
             }
 
-            Log::channel('activity')->debug('timestamp claude code: '.$obj['timestamp']);
             try {
                 $occurredAt = CarbonImmutable::parse($obj['timestamp'])->utc();
             } catch (Throwable) {
