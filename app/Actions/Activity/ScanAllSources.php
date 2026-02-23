@@ -12,7 +12,6 @@ use App\Models\ProjectRepository;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
@@ -34,23 +33,12 @@ class ScanAllSources extends Action
 
         $activeSession = Session::findActive();
 
-        Log::channel('activity')->info('[activity:scan] Context', [
-            'active_repos' => $repos->count(),
-            'active_session' => $activeSession?->id,
-        ]);
-
-        $sources = $this->discoverSources();
-
-        Log::channel('activity')->info('[activity:scan] Available sources', [
-            'sources' => $sources->map->identifier()->values()->all(),
-        ]);
-
-        return $sources
+        return $this->discoverSources()
             ->flatMap(fn (ActivitySource $source) => $source->scan($since, $repos))
             ->unique(fn (ActivityEventData $data) => implode('|', [
+                $data->sourceType->value,
                 $data->type->value,
                 $data->occurredAt->toIso8601String(),
-                $data->sourceType,
             ]))
             ->map(fn (ActivityEventData $data) => $this->recordEvent->handle($data, $activeSession))
             ->filter()

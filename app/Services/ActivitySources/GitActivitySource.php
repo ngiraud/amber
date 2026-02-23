@@ -6,19 +6,20 @@ namespace App\Services\ActivitySources;
 
 use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
+use App\Models\AppSetting;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Throwable;
 
 class GitActivitySource implements ActivitySource
 {
-    public function identifier(): string
+    public function identifier(): ActivityEventSourceType
     {
-        return 'git';
+        return ActivityEventSourceType::Git;
     }
 
     public function isAvailable(): bool
@@ -32,13 +33,9 @@ class GitActivitySource implements ActivitySource
      */
     public function scan(CarbonImmutable $since, Collection $repos): Collection
     {
-        $events = $repos
+        return $repos
             ->flatMap(fn (ProjectRepository $repo) => $this->scanRepository($repo, $since))
             ->values();
-
-        Log::channel('activity')->info('[activity:scan] git source', ['events_found' => $events->count()]);
-
-        return $events;
     }
 
     /**
@@ -46,7 +43,6 @@ class GitActivitySource implements ActivitySource
      */
     protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since): Collection
     {
-        // Est-ce que ça marche ?
         $result = Process::run([
             'git',
             '-C', $repo->local_path,
@@ -59,28 +55,37 @@ class GitActivitySource implements ActivitySource
             return collect();
         }
 
-        // @TODO: get authors from project?
-        $authorEmail = config('activity.git.author_email');
+        $authorEmails = AppSetting::get('git_author_emails');
+
+        if (empty($authorEmails)) {
+            $authorEmails = explode(',', config('activity.git.author_emails', ''));
+        }
 
         return collect(explode("\n", mb_trim($result->output())))
             ->filter()
             ->map(fn (string $line) => $this->parseLine($line))
             ->filter()
-            ->when($authorEmail !== null, fn (Collection $events) => $events->filter(
-                fn (ActivityEventData $data) => ($data->metadata['author_email'] ?? null) === $authorEmail
+            ->when(! empty($authorEmails), fn (Collection $events) => $events->filter(
+                fn (array $data) => ! empty($data['author_email']) && in_array($data['author_email'], $authorEmails)
             ))
-            ->map(fn (ActivityEventData $data) => new ActivityEventData(
-                type: $data->type,
-                sourceType: $data->sourceType,
-                occurredAt: $data->occurredAt,
-                metadata: $data->metadata,
-                projectId: $repo->project_id,
-                projectRepositoryId: $repo->id,
+            ->map(fn (array $data) => new ActivityEventData(
+                sourceType: $this->identifier(),
+                type: ActivityEventType::GitCommit,
+                occurredAt: $data['occurred_at'],
+                projectRepository: $repo,
+                metadata: [
+                    'hash' => $data['hash'],
+                    'author_email' => $data['author_email'],
+                    'message' => $data['message'],
+                ],
             ))
             ->values();
     }
 
-    protected function parseLine(string $line): ?ActivityEventData
+    /**
+     * @return array{hash: string, author_email: string, occurred_at: CarbonImmutable, message: string}|null
+     */
+    protected function parseLine(string $line): ?array
     {
         $parts = explode('|', $line, 4);
 
@@ -96,15 +101,11 @@ class GitActivitySource implements ActivitySource
             return null;
         }
 
-        return new ActivityEventData(
-            type: ActivityEventType::GitCommit,
-            sourceType: $this->identifier(),
-            occurredAt: $occurredAt,
-            metadata: [
-                'hash' => $hash,
-                'author_email' => $authorEmail,
-                'message' => $message,
-            ],
-        );
+        return [
+            'hash' => $hash,
+            'author_email' => $authorEmail,
+            'occurred_at' => $occurredAt,
+            'message' => $message,
+        ];
     }
 }

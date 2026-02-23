@@ -79,7 +79,7 @@ describe('ClaudeCodeActivitySource', function () {
         expect($events)->toHaveCount(1)
             ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
             ->and($events->first()->type)->toBe(ActivityEventType::ClaudeSessionStart)
-            ->and($events->first()->projectId)->toBe($repo->project_id)
+            ->and($events->first()->project)->toBe($repo->project_id)
             ->and($events->first()->metadata['session_id'])->toBe($sessionId);
 
         exec("rm -rf {$tmpDir}");
@@ -120,7 +120,7 @@ describe('ClaudeCodeActivitySource', function () {
         expect($events)->toHaveCount(1)
             ->and($events->first()->type)->toBe(ActivityEventType::ClaudeFileTouch)
             ->and($events->first()->metadata['tool'])->toBe('Edit')
-            ->and($events->first()->projectId)->toBe($repo->project_id);
+            ->and($events->first()->project)->toBe($repo->project_id);
 
         exec("rm -rf {$tmpDir}");
     });

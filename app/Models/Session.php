@@ -23,6 +23,11 @@ class Session extends Model
         return static::query()->active()->with($relationships)->first();
     }
 
+    public static function hasActive(): bool
+    {
+        return static::query()->active()->exists();
+    }
+
     /**
      * @return BelongsTo<Project, $this>
      */

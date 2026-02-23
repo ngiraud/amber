@@ -57,7 +57,7 @@ describe('GitActivitySource', function () {
         expect($events)->toHaveCount(1)
             ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
             ->and($events->first()->type)->toBe(ActivityEventType::GitCommit)
-            ->and($events->first()->projectId)->toBe($repo->project_id)
+            ->and($events->first()->project)->toBe($repo->project_id)
             ->and($events->first()->metadata['hash'])->toBe('abc123')
             ->and($events->first()->metadata['author_email'])->toBe('test@example.com');
     });

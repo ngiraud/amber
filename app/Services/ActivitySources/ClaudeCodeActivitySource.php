@@ -6,18 +6,20 @@ namespace App\Services\ActivitySources;
 
 use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ClaudeCodeActivitySource implements ActivitySource
 {
-    public function identifier(): string
+    protected string $projectsPath = '';
+
+    public function identifier(): ActivityEventSourceType
     {
-        return 'claude-code';
+        return ActivityEventSourceType::ClaudeCode;
     }
 
     public function isAvailable(): bool
@@ -39,11 +41,7 @@ class ClaudeCodeActivitySource implements ActivitySource
             }
         }
 
-        $events = $events->values();
-
-        Log::channel('activity')->info('[activity:scan] claude-code source', ['events_found' => $events->count()]);
-
-        return $events;
+        return $events->values();
     }
 
     /**
@@ -92,22 +90,23 @@ class ClaudeCodeActivitySource implements ActivitySource
                 continue;
             }
 
+            // Session start
             if (($obj['type'] ?? null) === 'system' && ($obj['subtype'] ?? null) === 'local_command') {
                 $events->push(new ActivityEventData(
-                    type: ActivityEventType::ClaudeSessionStart,
                     sourceType: $this->identifier(),
+                    type: ActivityEventType::ClaudeSessionStart,
                     occurredAt: $occurredAt,
+                    projectRepository: $matched,
                     metadata: [
                         'session_id' => $obj['sessionId'] ?? null,
                         'cwd' => $cwd,
                     ],
-                    projectId: $matched->project_id,
-                    projectRepositoryId: $matched->id,
                 ));
 
                 continue;
             }
 
+            // File touch
             if (($obj['type'] ?? null) === 'assistant') {
                 foreach ((array) ($obj['message']['content'] ?? []) as $content) {
                     if (($content['type'] ?? null) !== 'tool_use') {
@@ -118,19 +117,15 @@ class ClaudeCodeActivitySource implements ActivitySource
                         continue;
                     }
 
-                    $filePath = $content['input']['file_path'] ?? null;
-
                     $events->push(new ActivityEventData(
-                        type: ActivityEventType::ClaudeFileTouch,
                         sourceType: $this->identifier(),
+                        type: ActivityEventType::ClaudeFileTouch,
                         occurredAt: $occurredAt,
+                        projectRepository: $matched,
                         metadata: [
                             'tool' => $content['name'],
-                            'file_path' => $filePath,
+                            'file_path' => $content['input']['file_path'] ?? null,
                         ],
-                        projectId: $matched->project_id,
-                        projectRepositoryId: $matched->id,
-                        filePath: $filePath,
                     ));
                 }
             }
@@ -157,7 +152,11 @@ class ClaudeCodeActivitySource implements ActivitySource
 
     protected function projectsPath(): string
     {
-        $path = config('activity.claude.projects_path', '~/.claude/projects');
+        if (! empty($this->projectsPath)) {
+            return $this->projectsPath;
+        }
+
+        $path = config('activity.claude.projects_path', '');
 
         // @TODO: check these commands
         if (str_starts_with((string) $path, '~')) {
@@ -165,6 +164,8 @@ class ClaudeCodeActivitySource implements ActivitySource
             $path = $home.mb_substr((string) $path, 1);
         }
 
-        return $path;
+        $this->projectsPath = $path;
+
+        return $this->projectsPath;
     }
 }

@@ -55,7 +55,7 @@ describe('ScanAllSources', function () {
                 type: ActivityEventType::GitCommit,
                 sourceType: 'git',
                 occurredAt: $now,
-                projectId: $project->id,
+                project: $project->id,
             ),
         ]);
 
@@ -75,7 +75,7 @@ describe('ScanAllSources', function () {
                 type: ActivityEventType::GitCommit,
                 sourceType: 'git',
                 occurredAt: $now,
-                projectId: $project->id,
+                project: $project->id,
             ),
         ]);
 
@@ -110,7 +110,7 @@ describe('ScanAllSources', function () {
             type: ActivityEventType::GitCommit,
             sourceType: 'git',
             occurredAt: $now,
-            projectId: $project->id,
+            project: $project->id,
         );
 
         $source = makeSource('git', available: true, events: [$duplicate, $duplicate]);

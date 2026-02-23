@@ -6,15 +6,19 @@ namespace App\Listeners;
 
 use App\Actions\Activity\RecordActivityEvent;
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
+use App\Models\ProjectRepository;
 use App\Services\FileWatcherService;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\Collection;
 use Native\Desktop\Events\ChildProcess\MessageReceived;
 
 class HandleFileWatcherMessage
 {
-    public function __construct(private readonly RecordActivityEvent $recordEvent) {}
+    protected ?Collection $projectRepositories = null;
+
+    public function __construct(protected readonly RecordActivityEvent $recordEvent) {}
 
     public function handle(MessageReceived $event): void
     {
@@ -27,12 +31,11 @@ class HandleFileWatcherMessage
             explode("\n", mb_trim((string) $event->data)),
         )));
 
-        Log::channel('activity')->info('[fswatch] Watcher', ['entries' => $entries]);
-
         // deduplicate by file path — keep first occurrence (earliest timestamp)
         $seen = [];
         $entries = array_filter($entries, function (array $entry) use (&$seen): bool {
             [, $filePath] = $entry;
+
             if (isset($seen[$filePath])) {
                 return false;
             }
@@ -40,23 +43,25 @@ class HandleFileWatcherMessage
             return $seen[$filePath] = true;
         });
 
-        Log::channel('activity')->info('[fswatch] Message received', ['count' => count($entries)]);
+        if (empty($entries)) {
+            return;
+        }
+
+        $this->projectRepositories = ProjectRepository::forActiveProjects()->get();
 
         foreach ($entries as $entry) {
             [$occurredAt, $filePath] = $entry;
 
             if (! $this->isAllowedExtension($filePath)) {
-                Log::channel('activity')->info('[fswatch] Skipped — extension not allowed', ['file_path' => $filePath]);
-
                 continue;
             }
 
             $this->recordEvent->handle(new ActivityEventData(
+                sourceType: ActivityEventSourceType::Fswatch,
                 type: ActivityEventType::FileChange,
-                sourceType: 'fswatch',
                 occurredAt: $occurredAt,
+                projectRepository: $this->getProjectRepositoryFromPath($filePath),
                 metadata: ['file_path' => $filePath],
-                filePath: $filePath,
             ));
         }
     }
@@ -64,15 +69,13 @@ class HandleFileWatcherMessage
     /**
      * @return array{CarbonImmutable, string}|null
      */
-    private function parseLine(string $line): ?array
+    protected function parseLine(string $line): ?array
     {
         $line = mb_trim($line);
 
         if ($line === '') {
             return null;
         }
-
-        Log::channel('activity')->info('[fswatch] Line', ['line' => $line]);
 
         $spacePos = mb_strpos($line, ' ');
 
@@ -90,7 +93,7 @@ class HandleFileWatcherMessage
         return [CarbonImmutable::createFromTimestamp($timestamp), $filePath];
     }
 
-    private function isAllowedExtension(string $filePath): bool
+    protected function isAllowedExtension(string $filePath): bool
     {
         $allowed = config('activity.fswatch.allowed_extensions', []);
 
@@ -101,5 +104,13 @@ class HandleFileWatcherMessage
         $extension = pathinfo($filePath, PATHINFO_EXTENSION);
 
         return in_array(mb_strtolower($extension), $allowed, strict: true);
+    }
+
+    protected function getProjectRepositoryFromPath(string $filePath): ProjectRepository
+    {
+        return $this->projectRepositories
+            ->filter(fn (ProjectRepository $repo) => str_starts_with($filePath, $repo->local_path))
+            ->sortByDesc(fn (ProjectRepository $repo) => mb_strlen($repo->local_path))
+            ->first();
     }
 }

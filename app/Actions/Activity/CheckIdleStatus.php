@@ -14,18 +14,20 @@ class CheckIdleStatus extends Action
 {
     public function handle(): void
     {
-        $session = Session::findActive(['project']);
+        $session = Session::findActive();
 
         if ($session === null) {
             return;
         }
 
-        $lastEvent = ActivityEvent::query()
+        $lastActivityAt = ActivityEvent::query()
             ->where('project_id', $session->project_id)
             ->latest('occurred_at')
-            ->first();
+            ->value('occurred_at');
 
-        $lastActivityAt = $lastEvent?->occurred_at ?? $session->started_at;
+        if ($lastActivityAt === null) {
+            $lastActivityAt = $session->started_at;
+        }
 
         $idleMinutes = $lastActivityAt->diffInMinutes(CarbonImmutable::now());
 

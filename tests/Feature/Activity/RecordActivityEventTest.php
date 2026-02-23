@@ -2,14 +2,12 @@
 
 declare(strict_types=1);
 
-use App\Actions\Activity\DetectActiveProject;
 use App\Actions\Activity\RecordActivityEvent;
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventType;
 use App\Events\ActivityDetected;
 use App\Models\ActivityEvent;
 use App\Models\Project;
-use App\Models\ProjectRepository;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
@@ -39,7 +37,7 @@ describe('RecordActivityEvent', function () {
             type: ActivityEventType::GitCommit,
             sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            projectId: $project->id,
+            project: $project->id,
         );
 
         $event = RecordActivityEvent::make()->handle($data);
@@ -62,7 +60,7 @@ describe('RecordActivityEvent', function () {
             type: ActivityEventType::GitCommit,
             sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            projectId: $project->id,
+            project: $project->id,
         );
 
         $event = RecordActivityEvent::make()->handle($data);
@@ -80,7 +78,7 @@ describe('RecordActivityEvent', function () {
             sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
             metadata: ['hash' => 'abc123'],
-            projectId: $project->id,
+            project: $project->id,
         );
 
         $event = RecordActivityEvent::make()->handle($data);
@@ -104,46 +102,11 @@ describe('RecordActivityEvent', function () {
             type: ActivityEventType::GitCommit,
             sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            projectId: $project->id,
+            project: $project->id,
         );
 
         RecordActivityEvent::make()->handle($data);
 
         Event::assertDispatched(ActivityDetected::class);
-    });
-
-    it('resolves project from filePath when projectId is null', function () {
-        $repo = ProjectRepository::factory()->create(['local_path' => '/tmp/test-project']);
-        $project = Project::find($repo->project_id);
-        Session::factory()->create(['project_id' => $project->id, 'ended_at' => null]);
-
-        $data = new ActivityEventData(
-            type: ActivityEventType::FileChange,
-            sourceType: 'fswatch',
-            occurredAt: CarbonImmutable::now(),
-            filePath: '/tmp/test-project/src/file.php',
-        );
-
-        $event = RecordActivityEvent::make()->handle($data);
-
-        expect($event)->toBeInstanceOf(ActivityEvent::class)
-            ->and($event->project_id)->toBe($repo->project_id)
-            ->and($event->project_repository_id)->toBe($repo->id);
-    });
-
-    it('skips DetectActiveProject when projectId is already set', function () {
-        DetectActiveProject::fake()->shouldNotReceive('handle');
-
-        $project = Project::factory()->create();
-
-        $data = new ActivityEventData(
-            type: ActivityEventType::GitCommit,
-            sourceType: 'git',
-            occurredAt: CarbonImmutable::now(),
-            projectId: $project->id,
-            filePath: '/tmp/project/file.php',
-        );
-
-        RecordActivityEvent::make()->handle($data);
     });
 });

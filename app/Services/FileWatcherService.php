@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\ProjectRepository;
-use Illuminate\Support\Facades\Log;
 use Native\Desktop\Facades\ChildProcess;
 
 class FileWatcherService
@@ -35,8 +34,6 @@ class FileWatcherService
             $paths,
         );
 
-        Log::channel('activity')->info('[fswatch] Starting child process', ['command' => implode(' ', $args), 'alias' => self::ALIAS]);
-
         ChildProcess::start(
             cmd: $args,
             alias: self::ALIAS,
@@ -46,16 +43,12 @@ class FileWatcherService
 
     public function stop(): void
     {
-        Log::channel('activity')->info('[fswatch] Stopping child process', ['alias' => self::ALIAS]);
-
         ChildProcess::stop(self::ALIAS);
 
     }
 
     public function restart(): void
     {
-        Log::channel('activity')->info('[fswatch] Restarting child process', ['alias' => self::ALIAS]);
-
         ChildProcess::restart(self::ALIAS);
     }
 

@@ -8,7 +8,7 @@ return [
     'scan_interval_minutes' => (int) env('ACTIVITY_SCAN_INTERVAL', 2),
 
     'git' => [
-        'author_email' => env('ACTIVITY_GIT_AUTHOR_EMAIL'),
+        'author_emails' => env('ACTIVITY_GIT_AUTHOR_EMAILS', ''),
     ],
 
     'fswatch' => [

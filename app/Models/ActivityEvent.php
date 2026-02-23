@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -41,6 +42,7 @@ class ActivityEvent extends Model
 
     /**
      * @return array{
+     *   source_type: 'App\\Enums\\ActivityEventSourceType',
      *   type: 'App\\Enums\\ActivityEventType',
      *   occurred_at: 'datetime',
      *   metadata: 'array'
@@ -49,6 +51,7 @@ class ActivityEvent extends Model
     protected function casts(): array
     {
         return [
+            'source_type' => ActivityEventSourceType::class,
             'type' => ActivityEventType::class,
             'occurred_at' => 'datetime',
             'metadata' => 'array',

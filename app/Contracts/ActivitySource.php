@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Contracts;
 
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
@@ -12,7 +13,7 @@ use Illuminate\Support\Collection;
 interface ActivitySource
 {
     /** Unique identifier for this source (e.g., 'git', 'claude-code'). */
-    public function identifier(): string;
+    public function identifier(): ActivityEventSourceType;
 
     /**
      * Scan for activity events since the given timestamp.

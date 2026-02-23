@@ -14,10 +14,9 @@ class HandleIdleTimeout
 
     public function handle(IdleTimeoutReached $event): void
     {
-        $session = $event->session;
-        $projectName = $session->project->name;
+        $projectName = $event->session->project->name;
 
-        $stopped = $this->stopSession->handle($session);
+        $stopped = $this->stopSession->handle($event->session);
 
         $minutes = $stopped->duration_minutes ?? 0;
         $hours = intdiv($minutes, 60);
