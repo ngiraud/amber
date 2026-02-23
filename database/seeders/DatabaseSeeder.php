@@ -25,14 +25,13 @@ class DatabaseSeeder extends Seeder
         $acme = Client::factory()->create(['name' => 'Acme Corp']);
         $startup = Client::factory()->create(['name' => 'Startup Inc']);
 
-        $website = Project::factory()->create([
+        $website = Project::factory()->inactive()->create([
             'client_id' => $acme->id,
             'name' => 'Website Redesign',
             'color' => '#6366f1',
             'daily_rate' => 800,
             'hourly_rate' => null,
             'rounding' => RoundingStrategy::Quarter,
-            'is_active' => true,
         ]);
 
         $website->repositories()->createMany([
@@ -40,14 +39,13 @@ class DatabaseSeeder extends Seeder
             ['local_path' => '/Users/nico/code/acme-api', 'name' => 'acme-api'],
         ]);
 
-        $mobile = Project::factory()->create([
+        $mobile = Project::factory()->inactive()->create([
             'client_id' => $acme->id,
             'name' => 'Mobile App',
             'color' => '#f59e0b',
             'hourly_rate' => 95,
             'daily_rate' => null,
             'rounding' => RoundingStrategy::HalfHour,
-            'is_active' => true,
         ]);
 
         $mobile->repositories()->createMany([
@@ -55,18 +53,31 @@ class DatabaseSeeder extends Seeder
             ['local_path' => '/Users/nico/code/acme-mobile-api', 'name' => 'acme-mobile-api'],
         ]);
 
-        $saas = Project::factory()->inactive()->create([
+        $saas = Project::factory()->create([
             'client_id' => $startup->id,
             'name' => 'SaaS Platform',
             'color' => '#10b981',
             'daily_rate' => 700,
             'hourly_rate' => null,
-            'rounding' => RoundingStrategy::Hour,
+            'rounding' => RoundingStrategy::Quarter,
         ]);
 
         $saas->repositories()->createMany([
-            ['local_path' => '/Users/nico/code/startup-saas', 'name' => 'startup-saas'],
-            ['local_path' => '/Users/nico/code/startup-backend', 'name' => 'startup-backend'],
+            ['local_path' => '/Users/nico/Web/saas-starter', 'name' => 'SAAS Starter'],
+            ['local_path' => '/Users/nico/code/saas-mobile', 'name' => 'SAAS Mobile'],
+        ]);
+
+        $thisProject = Project::factory()->create([
+            'client_id' => $startup->id,
+            'name' => 'CRA Tracker project',
+            'color' => '#000000',
+            'daily_rate' => 700,
+            'hourly_rate' => null,
+            'rounding' => RoundingStrategy::Quarter,
+        ]);
+
+        $thisProject->repositories()->createMany([
+            ['local_path' => '/Users/nico/code/activity-record-desktop', 'name' => 'CRA Tracker'],
         ]);
     }
 }

@@ -66,7 +66,7 @@ describe('ScanAllSources', function () {
             ->and($events->first())->toBeInstanceOf(ActivityEvent::class);
     });
 
-    it('returns empty collection when no active session exists', function () {
+    it('records events with null session_id when no active session exists', function () {
         $project = Project::factory()->create();
         $now = CarbonImmutable::now();
 
@@ -82,8 +82,8 @@ describe('ScanAllSources', function () {
         $action = new ScanAllSources(RecordActivityEvent::make(), [$source]);
         $events = $action->handle($now->subMinutes(10));
 
-        expect($events)->toHaveCount(0);
-        $this->assertDatabaseEmpty('activity_events');
+        expect($events)->toHaveCount(1)
+            ->and($events->first()->session_id)->toBeNull();
     });
 
     it('skips unavailable sources', function () {

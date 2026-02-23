@@ -7,6 +7,7 @@ namespace App\Actions\Activity;
 use App\Actions\Action;
 use App\Models\ProjectRepository;
 
+// @TODO: Name of the action | Utility of the action
 class DetectActiveProject extends Action
 {
     /**
@@ -20,6 +21,7 @@ class DetectActiveProject extends Action
             return ['project_id' => null, 'project_repository_id' => null];
         }
 
+        // @TODO: starts with replaced by LIKE?
         $match = ProjectRepository::query()
             ->forActiveProjects()
             ->get()

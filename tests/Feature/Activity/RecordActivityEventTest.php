@@ -7,7 +7,6 @@ use App\Actions\Activity\RecordActivityEvent;
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventType;
 use App\Events\ActivityDetected;
-use App\Events\ActivityWithoutSessionDetected;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\ProjectRepository;
@@ -33,7 +32,7 @@ describe('RecordActivityEvent', function () {
         $this->assertDatabaseEmpty('activity_events');
     });
 
-    it('dispatches ActivityWithoutSessionDetected when project found but no active session', function () {
+    it('creates ActivityEvent with null session_id when no active session', function () {
         $project = Project::factory()->create();
 
         $data = new ActivityEventData(
@@ -43,16 +42,18 @@ describe('RecordActivityEvent', function () {
             projectId: $project->id,
         );
 
-        $result = RecordActivityEvent::make()->handle($data);
+        $event = RecordActivityEvent::make()->handle($data);
 
-        expect($result)->toBeNull();
-        $this->assertDatabaseEmpty('activity_events');
-        Event::assertDispatched(ActivityWithoutSessionDetected::class,
-            fn ($e) => $e->project->id === $project->id
-        );
+        expect($event)->toBeInstanceOf(ActivityEvent::class)
+            ->and($event->session_id)->toBeNull();
+
+        $this->assertDatabaseHas('activity_events', [
+            'project_id' => $project->id,
+            'session_id' => null,
+        ]);
     });
 
-    it('dispatches ActivityWithoutSessionDetected when active session belongs to a different project', function () {
+    it('creates ActivityEvent with null session_id when active session is for a different project', function () {
         $project = Project::factory()->create();
         $otherProject = Project::factory()->create();
         Session::factory()->create(['project_id' => $otherProject->id, 'ended_at' => null]);
@@ -64,10 +65,10 @@ describe('RecordActivityEvent', function () {
             projectId: $project->id,
         );
 
-        $result = RecordActivityEvent::make()->handle($data);
+        $event = RecordActivityEvent::make()->handle($data);
 
-        expect($result)->toBeNull();
-        Event::assertDispatched(ActivityWithoutSessionDetected::class);
+        expect($event)->toBeInstanceOf(ActivityEvent::class)
+            ->and($event->session_id)->toBeNull();
     });
 
     it('creates an ActivityEvent and links to active session', function () {
@@ -96,9 +97,8 @@ describe('RecordActivityEvent', function () {
         ]);
     });
 
-    it('dispatches ActivityDetected when session is active', function () {
+    it('dispatches ActivityDetected for every recorded event', function () {
         $project = Project::factory()->create();
-        Session::factory()->create(['project_id' => $project->id, 'ended_at' => null]);
 
         $data = new ActivityEventData(
             type: ActivityEventType::GitCommit,
@@ -110,7 +110,6 @@ describe('RecordActivityEvent', function () {
         RecordActivityEvent::make()->handle($data);
 
         Event::assertDispatched(ActivityDetected::class);
-        Event::assertNotDispatched(ActivityWithoutSessionDetected::class);
     });
 
     it('resolves project from filePath when projectId is null', function () {
@@ -136,7 +135,6 @@ describe('RecordActivityEvent', function () {
         DetectActiveProject::fake()->shouldNotReceive('handle');
 
         $project = Project::factory()->create();
-        Session::factory()->create(['project_id' => $project->id, 'ended_at' => null]);
 
         $data = new ActivityEventData(
             type: ActivityEventType::GitCommit,

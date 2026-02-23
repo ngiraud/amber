@@ -10,6 +10,7 @@ use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Throwable;
 
 class ClaudeCodeActivitySource implements ActivitySource
@@ -38,7 +39,11 @@ class ClaudeCodeActivitySource implements ActivitySource
             }
         }
 
-        return $events->values();
+        $events = $events->values();
+
+        Log::channel('activity')->info('[activity:scan] claude-code source', ['events_found' => $events->count()]);
+
+        return $events;
     }
 
     /**
@@ -154,6 +159,7 @@ class ClaudeCodeActivitySource implements ActivitySource
     {
         $path = config('activity.claude.projects_path', '~/.claude/projects');
 
+        // @TODO: check these commands
         if (str_starts_with((string) $path, '~')) {
             $home = $_SERVER['HOME'] ?? posix_getpwuid(posix_getuid())['dir'];
             $path = $home.mb_substr((string) $path, 1);

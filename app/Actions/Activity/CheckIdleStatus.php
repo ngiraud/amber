@@ -25,9 +25,7 @@ class CheckIdleStatus extends Action
             ->latest('occurred_at')
             ->first();
 
-        $lastActivityAt = $lastEvent !== null
-            ? CarbonImmutable::instance($lastEvent->occurred_at)
-            : CarbonImmutable::instance($session->started_at);
+        $lastActivityAt = $lastEvent?->occurred_at ?? $session->started_at;
 
         $idleMinutes = $lastActivityAt->diffInMinutes(CarbonImmutable::now());
 

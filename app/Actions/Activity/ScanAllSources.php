@@ -12,18 +12,15 @@ use App\Models\ProjectRepository;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use ReflectionClass;
 use Symfony\Component\Finder\Finder;
 
 class ScanAllSources extends Action
 {
-    /**
-     * @param  array<int, ActivitySource>|null  $sources  Null = auto-discover from App\Services\ActivitySources
-     */
     public function __construct(
         protected RecordActivityEvent $recordEvent,
-        protected ?array $sources = null,
     ) {}
 
     /**
@@ -37,8 +34,18 @@ class ScanAllSources extends Action
 
         $activeSession = Session::findActive();
 
-        return collect($this->sources ?? $this->discoverSources())
-            ->filter(fn (ActivitySource $source) => $source->isAvailable())
+        Log::channel('activity')->info('[activity:scan] Context', [
+            'active_repos' => $repos->count(),
+            'active_session' => $activeSession?->id,
+        ]);
+
+        $sources = $this->discoverSources();
+
+        Log::channel('activity')->info('[activity:scan] Available sources', [
+            'sources' => $sources->map->identifier()->values()->all(),
+        ]);
+
+        return $sources
             ->flatMap(fn (ActivitySource $source) => $source->scan($since, $repos))
             ->unique(fn (ActivityEventData $data) => implode('|', [
                 $data->type->value,
@@ -53,9 +60,9 @@ class ScanAllSources extends Action
     /**
      * Discover all concrete ActivitySource implementations under the given path.
      *
-     * @return array<int, ActivitySource>
+     * @return Collection<int, ActivitySource>
      */
-    public function discoverSources(?string $path = null): array
+    public function discoverSources(?string $path = null): Collection
     {
         $path ??= app_path('Services/ActivitySources');
         $namespace = app()->getNamespace();
@@ -71,7 +78,7 @@ class ScanAllSources extends Action
                 && ! (new ReflectionClass($class))->isAbstract()
             )
             ->map(fn (string $class) => app($class))
-            ->values()
-            ->all();
+            ->filter(fn (ActivitySource $source) => $source->isAvailable())
+            ->values();
     }
 }

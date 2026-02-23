@@ -22,6 +22,9 @@ return new class extends Migration
             $table->timestamps();
 
             $table->index(['project_id', 'occurred_at']);
+
+            // Used by firstOrCreate deduplication lookup
+            $table->index(['project_id', 'type', 'source_type', 'occurred_at'], 'activity_events_dedup');
         });
     }
 

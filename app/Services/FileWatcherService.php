@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Models\ProjectRepository;
+use Illuminate\Support\Facades\Log;
 use Native\Desktop\Facades\ChildProcess;
 
 class FileWatcherService
@@ -28,23 +29,34 @@ class FileWatcherService
         $debounce = (int) config('activity.fswatch.debounce_seconds', 3);
 
         $excludeArgs = array_merge(...array_map(fn (string $p) => ['--exclude', $p], $excluded));
-        $args = array_merge(['fswatch', '-r', '--event', 'Updated', '--latency', (string) $debounce], $excludeArgs, $paths);
+        $args = array_merge(
+            ['fswatch', '-r', '--event', 'Updated', '--latency', (string) $debounce, '--timestamp', '--format-time', '%s'],
+            $excludeArgs,
+            $paths,
+        );
+
+        Log::channel('activity')->info('[fswatch] Starting child process', ['command' => implode(' ', $args), 'alias' => self::ALIAS]);
 
         ChildProcess::start(
-            cmd: implode(' ', array_map('escapeshellarg', $args)),
+            cmd: $args,
             alias: self::ALIAS,
+            persistent: true,
         );
     }
 
     public function stop(): void
     {
+        Log::channel('activity')->info('[fswatch] Stopping child process', ['alias' => self::ALIAS]);
+
         ChildProcess::stop(self::ALIAS);
+
     }
 
     public function restart(): void
     {
-        $this->stop();
-        $this->start();
+        Log::channel('activity')->info('[fswatch] Restarting child process', ['alias' => self::ALIAS]);
+
+        ChildProcess::restart(self::ALIAS);
     }
 
     /**

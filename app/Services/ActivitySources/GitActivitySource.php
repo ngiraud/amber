@@ -10,6 +10,7 @@ use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Throwable;
 
@@ -31,9 +32,13 @@ class GitActivitySource implements ActivitySource
      */
     public function scan(CarbonImmutable $since, Collection $repos): Collection
     {
-        return $repos
+        $events = $repos
             ->flatMap(fn (ProjectRepository $repo) => $this->scanRepository($repo, $since))
             ->values();
+
+        Log::channel('activity')->info('[activity:scan] git source', ['events_found' => $events->count()]);
+
+        return $events;
     }
 
     /**
@@ -41,6 +46,7 @@ class GitActivitySource implements ActivitySource
      */
     protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since): Collection
     {
+        // Est-ce que ça marche ?
         $result = Process::run([
             'git',
             '-C', $repo->local_path,
@@ -53,18 +59,16 @@ class GitActivitySource implements ActivitySource
             return collect();
         }
 
+        // @TODO: get authors from project?
         $authorEmail = config('activity.git.author_email');
 
         return collect(explode("\n", mb_trim($result->output())))
             ->filter()
             ->map(fn (string $line) => $this->parseLine($line))
             ->filter()
-            ->when(
-                $authorEmail !== null,
-                fn (Collection $events) => $events->filter(
-                    fn (ActivityEventData $data) => ($data->metadata['author_email'] ?? null) === $authorEmail
-                )
-            )
+            ->when($authorEmail !== null, fn (Collection $events) => $events->filter(
+                fn (ActivityEventData $data) => ($data->metadata['author_email'] ?? null) === $authorEmail
+            ))
             ->map(fn (ActivityEventData $data) => new ActivityEventData(
                 type: $data->type,
                 sourceType: $data->sourceType,

@@ -7,10 +7,9 @@ namespace App\Actions\Activity;
 use App\Actions\Action;
 use App\Data\ActivityEventData;
 use App\Events\ActivityDetected;
-use App\Events\ActivityWithoutSessionDetected;
 use App\Models\ActivityEvent;
-use App\Models\Project;
 use App\Models\Session;
+use Illuminate\Support\Facades\Log;
 
 class RecordActivityEvent extends Action
 {
@@ -33,27 +32,36 @@ class RecordActivityEvent extends Action
             return null;
         }
 
-        $activeSession ??= Session::findActive();
+        // Not sure about this yet, because we record an event each time a file has been "watched" if activated
+        //        $activeSession ??= Session::findActive();
 
-        if ($activeSession === null || $activeSession->project_id !== $projectId) {
-            $project = Project::find($projectId);
+        $sessionId = ($activeSession?->project_id === $projectId) ? $activeSession->id : null;
 
-            if ($project !== null) {
-                ActivityWithoutSessionDetected::dispatch($project);
-            }
+        $event = ActivityEvent::firstOrCreate(
+            [
+                'project_id' => $projectId,
+                'type' => $data->type,
+                'source_type' => $data->sourceType,
+                'occurred_at' => $data->occurredAt,
+            ],
+            [
+                'project_repository_id' => $projectRepositoryId,
+                'session_id' => $sessionId,
+                'metadata' => $data->metadata,
+            ]
+        );
 
+        Log::channel('activity')->info('[activity:scan] Event '.($event->wasRecentlyCreated ? 'recorded' : 'skipped (duplicate)'), [
+            'type' => $data->type->value,
+            'source' => $data->sourceType,
+            'project_id' => $projectId,
+            'session_id' => $sessionId,
+            'occurred_at' => $data->occurredAt->toIso8601String(),
+        ]);
+
+        if (! $event->wasRecentlyCreated) {
             return null;
         }
-
-        $event = ActivityEvent::create([
-            'project_id' => $projectId,
-            'project_repository_id' => $projectRepositoryId,
-            'session_id' => $activeSession->id,
-            'source_type' => $data->sourceType,
-            'type' => $data->type,
-            'occurred_at' => $data->occurredAt,
-            'metadata' => $data->metadata,
-        ]);
 
         ActivityDetected::dispatch($event);
 

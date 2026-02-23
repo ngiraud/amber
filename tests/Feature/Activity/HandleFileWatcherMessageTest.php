@@ -32,9 +32,8 @@ describe('HandleFileWatcherMessage', function () {
         $this->assertDatabaseEmpty('activity_events');
     });
 
-    it('records a FileChange event for a valid file path when a session is active', function () {
+    it('records a FileChange event for a valid file path', function () {
         $repo = ProjectRepository::factory()->create(['local_path' => '/tmp/watched-project']);
-        App\Models\Session::factory()->create(['project_id' => $repo->project_id, 'ended_at' => null]);
         $filePath = '/tmp/watched-project/src/app.php';
 
         $event = new MessageReceived(FileWatcherService::ALIAS, $filePath);
