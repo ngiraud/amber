@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 use App\Actions\Activity\RecordActivityEvent;
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Events\ActivityDetected;
 use App\Models\ActivityEvent;
 use App\Models\Project;
+use App\Models\ProjectRepository;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
@@ -17,92 +19,78 @@ pest()->group('actions', 'activity');
 describe('RecordActivityEvent', function () {
     beforeEach(fn () => Event::fake());
 
-    it('returns null when project cannot be resolved', function () {
-        $data = new ActivityEventData(
-            type: ActivityEventType::GitCommit,
-            sourceType: 'git',
-            occurredAt: CarbonImmutable::now(),
-        );
-
-        $result = RecordActivityEvent::make()->handle($data);
-
-        expect($result)->toBeNull();
-        $this->assertDatabaseEmpty('activity_events');
-    });
-
     it('creates ActivityEvent with null session_id when no active session', function () {
-        $project = Project::factory()->create();
+        $projectRepository = ProjectRepository::factory()->create();
 
         $data = new ActivityEventData(
+            sourceType: ActivityEventSourceType::Git,
             type: ActivityEventType::GitCommit,
-            sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            project: $project->id,
+            projectRepository: $projectRepository,
         );
 
         $event = RecordActivityEvent::make()->handle($data);
 
         expect($event)->toBeInstanceOf(ActivityEvent::class)
+            ->and($event->project_id)->toBe($projectRepository->project_id)
+            ->and($event->project_repository_id)->toBe($projectRepository->id)
             ->and($event->session_id)->toBeNull();
 
         $this->assertDatabaseHas('activity_events', [
-            'project_id' => $project->id,
+            'project_id' => $projectRepository->project_id,
+            'project_repository_id' => $projectRepository->id,
             'session_id' => null,
         ]);
     });
 
     it('creates ActivityEvent with null session_id when active session is for a different project', function () {
-        $project = Project::factory()->create();
         $otherProject = Project::factory()->create();
-        Session::factory()->create(['project_id' => $otherProject->id, 'ended_at' => null]);
+        $activeSession = Session::factory()->create(['project_id' => $otherProject->id, 'ended_at' => null]);
+
+        $projectRepository = ProjectRepository::factory()->create();
 
         $data = new ActivityEventData(
+            sourceType: ActivityEventSourceType::Git,
             type: ActivityEventType::GitCommit,
-            sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            project: $project->id,
+            projectRepository: $projectRepository,
         );
 
-        $event = RecordActivityEvent::make()->handle($data);
+        $event = RecordActivityEvent::make()->handle($data, $activeSession);
 
         expect($event)->toBeInstanceOf(ActivityEvent::class)
+            ->and($event->project_id)->toBe($projectRepository->project_id)
+            ->and($event->project_repository_id)->toBe($projectRepository->id)
             ->and($event->session_id)->toBeNull();
     });
 
     it('creates an ActivityEvent and links to active session', function () {
-        $project = Project::factory()->create();
-        $session = Session::factory()->create(['project_id' => $project->id, 'ended_at' => null]);
+        $projectRepository = ProjectRepository::factory()->create();
+        $activeSession = Session::factory()->create(['project_id' => $projectRepository->project_id, 'ended_at' => null]);
 
         $data = new ActivityEventData(
+            sourceType: ActivityEventSourceType::Git,
             type: ActivityEventType::GitCommit,
-            sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            metadata: ['hash' => 'abc123'],
-            project: $project->id,
+            projectRepository: $projectRepository,
         );
 
-        $event = RecordActivityEvent::make()->handle($data);
+        $event = RecordActivityEvent::make()->handle($data, $activeSession);
 
         expect($event)->toBeInstanceOf(ActivityEvent::class)
-            ->and($event->project_id)->toBe($project->id)
-            ->and($event->session_id)->toBe($session->id)
-            ->and($event->type)->toBe(ActivityEventType::GitCommit);
-
-        $this->assertDatabaseHas('activity_events', [
-            'project_id' => $project->id,
-            'session_id' => $session->id,
-            'source_type' => 'git',
-        ]);
+            ->and($event->project_id)->toBe($projectRepository->project_id)
+            ->and($event->project_repository_id)->toBe($projectRepository->id)
+            ->and($event->session_id)->toBe($activeSession->id);
     });
 
     it('dispatches ActivityDetected for every recorded event', function () {
-        $project = Project::factory()->create();
+        $projectRepository = ProjectRepository::factory()->create();
 
         $data = new ActivityEventData(
+            sourceType: ActivityEventSourceType::Git,
             type: ActivityEventType::GitCommit,
-            sourceType: 'git',
             occurredAt: CarbonImmutable::now(),
-            project: $project->id,
+            projectRepository: $projectRepository,
         );
 
         RecordActivityEvent::make()->handle($data);

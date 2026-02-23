@@ -6,6 +6,7 @@ use App\Actions\Activity\CheckIdleStatus;
 use App\Events\IdleTimeoutReached;
 use App\Models\ActivityEvent;
 use App\Models\Project;
+use App\Models\ProjectRepository;
 use App\Models\Session;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
@@ -24,10 +25,12 @@ describe('CheckIdleStatus', function () {
     it('does not dispatch when there is recent activity', function () {
         Config::set('activity.idle_timeout_minutes', 15);
 
-        $project = Project::factory()->create();
-        Session::factory()->create(['project_id' => $project->id, 'ended_at' => null]);
+        $projectRepository = ProjectRepository::factory()->create(['local_path' => '/tmp/project']);
+
+        Session::factory()->create(['project_id' => $projectRepository->project_id, 'ended_at' => null]);
         ActivityEvent::factory()->create([
-            'project_id' => $project->id,
+            'project_id' => $projectRepository->project_id,
+            'project_repository_id' => $projectRepository->id,
             'occurred_at' => now()->subMinutes(5),
         ]);
 
@@ -39,10 +42,11 @@ describe('CheckIdleStatus', function () {
     it('dispatches IdleTimeoutReached when idle exceeds the threshold', function () {
         Config::set('activity.idle_timeout_minutes', 15);
 
-        $project = Project::factory()->create();
-        Session::factory()->create(['project_id' => $project->id, 'ended_at' => null]);
+        $projectRepository = ProjectRepository::factory()->create(['local_path' => '/tmp/project']);
+        Session::factory()->create(['project_id' => $projectRepository->project_id, 'ended_at' => null]);
         ActivityEvent::factory()->create([
-            'project_id' => $project->id,
+            'project_id' => $projectRepository->project_id,
+            'project_repository_id' => $projectRepository->id,
             'occurred_at' => now()->subMinutes(20),
         ]);
 

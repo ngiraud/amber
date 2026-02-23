@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use App\Services\ActivitySources\ClaudeCodeActivitySource;
@@ -20,7 +21,7 @@ function makeClaudeSource(string $projectsPath): ClaudeCodeActivitySource
 
 describe('ClaudeCodeActivitySource', function () {
     it('returns claude-code as the identifier', function () {
-        expect((new ClaudeCodeActivitySource)->identifier())->toBe('claude-code');
+        expect((new ClaudeCodeActivitySource)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
     });
 
     it('is not available when projects path does not exist', function () {
@@ -79,7 +80,7 @@ describe('ClaudeCodeActivitySource', function () {
         expect($events)->toHaveCount(1)
             ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
             ->and($events->first()->type)->toBe(ActivityEventType::ClaudeSessionStart)
-            ->and($events->first()->project)->toBe($repo->project_id)
+            ->and($events->first()->projectRepository->id)->toBe($repo->id)
             ->and($events->first()->metadata['session_id'])->toBe($sessionId);
 
         exec("rm -rf {$tmpDir}");
@@ -120,7 +121,7 @@ describe('ClaudeCodeActivitySource', function () {
         expect($events)->toHaveCount(1)
             ->and($events->first()->type)->toBe(ActivityEventType::ClaudeFileTouch)
             ->and($events->first()->metadata['tool'])->toBe('Edit')
-            ->and($events->first()->project)->toBe($repo->project_id);
+            ->and($events->first()->projectRepository->id)->toBe($repo->id);
 
         exec("rm -rf {$tmpDir}");
     });

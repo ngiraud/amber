@@ -61,6 +61,8 @@ class GitActivitySource implements ActivitySource
             $authorEmails = explode(',', config('activity.git.author_emails', ''));
         }
 
+        $authorEmails = array_filter(array_map('trim', $authorEmails));
+
         return collect(explode("\n", mb_trim($result->output())))
             ->filter()
             ->map(fn (string $line) => $this->parseLine($line))

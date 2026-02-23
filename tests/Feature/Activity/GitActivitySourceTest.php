@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
+use App\Models\AppSetting;
 use App\Models\ProjectRepository;
 use App\Services\ActivitySources\GitActivitySource;
 use Carbon\CarbonImmutable;
@@ -14,7 +16,7 @@ pest()->group('activity', 'sources');
 
 describe('GitActivitySource', function () {
     it('returns git as the identifier', function () {
-        expect((new GitActivitySource)->identifier())->toBe('git');
+        expect((new GitActivitySource)->identifier())->toBe(ActivityEventSourceType::Git);
     });
 
     it('is available when git command succeeds', function () {
@@ -49,7 +51,7 @@ describe('GitActivitySource', function () {
         $repo = ProjectRepository::factory()->create(['local_path' => '/some/project']);
 
         Process::fake([
-            '*' => Process::result('abc123|test@example.com|2024-01-01T12:00:00+00:00|Initial commit'),
+            '*' => Process::result('abc123|test@example.com|2026-01-01T12:00:00+00:00|Initial commit'),
         ]);
 
         $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
@@ -57,22 +59,44 @@ describe('GitActivitySource', function () {
         expect($events)->toHaveCount(1)
             ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
             ->and($events->first()->type)->toBe(ActivityEventType::GitCommit)
-            ->and($events->first()->project)->toBe($repo->project_id)
+            ->and($events->first()->projectRepository->id)->toBe($repo->id)
             ->and($events->first()->metadata['hash'])->toBe('abc123')
             ->and($events->first()->metadata['author_email'])->toBe('test@example.com');
     });
 
-    it('filters commits by author email when configured', function () {
-        Config::set('activity.git.author_email', 'test@example.com');
+    it('filters commits by author email when configured from config', function () {
+        Config::set('activity.git.author_emails', 'fromconfig@example.com');
 
         ProjectRepository::factory()->create(['local_path' => '/some/project']);
 
         Process::fake([
-            '*' => Process::result('abc123|other@example.com|2024-01-01T12:00:00+00:00|Some commit'),
+            '*' => Process::result(implode("\n", [
+                'abc123|other@example.com|2024-01-01T12:00:00+00:00|Some commit',
+                'abc123|fromconfig@example.com|2024-01-01T12:00:00+00:00|Some commit',
+            ])),
         ]);
 
         $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
-        expect($events)->toHaveCount(0);
+        expect($events)->toHaveCount(1)
+            ->and($events->first()->metadata['author_email'])->toBe('fromconfig@example.com');
+    });
+
+    it('filters commits by author email when configured from AppSetting', function () {
+        AppSetting::set('git_author_emails', ['fromapp@example.com', 'john@example.com']);
+
+        ProjectRepository::factory()->create(['local_path' => '/some/project']);
+
+        Process::fake([
+            '*' => Process::result(implode("\n", [
+                'abc123|other@example.com|2024-01-01T12:00:00+00:00|Some commit',
+                'abc123|fromapp@example.com|2024-01-01T12:00:00+00:00|Some commit',
+            ])),
+        ]);
+
+        $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+
+        expect($events)->toHaveCount(1)
+            ->and($events->first()->metadata['author_email'])->toBe('fromapp@example.com');
     });
 });

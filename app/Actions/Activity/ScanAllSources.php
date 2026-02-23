@@ -18,10 +18,6 @@ use Symfony\Component\Finder\Finder;
 
 class ScanAllSources extends Action
 {
-    public function __construct(
-        protected RecordActivityEvent $recordEvent,
-    ) {}
-
     /**
      * @return Collection<int, ActivityEvent>
      */
@@ -33,6 +29,8 @@ class ScanAllSources extends Action
 
         $activeSession = Session::findActive();
 
+        $recordEventAction = app(RecordActivityEvent::class);
+
         return $this->discoverSources()
             ->flatMap(fn (ActivitySource $source) => $source->scan($since, $repos))
             ->unique(fn (ActivityEventData $data) => implode('|', [
@@ -40,7 +38,7 @@ class ScanAllSources extends Action
                 $data->type->value,
                 $data->occurredAt->toIso8601String(),
             ]))
-            ->map(fn (ActivityEventData $data) => $this->recordEvent->handle($data, $activeSession))
+            ->map(fn (ActivityEventData $data) => $recordEventAction->handle($data, $activeSession))
             ->filter()
             ->values();
     }

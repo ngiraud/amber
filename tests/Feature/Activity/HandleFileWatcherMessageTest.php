@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\Activity\RecordActivityEvent;
+use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Listeners\HandleFileWatcherMessage;
 use App\Models\ActivityEvent;
@@ -32,30 +32,34 @@ describe('HandleFileWatcherMessage', function () {
         $this->assertDatabaseEmpty('activity_events');
     });
 
-    it('records a FileChange event for a valid file path', function () {
-        $repo = ProjectRepository::factory()->create(['local_path' => '/tmp/watched-project']);
+    it('ignores malformed message data', function () {
+        // Message data should be a timestamp followed by a file path
+
         $filePath = '/tmp/watched-project/src/app.php';
 
-        $event = new MessageReceived(FileWatcherService::ALIAS, $filePath);
+        $event = new MessageReceived(FileWatcherService::ALIAS, "azerty {$filePath}");
+
+        app(HandleFileWatcherMessage::class)->handle($event);
+
+        $this->assertDatabaseEmpty('activity_events');
+    });
+
+    it('records a FileChange event for a valid file path', function () {
+        $repo = ProjectRepository::factory()->create(['local_path' => '/tmp/watched-project']);
+        $timestamp = time();
+        $filePath = '/tmp/watched-project/src/app.php';
+
+        $event = new MessageReceived(FileWatcherService::ALIAS, "{$timestamp} {$filePath}");
 
         app(HandleFileWatcherMessage::class)->handle($event);
 
         $this->assertDatabaseHas('activity_events', [
-            'source_type' => 'fswatch',
+            'source_type' => ActivityEventSourceType::Fswatch->value,
             'project_id' => $repo->project_id,
+            'project_repository_id' => $repo->id,
         ]);
 
         $recorded = ActivityEvent::first();
         expect($recorded->type)->toBe(ActivityEventType::FileChange);
-    });
-
-    it('delegates to RecordActivityEvent', function () {
-        RecordActivityEvent::fake()
-            ->shouldReceive('handle')
-            ->once();
-
-        $event = new MessageReceived(FileWatcherService::ALIAS, '/tmp/some/file.php');
-
-        app(HandleFileWatcherMessage::class)->handle($event);
     });
 });

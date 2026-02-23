@@ -37,6 +37,10 @@ class ClaudeCodeActivitySource implements ActivitySource
 
         foreach (glob($this->projectsPath().'/*', GLOB_ONLYDIR) ?: [] as $dir) {
             foreach (glob($dir.'/*.jsonl') ?: [] as $file) {
+                if (filemtime($file) < $since->timestamp) {
+                    continue;
+                }
+
                 $events = $events->merge($this->scanFile($file, $repos, $since));
             }
         }
@@ -73,10 +77,10 @@ class ClaudeCodeActivitySource implements ActivitySource
 
         $events = collect();
 
-        foreach ($lines as $line) {
+        foreach (array_reverse($lines) as $line) {
             $obj = json_decode($line, true);
 
-            if (! isset($obj['timestamp'])) {
+            if (! is_array($obj) || ! isset($obj['timestamp'])) {
                 continue;
             }
 
@@ -87,7 +91,7 @@ class ClaudeCodeActivitySource implements ActivitySource
             }
 
             if ($occurredAt->lessThanOrEqualTo($since)) {
-                continue;
+                break;
             }
 
             // Session start
@@ -139,10 +143,10 @@ class ClaudeCodeActivitySource implements ActivitySource
      */
     protected function resolveCwd(array $lines): ?string
     {
-        foreach ($lines as $line) {
+        foreach (array_slice($lines, 0, 10) as $line) {
             $obj = json_decode($line, true);
 
-            if (! empty($obj['cwd'])) {
+            if (is_array($obj) && ! empty($obj['cwd'])) {
                 return $obj['cwd'];
             }
         }
