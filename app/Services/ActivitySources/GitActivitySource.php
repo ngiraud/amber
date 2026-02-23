@@ -12,6 +12,7 @@ use App\Models\AppSetting;
 use App\Models\ProjectRepository;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Process;
 use Throwable;
 
@@ -94,6 +95,8 @@ class GitActivitySource implements ActivitySource
         }
 
         [$hash, $authorEmail, $date, $message] = $parts;
+
+        Log::channel('activity')->debug('Date: '.$date);
 
         try {
             $occurredAt = CarbonImmutable::parse($date);
