@@ -1,6 +1,6 @@
-import type { VariantProps } from "class-variance-authority"
-import type { HTMLAttributes } from "vue"
-import { cva } from "class-variance-authority"
+import type { VariantProps } from 'class-variance-authority';
+import { cva } from 'class-variance-authority';
+import type { HTMLAttributes } from 'vue';
 
 export interface SidebarProps {
   side?: "left" | "right"
@@ -47,7 +47,7 @@ export const sidebarMenuButtonVariants = cva(
       size: {
         default: "h-8 text-sm",
         sm: "h-7 text-xs",
-        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0!",
+        lg: "h-12 text-sm group-data-[collapsible=icon]:p-0! group-data-[collapsible=icon]:size-12!",
       },
     },
     defaultVariants: {

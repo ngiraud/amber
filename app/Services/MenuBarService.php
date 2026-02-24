@@ -29,7 +29,6 @@ class MenuBarService
             ->label($active !== null ? $this->formatElapsed($active) : '')
             ->tooltip('CRA Tracker')
             ->onlyShowContextMenu()
-            ->lightVibrancy()
             ->withContextMenu(
                 $active !== null ? $this->buildActiveMenu($active) : $this->buildIdleMenu()
             );
@@ -107,8 +106,8 @@ class MenuBarService
     public function resolveIcon(?Session $session): string
     {
         return $session !== null
-            ? storage_path('app/menubarActiveTemplate.png')
-            : storage_path('app/menubarIdleTemplate.png');
+            ? public_path('menubarActiveTemplate.png')
+            : public_path('menubarIdleTemplate.png');
     }
 
     public function formatElapsed(Session $session): string
