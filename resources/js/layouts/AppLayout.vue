@@ -14,7 +14,7 @@ defineProps<{
 <template>
     <Head :title="title" />
 
-    <SidebarProvider class="h-screen overflow-hidden">
+    <SidebarProvider class="h-screen overflow-hidden" :open="false">
         <AppSidebar />
         <SidebarInset class="overflow-y-auto">
             <ActiveSessionBanner />
