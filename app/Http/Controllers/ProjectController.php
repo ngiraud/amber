@@ -10,16 +10,30 @@ use App\Actions\Project\UpdateProject;
 use App\Data\ProjectData;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
+use App\Http\Resources\ActivityEventResource;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\ProjectResource;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ProjectController extends Controller
 {
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        return Inertia::render('project/Index', [
+            'projects' => ProjectResource::collection(
+                Project::query()->with('client')->withCount('repositories')->latest('id')->paginate()
+            ),
+        ]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -43,13 +57,22 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Client $client, Project $project): Response
+    public function show(Request $request, Client $client, Project $project): Response
     {
         $project->load('repositories');
 
         return Inertia::render('project/Show', [
             'client' => ClientResource::make($client),
             'project' => ProjectResource::make($project),
+            'events' => Inertia::scroll(
+                ActivityEventResource::collection(
+                    $project->activityEvents()
+                        ->with('projectRepository')
+                        ->latest('occurred_at')
+                        ->cursorPaginate(30)
+                )
+            ),
+            'hasNewEvents' => $request->filled('since_id') && $project->activityEvents()->where('activity_events.id', '>', $request->string('since_id'))->exists(),
         ]);
     }
 

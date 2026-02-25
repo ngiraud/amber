@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form, Link } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ActivityLog from '@/components/ActivityLog.vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -8,10 +9,12 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
-import type { Client } from '@/types';
+import type { ActivityEvent, Client, Paginator } from '@/types';
 
 defineProps<{
     client: Client;
+    events: Paginator<ActivityEvent>;
+    hasNewEvents: boolean;
 }>();
 
 const confirmDelete = ref(false);
@@ -92,6 +95,14 @@ const confirmDelete = ref(false);
                         </span>
                     </div>
                 </Link>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <h2 class="text-base font-semibold">Recent Activity</h2>
+
+            <div class="mt-3">
+                <ActivityLog :events="events" :has-new-events="hasNewEvents" scroll-class="max-h-80 overflow-y-auto" />
             </div>
         </div>
     </AppLayout>

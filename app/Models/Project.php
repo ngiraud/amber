@@ -14,6 +14,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @method static \Illuminate\Database\Eloquent\Builder<static> active()
+ */
 class Project extends Model
 {
     /** @use HasFactory<\Database\Factories\ProjectFactory> */

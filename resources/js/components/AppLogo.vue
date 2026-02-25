@@ -3,9 +3,7 @@ import { TimerResetIcon } from 'lucide-vue-next';
 </script>
 
 <template>
-    <div
-        class="flex size-full items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground"
-    >
-        <TimerResetIcon class="stroke-current text-white dark:text-black"/>
+    <div class="flex size-full items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+        <TimerResetIcon class="stroke-current text-white dark:text-black" />
     </div>
 </template>

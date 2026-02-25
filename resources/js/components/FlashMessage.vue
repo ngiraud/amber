@@ -17,3 +17,7 @@ onUnmounted(() => {
     off();
 });
 </script>
+
+<template>
+    <!-- This component is purely logical and does not need a template -->
+</template>

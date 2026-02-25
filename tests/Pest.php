@@ -43,7 +43,15 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function something()
+function fakeNotification(): Mockery\MockInterface
 {
-    // ..
+    $mock = Native\Desktop\Facades\Notification::shouldReceive('title')
+        ->withAnyArgs()->andReturnSelf()->zeroOrMoreTimes()
+        ->getMock();
+
+    foreach (['message', 'reference', 'addAction', 'show', 'silent', 'sound', 'event'] as $method) {
+        $mock->shouldReceive($method)->withAnyArgs()->andReturnSelf()->zeroOrMoreTimes();
+    }
+
+    return $mock;
 }
