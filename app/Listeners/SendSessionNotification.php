@@ -7,6 +7,7 @@ namespace App\Listeners;
 use App\Events\SessionAlreadyActiveAttempted;
 use App\Events\SessionStarted;
 use App\Events\SessionStopped;
+use InvalidArgumentException;
 use Native\Desktop\Facades\Notification;
 
 class SendSessionNotification
@@ -17,6 +18,7 @@ class SendSessionNotification
             SessionStarted::class => $this->handleSessionStarted($event),
             SessionStopped::class => $this->handleSessionStopped($event),
             SessionAlreadyActiveAttempted::class => $this->handleSessionAlreadyActive($event),
+            default => throw new InvalidArgumentException('Invalid event type'),
         };
     }
 

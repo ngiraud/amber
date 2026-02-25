@@ -16,6 +16,7 @@ use Native\Desktop\Events\ChildProcess\MessageReceived;
 
 class HandleFileWatcherMessage
 {
+    /** @var Collection<int, ProjectRepository>|null */
     protected ?Collection $projectRepositories = null;
 
     public function __construct(protected readonly RecordActivityEvent $recordEvent) {}
@@ -56,11 +57,17 @@ class HandleFileWatcherMessage
                 continue;
             }
 
+            $projectRepository = $this->getProjectRepositoryFromPath($filePath);
+
+            if (! $projectRepository) {
+                continue;
+            }
+
             $this->recordEvent->handle(new ActivityEventData(
                 sourceType: ActivityEventSourceType::Fswatch,
                 type: ActivityEventType::FileChange,
                 occurredAt: $occurredAt,
-                projectRepository: $this->getProjectRepositoryFromPath($filePath),
+                projectRepository: $projectRepository,
                 metadata: ['file_path' => $filePath],
             ));
         }
@@ -106,7 +113,7 @@ class HandleFileWatcherMessage
         return in_array(mb_strtolower($extension), $allowed, strict: true);
     }
 
-    protected function getProjectRepositoryFromPath(string $filePath): ProjectRepository
+    protected function getProjectRepositoryFromPath(string $filePath): ?ProjectRepository
     {
         return $this->projectRepositories
             ->filter(fn (ProjectRepository $repo) => str_starts_with($filePath, $repo->local_path))

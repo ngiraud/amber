@@ -1,13 +1,23 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { ClockIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import AppLogo from '@/components/AppLogo.vue';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { home } from '@/routes';
 import * as clientRoutes from '@/routes/clients';
 import * as sessionRoutes from '@/routes/sessions';
 import * as settingsRoutes from '@/routes/settings';
-import AppLogo from '@/components/AppLogo.vue';
 
 const { isCurrentUrl } = useCurrentUrl();
 </script>
