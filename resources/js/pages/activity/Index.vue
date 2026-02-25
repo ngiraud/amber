@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ActivityLog from '@/components/ActivityLog.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { ActivityEvent, Paginator } from '@/types';
 
@@ -11,12 +12,10 @@ defineProps<{
 
 <template>
     <AppLayout title="Activity">
-        <div class="flex items-center justify-between">
-            <h1 class="text-xl font-semibold">Activity</h1>
-        </div>
+        <template #header>
+            <PageHeader title="Activity" />
+        </template>
 
-        <div class="mt-6">
-            <ActivityLog :events="events" :has-new-events="hasNewEvents" />
-        </div>
+        <ActivityLog :events="events" :has-new-events="hasNewEvents" />
     </AppLayout>
 </template>

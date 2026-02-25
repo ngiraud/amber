@@ -15,6 +15,7 @@ use App\Http\Resources\ClientResource;
 use App\Http\Resources\ProjectResource;
 use App\Models\Client;
 use App\Models\Project;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -69,10 +70,10 @@ class ProjectController extends Controller
                     $project->activityEvents()
                         ->with('projectRepository')
                         ->latest('occurred_at')
-                        ->cursorPaginate(30)
+                        ->cursorPaginate()
                 )
             ),
-            'hasNewEvents' => $request->filled('since_id') && $project->activityEvents()->where('activity_events.id', '>', $request->string('since_id'))->exists(),
+            'hasNewEvents' => $request->filled('since_occurred_at') && $project->activityEvents()->where('occurred_at', '>', Carbon::createFromTimestamp($request->integer('since_occurred_at')))->exists(),
         ]);
     }
 

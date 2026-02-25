@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { InfiniteScroll, router } from '@inertiajs/vue3';
-import { onMounted, onUnmounted, ref } from 'vue';
+import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
+import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { ActivityEvent, Paginator } from '@/types';
@@ -20,7 +21,9 @@ const props = withDefaults(defineProps<ActivityLogProps>(), {
     hasNewEvents: false,
 });
 
-const sinceId = ref<string | null>(props.events.data[0]?.id ?? null);
+const scrollContainer = useTemplateRef<HTMLDivElement>('scrollContainer');
+const sinceOccurredAt = ref<number | null>(props.events.data[0]?.occurred_at_timestamp ?? null);
+
 const openTooltipId = ref<string | null>(null);
 
 function onDetailMouseEnter(e: MouseEvent, id: string): void {
@@ -39,7 +42,7 @@ onMounted(() => {
     pollTimer = setInterval(() => {
         router.reload({
             only: ['hasNewEvents'],
-            data: sinceId.value ? { since_id: sinceId.value } : {},
+            data: sinceOccurredAt.value ? { since_occurred_at: sinceOccurredAt.value } : {},
             preserveUrl: props.preserveUrl,
         });
     }, 5000);
@@ -56,22 +59,23 @@ function refresh(): void {
         only: [props.propName, 'hasNewEvents'],
         reset: [props.propName],
         onSuccess: () => {
-            sinceId.value = props.events.data[0]?.id ?? null;
+            sinceOccurredAt.value = props.events.data[0]?.occurred_at_timestamp ?? null;
+            scrollContainer.value?.scrollTo({ top: 0, behavior: 'smooth' });
         },
     });
 }
 </script>
 
 <template>
-    <div :class="cn('rounded-md bg-zinc-950 p-3 font-mono text-xs', scrollClass)">
+    <div ref="scrollContainer" :class="cn('relative rounded-md bg-zinc-950 p-3 font-mono text-xs', scrollClass)">
         <Transition name="banner">
-            <div v-if="hasNewEvents" class="mb-2 flex items-center justify-between rounded bg-zinc-800 px-3 py-1.5">
+            <div v-if="hasNewEvents" class="sticky top-0 mb-2 flex items-center justify-between rounded bg-zinc-800 px-3 py-1.5">
                 <span class="text-zinc-300">New events available</span>
-                <button class="cursor-pointer text-xs text-zinc-400 hover:text-zinc-200" @click="refresh">Refresh ↺</button>
+                <Button size="sm" class="text-zinc-400 hover:text-zinc-200" @click="refresh">Refresh ↺</Button>
             </div>
         </Transition>
 
-        <InfiniteScroll :data="propName" :preserve-url="preserveUrl">
+        <InfiniteScroll :data="propName" :preserve-url="preserveUrl" :buffer="200">
             <template #loading>Loading activity events</template>
 
             <TransitionGroup name="log-entry" tag="div">

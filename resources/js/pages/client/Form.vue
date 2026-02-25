@@ -23,7 +23,7 @@ const confirmDelete = ref(false);
 
 <template>
     <AppLayout :title="isEditing ? `Edit — ${client!.name}` : 'New client'">
-        <div class="max-w-lg">
+        <template #header>
             <Breadcrumb>
                 <BreadcrumbList>
                     <BreadcrumbItem>
@@ -48,11 +48,13 @@ const confirmDelete = ref(false);
                 </BreadcrumbList>
             </Breadcrumb>
 
-            <h1 class="mt-4 text-xl font-semibold">
+            <h1 class="mt-2 text-xl font-semibold">
                 {{ isEditing ? 'Edit client' : 'New client' }}
             </h1>
+        </template>
 
-            <Form class="mt-6 flex flex-col gap-5" :action="action" #default="{ errors, processing }">
+        <div class="max-w-lg">
+            <Form class="flex flex-col gap-5" :action="action" #default="{ errors, processing }">
                 <InputField label="Name" :error="errors.name" required>
                     <Input name="name" type="text" :default-value="client?.name" :placeholder="isEditing ? undefined : 'Acme Corp'" autofocus />
                 </InputField>

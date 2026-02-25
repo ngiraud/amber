@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import InputField from '@/components/InputField.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
@@ -36,10 +37,12 @@ function transformSettings(data: Record<string, unknown>): Record<string, unknow
 
 <template>
     <AppLayout title="Settings">
-        <div class="max-w-lg">
-            <h1 class="text-xl font-semibold">Settings</h1>
+        <template #header>
+            <PageHeader title="Settings" />
+        </template>
 
-            <Form class="mt-6 flex flex-col gap-8" :action="settingsRoutes.update()" :transform="transformSettings" #default="{ errors, processing }">
+        <div class="max-w-lg">
+            <Form class="flex flex-col gap-8" :action="settingsRoutes.update()" :transform="transformSettings" #default="{ errors, processing }">
                 <section class="flex flex-col gap-4">
                     <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Git</h2>
 

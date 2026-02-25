@@ -16,11 +16,14 @@ defineProps<{
 
     <SidebarProvider class="h-screen overflow-hidden" :open="false">
         <AppSidebar />
-        <SidebarInset class="overflow-y-auto">
+        <SidebarInset class="overflow-hidden">
             <ActiveSessionBanner />
-            <main class="p-8">
+            <header v-if="$slots.header" class="shrink-0 bg-background px-8 pt-8 pb-4">
+                <slot name="header" />
+            </header>
+            <div class="min-h-0 flex-1 flex flex-col overflow-y-auto px-8" :class="$slots.header ? 'py-6' : 'py-8'">
                 <slot />
-            </main>
+            </div>
         </SidebarInset>
     </SidebarProvider>
 

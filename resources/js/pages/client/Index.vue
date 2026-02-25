@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import ClientSheet from '@/components/ClientSheet.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -13,22 +15,24 @@ defineProps<{
 
 <template>
     <AppLayout title="Clients">
-        <div class="flex items-center justify-between">
-            <h1 class="text-xl font-semibold">Clients</h1>
+        <template #header>
+            <PageHeader title="Clients">
+                <template #actions>
+                    <ClientSheet>
+                        <Button size="sm">New client</Button>
+                    </ClientSheet>
+                </template>
+            </PageHeader>
+        </template>
 
-            <Button as-child size="sm">
-                <Link :href="clientRoutes.create()">New client</Link>
-            </Button>
-        </div>
-
-        <div v-if="clients.data.length === 0" class="mt-12 text-center">
+        <div v-if="clients.data.length === 0" class="mt-6 text-center">
             <p class="text-sm text-muted-foreground">No clients yet.</p>
-            <Link :href="clientRoutes.create()" class="mt-3 inline-block text-sm font-medium underline underline-offset-4">
-                Add your first client
-            </Link>
+            <ClientSheet>
+                <button class="mt-3 text-sm font-medium underline underline-offset-4">Add your first client</button>
+            </ClientSheet>
         </div>
 
-        <div v-else class="mt-6 flex flex-col gap-1.5">
+        <div v-else class="flex flex-col gap-1.5">
             <Link
                 v-for="client in clients.data"
                 :key="client.id"
