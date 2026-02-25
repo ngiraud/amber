@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 return [
-    'idle_timeout_minutes' => (int) env('ACTIVITY_IDLE_TIMEOUT', 22),
+    'idle_timeout_minutes' => (int) env('ACTIVITY_IDLE_TIMEOUT', 30),
 
     'scan_interval_minutes' => (int) env('ACTIVITY_SCAN_INTERVAL', 2),
 

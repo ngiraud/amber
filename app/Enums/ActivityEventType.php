@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Enums;
 
 use App\Enums\Concerns\EnhanceEnum;
-use Illuminate\Support\Str;
 
 enum ActivityEventType: string
 {
@@ -25,7 +24,6 @@ enum ActivityEventType: string
             self::ClaudeSessionStart => 'Session start',
             self::ClaudeSessionEnd => 'Session end',
             self::ClaudeFileTouch => 'File touch',
-            default => Str::ucfirst($this->name),
         };
     }
 }

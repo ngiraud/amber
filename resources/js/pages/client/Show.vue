@@ -9,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
-import type { ActivityEvent, Client } from '@/types';
+import type { ActivityEvent, Client, Paginator } from '@/types';
 
 defineProps<{
     client: Client;
-    events: { data: ActivityEvent[] };
+    events: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
 

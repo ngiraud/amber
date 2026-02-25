@@ -12,12 +12,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
 import repositories from '@/routes/projects/repositories';
-import type { ActivityEvent, Client, Project, ProjectRepository } from '@/types';
+import type { ActivityEvent, Client, Paginator, Project, ProjectRepository } from '@/types';
 
 const props = defineProps<{
     client: Client;
     project: Project;
-    events: { data: ActivityEvent[] };
+    events: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
 

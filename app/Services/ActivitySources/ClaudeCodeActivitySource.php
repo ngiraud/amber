@@ -162,7 +162,6 @@ class ClaudeCodeActivitySource implements ActivitySource
 
         $path = config('activity.claude.projects_path', '');
 
-        // @TODO: check these commands
         if (str_starts_with((string) $path, '~')) {
             $home = $_SERVER['HOME'] ?? posix_getpwuid(posix_getuid())['dir'];
             $path = $home.mb_substr((string) $path, 1);

@@ -2,10 +2,10 @@
 import { InfiniteScroll, router } from '@inertiajs/vue3';
 import { onMounted, onUnmounted, ref } from 'vue';
 import { cn } from '@/lib/utils';
-import type { ActivityEvent } from '@/types';
+import type { ActivityEvent, Paginator } from '@/types';
 
 type ActivityLogProps = {
-    events: { data: ActivityEvent[] };
+    events: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
     propName?: string;
     preserveUrl?: boolean;
@@ -41,7 +41,6 @@ onUnmounted(() => {
 function refresh(): void {
     router.reload({
         only: [props.propName, 'hasNewEvents'],
-        reset: [props.propName],
         onSuccess: () => {
             sinceId.value = props.events.data[0]?.id ?? null;
         },
