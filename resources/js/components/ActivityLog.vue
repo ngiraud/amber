@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { InfiniteScroll, router } from '@inertiajs/vue3';
 import { onMounted, onUnmounted, ref } from 'vue';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import type { ActivityEvent, Paginator } from '@/types';
 
@@ -20,6 +21,18 @@ const props = withDefaults(defineProps<ActivityLogProps>(), {
 });
 
 const sinceId = ref<string | null>(props.events.data[0]?.id ?? null);
+const openTooltipId = ref<string | null>(null);
+
+function onDetailMouseEnter(e: MouseEvent, id: string): void {
+    const el = e.currentTarget as HTMLElement;
+    if (el.scrollWidth > el.clientWidth) {
+        openTooltipId.value = id;
+    }
+}
+
+function onDetailMouseLeave(): void {
+    openTooltipId.value = null;
+}
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 
 onMounted(() => {
@@ -41,6 +54,7 @@ onUnmounted(() => {
 function refresh(): void {
     router.reload({
         only: [props.propName, 'hasNewEvents'],
+        reset: [props.propName],
         onSuccess: () => {
             sinceId.value = props.events.data[0]?.id ?? null;
         },
@@ -53,7 +67,7 @@ function refresh(): void {
         <Transition name="banner">
             <div v-if="hasNewEvents" class="mb-2 flex items-center justify-between rounded bg-zinc-800 px-3 py-1.5">
                 <span class="text-zinc-300">New events available</span>
-                <button class="text-xs text-zinc-400 hover:text-zinc-200" @click="refresh">Refresh ↺</button>
+                <button class="cursor-pointer text-xs text-zinc-400 hover:text-zinc-200" @click="refresh">Refresh ↺</button>
             </div>
         </Transition>
 
@@ -65,7 +79,18 @@ function refresh(): void {
                     <span class="shrink-0 text-zinc-500">[{{ event.occurred_at_formatted }}]</span>
                     <span :class="cn('w-20 shrink-0 truncate', event.source_type.color)">{{ event.source_type.label }}</span>
                     <span :class="cn('w-30 shrink-0 truncate', event.source_type.color)">{{ event.type.label }}</span>
-                    <span class="min-w-0 truncate text-zinc-300">{{ event.detail }}</span>
+                    <Tooltip :open="openTooltipId === event.id">
+                        <TooltipTrigger as-child>
+                            <span
+                                class="min-w-0 truncate text-zinc-300"
+                                @mouseenter="onDetailMouseEnter($event, event.id)"
+                                @mouseleave="onDetailMouseLeave"
+                            >
+                                {{ event.detail }}
+                            </span>
+                        </TooltipTrigger>
+                        <TooltipContent align="start">{{ event.detail }}</TooltipContent>
+                    </Tooltip>
                     <span class="ml-auto shrink-0 text-zinc-600">{{ event.project_name }} ({{ event.repository_name }})</span>
                 </div>
             </TransitionGroup>
