@@ -26,6 +26,7 @@ Route::patch('/clients/{client}', [ClientController::class, 'update'])->name('cl
 Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
 // Projects
+Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
 Route::get('/clients/{client}/projects/create', [ProjectController::class, 'create'])->name('projects.create');
 Route::post('/clients/{client}/projects', [ProjectController::class, 'store'])->name('projects.store');
 Route::get('/clients/{client}/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');

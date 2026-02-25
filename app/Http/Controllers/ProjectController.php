@@ -23,6 +23,18 @@ use Inertia\Response;
 class ProjectController extends Controller
 {
     /**
+     * Display a listing of the resource.
+     */
+    public function index(): Response
+    {
+        return Inertia::render('project/Index', [
+            'projects' => ProjectResource::collection(
+                Project::query()->with('client')->withCount('repositories')->latest('id')->paginate()
+            ),
+        ]);
+    }
+
+    /**
      * Show the form for creating a new resource.
      */
     public function create(Client $client): Response

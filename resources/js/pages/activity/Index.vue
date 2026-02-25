@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import ActivityLog from '@/components/ActivityLog.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { ActivityEvent } from '@/types';
+import type { ActivityEvent, Paginator } from '@/types';
 
 defineProps<{
-    events: { data: ActivityEvent[] };
+    events: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
 </script>
