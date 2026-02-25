@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\ActivityEventController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
@@ -11,6 +12,9 @@ use App\Http\Controllers\SettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
+
+// Activity
+Route::get('/activity', ActivityEventController::class)->name('activity.index');
 
 // Clients
 Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');

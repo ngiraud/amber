@@ -19,6 +19,13 @@ enum ActivityEventType: string
 
     public function label(): string
     {
-        return Str::headline($this->name);
+        return match ($this) {
+            self::GitCommit => 'Commit',
+            self::FileChange => 'File change',
+            self::ClaudeSessionStart => 'Session start',
+            self::ClaudeSessionEnd => 'Session end',
+            self::ClaudeFileTouch => 'File touch',
+            default => Str::ucfirst($this->name),
+        };
     }
 }

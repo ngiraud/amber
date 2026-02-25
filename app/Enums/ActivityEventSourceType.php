@@ -19,4 +19,22 @@ enum ActivityEventSourceType: string
     {
         return Str::headline($this->name);
     }
+
+    public function color(): string
+    {
+        return match ($this) {
+            self::Git => 'text-green-400',
+            self::ClaudeCode => 'text-red-400',
+            self::Fswatch => 'text-blue-400',
+        };
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'value' => $this->value,
+            'label' => Str::ucfirst($this->label()),
+            'color' => $this->color(),
+        ];
+    }
 }

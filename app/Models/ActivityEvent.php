@@ -6,10 +6,13 @@ namespace App\Models;
 
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUlids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 
 class ActivityEvent extends Model
 {
@@ -38,6 +41,33 @@ class ActivityEvent extends Model
     public function session(): BelongsTo
     {
         return $this->belongsTo(Session::class);
+    }
+
+    /** @return Attribute<string, never> */
+    protected function detail(): Attribute
+    {
+        return Attribute::make(
+            get: function () {
+                if ($this->source_type === ActivityEventSourceType::Git) {
+                    return Str::of($this->metadata['message'])
+                        ->when(
+                            ! empty($this->metadata['hash']),
+                            fn (Stringable $str) => $str->append(sprintf(' (%s)', Str::of($this->metadata['hash'])->substr(0, 7)->toString()))
+                        )
+                        ->toString();
+                }
+
+                if ($this->source_type === ActivityEventSourceType::Fswatch) {
+                    return $this->metadata['file_path'];
+                }
+
+                if ($this->type === ActivityEventType::ClaudeFileTouch) {
+                    return $this->metadata['file_path'];
+                }
+
+                return '';
+            },
+        );
     }
 
     /**

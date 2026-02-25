@@ -10,9 +10,11 @@ use App\Actions\Client\UpdateClient;
 use App\Data\ClientData;
 use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
+use App\Http\Resources\ActivityEventResource;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -51,12 +53,19 @@ class ClientController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Client $client): Response
+    public function show(Request $request, Client $client): Response
     {
-        $client->load('projects');
-
         return Inertia::render('client/Show', [
-            'client' => ClientResource::make($client),
+            'client' => ClientResource::make($client->load('projects')),
+            'events' => Inertia::scroll(
+                ActivityEventResource::collection(
+                    $client->activityEvents()
+                        ->with(['project', 'projectRepository'])
+                        ->latest('occurred_at')
+                        ->cursorPaginate(30)
+                )
+            ),
+            'hasNewEvents' => $request->filled('since_id') && $client->activityEvents()->where('activity_events.id', '>', $request->string('since_id'))->exists(),
         ]);
     }
 
