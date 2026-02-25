@@ -52,7 +52,7 @@ class ActivityEvent extends Model
                     return Str::of($this->metadata['message'])
                         ->when(
                             ! empty($this->metadata['hash']),
-                            fn (Stringable $str) => $str->append(sprintf(' (%s)', Str::of($this->metadata['hash'])->substr(0, 7)->toString()))
+                            fn (Stringable $str) => $str->prepend(sprintf('[%s] ', Str::of($this->metadata['hash'])->substr(0, 7)->toString()))
                         )
                         ->toString();
                 }

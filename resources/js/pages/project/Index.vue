@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import * as projectRoutes from '@/actions/App/Http/Controllers/ProjectController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import * as projectRoutes from '@/actions/App/Http/Controllers/ProjectController';
 import type { Project, Paginator } from '@/types';
 
 defineProps<{
