@@ -21,7 +21,7 @@ defineProps<{
             <header v-if="$slots.header" class="shrink-0 bg-background px-8 pt-8 pb-4">
                 <slot name="header" />
             </header>
-            <div class="min-h-0 flex-1 flex flex-col overflow-y-auto px-8" :class="$slots.header ? 'py-6' : 'py-8'">
+            <div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-8" :class="$slots.header ? 'py-6' : 'py-8'">
                 <slot />
             </div>
         </SidebarInset>

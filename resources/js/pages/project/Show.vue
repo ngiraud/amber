@@ -92,7 +92,7 @@ function removeRepo(): void {
             </PageHeader>
         </template>
 
-        <div class="mt-4 shrink-0 flex flex-wrap gap-6 text-sm text-muted-foreground">
+        <div class="mt-4 flex shrink-0 flex-wrap gap-6 text-sm text-muted-foreground">
             <span v-if="project.daily_rate_formatted">
                 <span class="font-medium text-foreground">{{ project.daily_rate_formatted }}</span
                 >/day

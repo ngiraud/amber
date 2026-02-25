@@ -2,7 +2,17 @@
 import { Link } from '@inertiajs/vue3';
 import { ActivityIcon, ClockIcon, FolderIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+} from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { home } from '@/routes';
 import * as activityRoutes from '@/routes/activity';
