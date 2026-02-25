@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'idle_timeout_minutes' => (int) env('ACTIVITY_IDLE_TIMEOUT', 30),
 
+    'untracked_threshold_minutes' => (int) env('ACTIVITY_UNTRACKED_THRESHOLD', 15),
+
     'scan_interval_minutes' => (int) env('ACTIVITY_SCAN_INTERVAL', 2),
 
     'git' => [
