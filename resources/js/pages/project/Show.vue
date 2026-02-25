@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import ActivityLog from '@/components/ActivityLog.vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import InputField from '@/components/InputField.vue';
 import { Badge } from '@/components/ui/badge';
@@ -11,11 +12,13 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
 import repositories from '@/routes/projects/repositories';
-import type { Client, Project, ProjectRepository } from '@/types';
+import type { ActivityEvent, Client, Paginator, Project, ProjectRepository } from '@/types';
 
 const props = defineProps<{
     client: Client;
     project: Project;
+    events: Paginator<ActivityEvent>;
+    hasNewEvents: boolean;
 }>();
 
 const repoToDelete = ref<ProjectRepository | null>(null);
@@ -146,5 +149,13 @@ function removeRepo(): void {
             @confirm="removeRepo"
             @cancel="repoToDelete = null"
         />
+
+        <div class="mt-8">
+            <h2 class="text-base font-semibold">Recent Activity</h2>
+
+            <div class="mt-3">
+                <ActivityLog :events="events" :has-new-events="hasNewEvents" scroll-class="max-h-80 overflow-y-auto" />
+            </div>
+        </div>
     </AppLayout>
 </template>

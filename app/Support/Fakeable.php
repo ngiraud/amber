@@ -18,6 +18,14 @@ trait Fakeable
     }
 
     /**
+     * Replace the bound instance with a fake.
+     */
+    public static function fakePartial(): MockInterface
+    {
+        return static::swap(Mockery::mock(static::class)->makePartial());
+    }
+
+    /**
      * Replace the bound instance with the given mock.
      */
     public static function swap(mixed $instance): mixed

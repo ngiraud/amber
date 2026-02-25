@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Enums;
 
 use App\Enums\Concerns\EnhanceEnum;
-use Illuminate\Support\Str;
 
 enum ActivityEventType: string
 {
@@ -19,6 +18,12 @@ enum ActivityEventType: string
 
     public function label(): string
     {
-        return Str::headline($this->name);
+        return match ($this) {
+            self::GitCommit => 'Commit',
+            self::FileChange => 'File change',
+            self::ClaudeSessionStart => 'Session start',
+            self::ClaudeSessionEnd => 'Session end',
+            self::ClaudeFileTouch => 'File touch',
+        };
     }
 }

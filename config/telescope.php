@@ -119,6 +119,7 @@ return [
         'nova-api*',
         'pulse*',
         '_boost*',
+        '_native*',
         '.well-known*',
     ],
 

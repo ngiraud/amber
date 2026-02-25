@@ -86,6 +86,32 @@ export type Session = {
     project?: Project;
 };
 
+export interface EnumValue {
+    value: string;
+    label: string;
+}
+
+export interface ActivityEventSourceType extends EnumValue {
+    color: string;
+}
+
+export type ActivityEvent = {
+    id: string;
+    project_id: string;
+    project_repository_id: string | null;
+    session_id: string | null;
+    source_type: ActivityEventSourceType;
+    type: EnumValue;
+    occurred_at: string;
+    occurred_at_formatted: string;
+    metadata: Record<string, unknown>;
+    project_name?: string;
+    repository_name?: string;
+    detail: string;
+    created_at: string;
+    updated_at: string;
+};
+
 export type AppSettings = {
     git_author_emails?: string[];
     company_name?: string | null;

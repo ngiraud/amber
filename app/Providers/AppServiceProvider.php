@@ -4,26 +4,13 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Events\Native\StartSessionFromMenu;
-use App\Events\Native\StopSessionFromMenu;
-use App\Events\Native\SwitchProjectFromMenu;
-use App\Events\Native\ToggleSessionShortcut;
-use App\Events\SessionAlreadyActiveAttempted;
-use App\Events\SessionStarted;
-use App\Events\SessionStopped;
-use App\Listeners\HandleStartSessionFromMenu;
-use App\Listeners\HandleStopSessionFromMenu;
-use App\Listeners\HandleSwitchProjectFromMenu;
-use App\Listeners\HandleToggleSessionShortcut;
-use App\Listeners\RefreshMenuBarOnSessionChange;
-use App\Listeners\SendSessionNotification;
+use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -37,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MenuBarService::class);
+        $this->app->singleton(FileWatcherService::class);
     }
 
     /**
@@ -46,13 +34,13 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->configureCommands();
         $this->configureDates();
+        $this->configureEvents();
         $this->configureModels();
         $this->configurePasswords();
         $this->configureRelations();
         $this->configureResources();
         $this->configureUrl();
         $this->configureVite();
-        $this->configureEvents();
     }
 
     protected function configureCommands(): void
@@ -113,11 +101,6 @@ class AppServiceProvider extends ServiceProvider
 
     protected function configureEvents(): void
     {
-        Event::listen(StartSessionFromMenu::class, HandleStartSessionFromMenu::class);
-        Event::listen(StopSessionFromMenu::class, HandleStopSessionFromMenu::class);
-        Event::listen(SwitchProjectFromMenu::class, HandleSwitchProjectFromMenu::class);
-        Event::listen(ToggleSessionShortcut::class, HandleToggleSessionShortcut::class);
-        Event::listen([SessionStarted::class, SessionStopped::class], RefreshMenuBarOnSessionChange::class);
-        Event::listen([SessionStarted::class, SessionStopped::class, SessionAlreadyActiveAttempted::class], SendSessionNotification::class);
+        // Events should be auto-discovered
     }
 }

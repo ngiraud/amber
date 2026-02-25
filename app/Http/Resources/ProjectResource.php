@@ -38,6 +38,7 @@ class ProjectResource extends JsonResource
 
             'client' => ClientResource::make($this->whenLoaded('client')),
             'repositories' => ProjectRepositoryResource::collection($this->whenLoaded('repositories')),
+            'repositories_count' => $this->whenCounted('repositories'),
         ];
     }
 }
