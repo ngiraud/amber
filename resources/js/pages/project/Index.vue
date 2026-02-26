@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import * as projectRoutes from '@/actions/App/Http/Controllers/ProjectController';
+import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -13,15 +14,15 @@ defineProps<{
 
 <template>
     <AppLayout title="Projects">
-        <div class="flex items-center justify-between">
-            <h1 class="text-xl font-semibold">Projects</h1>
-        </div>
+        <template #header>
+            <PageHeader title="Projects" />
+        </template>
 
-        <div v-if="projects.data.length === 0" class="mt-12 text-center">
+        <div v-if="projects.data.length === 0" class="mt-6 text-center">
             <p class="text-sm text-muted-foreground">No projects yet.</p>
         </div>
 
-        <div v-else class="mt-6 flex flex-col gap-1.5">
+        <div v-else class="flex flex-col gap-1.5">
             <Link
                 v-for="project in projects.data"
                 :key="project.id"

@@ -3,11 +3,12 @@ import { Form, Link, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import ActivityLog from '@/components/ActivityLog.vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
-import InputField from '@/components/InputField.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import ProjectSheet from '@/components/ProjectSheet.vue';
+import RepositorySheet from '@/components/RepositorySheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -39,53 +40,59 @@ function removeRepo(): void {
 
 <template>
     <AppLayout :title="project.name">
-        <div class="flex items-center justify-between">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink as-child>
-                            <Link :href="clientRoutes.index()">Clients</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbLink as-child>
-                            <Link :href="clientRoutes.show(client)">{{ client.name }}</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>{{ project.name }}</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+        <template #header>
+            <PageHeader>
+                <template #breadcrumb>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as-child>
+                                    <Link :href="clientRoutes.index()">Clients</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as-child>
+                                    <Link :href="clientRoutes.show(client)">{{ client.name }}</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>{{ project.name }}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </template>
 
-            <div class="flex gap-2">
-                <Button variant="outline" size="sm" as-child>
-                    <Link :href="projectRoutes.edit({ client, project })">Edit</Link>
-                </Button>
+                <template #title>
+                    <div class="flex items-center gap-3">
+                        <div class="h-4 w-4 rounded-full" :style="{ backgroundColor: project.color }" />
+                        <h1 class="text-xl font-semibold">{{ project.name }}</h1>
+                        <Badge v-if="!project.is_active" variant="secondary">Inactive</Badge>
+                    </div>
+                </template>
 
-                <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
+                <template #actions>
+                    <ProjectSheet :client="client" :project="project">
+                        <Button variant="outline" size="sm">Edit</Button>
+                    </ProjectSheet>
 
-                <Form :action="projectRoutes.destroy({ client, project: project! })" #default="{ submit }">
-                    <ConfirmDialog
-                        :open="confirmDelete"
-                        title="Delete project"
-                        :message="`Are you sure you want to delete ${project!.name}?`"
-                        @confirm="submit"
-                        @cancel="confirmDelete = false"
-                    />
-                </Form>
-            </div>
-        </div>
+                    <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 
-        <div class="mt-6 flex items-center gap-3">
-            <div class="h-4 w-4 rounded-full" :style="{ backgroundColor: project.color }" />
-            <h1 class="text-xl font-semibold">{{ project.name }}</h1>
-            <Badge v-if="!project.is_active" variant="secondary">Inactive</Badge>
-        </div>
+                    <Form :action="projectRoutes.destroy({ client, project: project! })" #default="{ submit }">
+                        <ConfirmDialog
+                            :open="confirmDelete"
+                            title="Delete project"
+                            :message="`Are you sure you want to delete ${project!.name}?`"
+                            @confirm="submit"
+                            @cancel="confirmDelete = false"
+                        />
+                    </Form>
+                </template>
+            </PageHeader>
+        </template>
 
-        <div class="mt-4 flex flex-wrap gap-6 text-sm text-muted-foreground">
+        <div class="mt-4 flex shrink-0 flex-wrap gap-6 text-sm text-muted-foreground">
             <span v-if="project.daily_rate_formatted">
                 <span class="font-medium text-foreground">{{ project.daily_rate_formatted }}</span
                 >/day
@@ -102,8 +109,14 @@ function removeRepo(): void {
             </span>
         </div>
 
-        <div class="mt-8">
-            <h2 class="text-base font-semibold">Repositories</h2>
+        <div class="mt-8 shrink-0">
+            <div class="flex items-center justify-between">
+                <h2 class="text-base font-semibold">Repositories</h2>
+
+                <RepositorySheet :project="project">
+                    <Button size="sm" variant="outline">Add repository</Button>
+                </RepositorySheet>
+            </div>
 
             <div v-if="project.repositories?.length" class="mt-3 flex flex-col gap-1.5">
                 <div
@@ -121,24 +134,6 @@ function removeRepo(): void {
             </div>
 
             <p v-else class="mt-3 text-sm text-muted-foreground">No repositories linked yet.</p>
-
-            <Form class="mt-4 flex flex-col gap-3" :action="repositories.store(project)" #default="{ errors, processing }">
-                <div class="grid grid-cols-2 gap-3">
-                    <InputField label="Repository name" :error="errors.name">
-                        <Input name="name" type="text" placeholder="my-repo" />
-                    </InputField>
-
-                    <InputField label="Local path" :error="errors.local_path">
-                        <Input name="local_path" type="text" placeholder="/Users/me/code/my-repo" class="font-mono" />
-                    </InputField>
-                </div>
-
-                <div>
-                    <Button type="submit" variant="outline" size="sm" :disabled="processing">
-                        {{ processing ? 'Adding…' : 'Add repository' }}
-                    </Button>
-                </div>
-            </Form>
         </div>
 
         <ConfirmDialog
@@ -150,11 +145,11 @@ function removeRepo(): void {
             @cancel="repoToDelete = null"
         />
 
-        <div class="mt-8">
-            <h2 class="text-base font-semibold">Recent Activity</h2>
+        <div class="mt-8 flex min-h-0 flex-1 flex-col">
+            <h2 class="shrink-0 text-base font-semibold">Recent Activity</h2>
 
-            <div class="mt-3">
-                <ActivityLog :events="events" :has-new-events="hasNewEvents" scroll-class="max-h-80 overflow-y-auto" />
+            <div class="mt-3 min-h-0 flex-1">
+                <ActivityLog :events="events" :has-new-events="hasNewEvents" scroll-class="h-full overflow-y-auto" />
             </div>
         </div>
     </AppLayout>

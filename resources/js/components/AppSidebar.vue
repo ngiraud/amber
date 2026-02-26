@@ -44,7 +44,7 @@ const { isCurrentUrl } = useCurrentUrl();
                     <SidebarMenu>
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(clientRoutes.index())" tooltip="Clients">
-                                <Link :href="clientRoutes.index()" class="items-center justify-center">
+                                <Link :href="clientRoutes.index()" prefetch class="items-center justify-center">
                                     <UsersIcon />
                                 </Link>
                             </SidebarMenuButton>
@@ -52,7 +52,7 @@ const { isCurrentUrl } = useCurrentUrl();
 
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(projectRoutes.index())" tooltip="Projects">
-                                <Link :href="projectRoutes.index()" class="items-center justify-center">
+                                <Link :href="projectRoutes.index()" prefetch class="items-center justify-center">
                                     <FolderIcon />
                                 </Link>
                             </SidebarMenuButton>
@@ -60,7 +60,7 @@ const { isCurrentUrl } = useCurrentUrl();
 
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(sessionRoutes.index())" tooltip="Sessions">
-                                <Link :href="sessionRoutes.index()" class="items-center justify-center">
+                                <Link :href="sessionRoutes.index()" prefetch class="items-center justify-center">
                                     <ClockIcon />
                                 </Link>
                             </SidebarMenuButton>
@@ -68,7 +68,7 @@ const { isCurrentUrl } = useCurrentUrl();
 
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(activityRoutes.index())" tooltip="Activity">
-                                <Link :href="activityRoutes.index()" class="items-center justify-center">
+                                <Link :href="activityRoutes.index()" prefetch class="items-center justify-center">
                                     <ActivityIcon />
                                 </Link>
                             </SidebarMenuButton>

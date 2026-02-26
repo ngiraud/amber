@@ -103,6 +103,7 @@ export type ActivityEvent = {
     source_type: ActivityEventSourceType;
     type: EnumValue;
     occurred_at: string;
+    occurred_at_timestamp: number;
     occurred_at_formatted: string;
     metadata: Record<string, unknown>;
     project_name?: string;

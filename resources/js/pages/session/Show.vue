@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Form, Link } from '@inertiajs/vue3';
+import PageHeader from '@/components/PageHeader.vue';
 import SessionTimer from '@/components/SessionTimer.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -24,29 +25,35 @@ const isActive = props.session.ended_at === null;
 
 <template>
     <AppLayout :title="`Session — ${session.project?.name ?? ''}`">
-        <div class="flex items-center justify-between">
-            <Breadcrumb>
-                <BreadcrumbList>
-                    <BreadcrumbItem>
-                        <BreadcrumbLink as-child>
-                            <Link :href="sessionRoutes.index()">Sessions</Link>
-                        </BreadcrumbLink>
-                    </BreadcrumbItem>
-                    <BreadcrumbSeparator />
-                    <BreadcrumbItem>
-                        <BreadcrumbPage>Session</BreadcrumbPage>
-                    </BreadcrumbItem>
-                </BreadcrumbList>
-            </Breadcrumb>
+        <template #header>
+            <PageHeader title="Session">
+                <template #breadcrumb>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as-child>
+                                    <Link :href="sessionRoutes.index()">Sessions</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>Session</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </template>
 
-            <Form v-if="isActive" :action="sessionRoutes.stop(session)" method="patch" #default="{ submit, processing }">
-                <Button variant="outline" size="sm" :disabled="processing" @click="submit">
-                    {{ processing ? 'Stopping…' : 'Stop Session' }}
-                </Button>
-            </Form>
-        </div>
+                <template #actions>
+                    <Form v-if="isActive" :action="sessionRoutes.stop(session)" method="patch" #default="{ submit, processing }">
+                        <Button variant="outline" size="sm" :disabled="processing" @click="submit">
+                            {{ processing ? 'Stopping…' : 'Stop Session' }}
+                        </Button>
+                    </Form>
+                </template>
+            </PageHeader>
+        </template>
 
-        <div class="mt-6 max-w-lg space-y-6">
+        <div class="max-w-lg space-y-6">
             <div class="rounded-lg border bg-card p-6">
                 <div class="flex items-center justify-between">
                     <div>
