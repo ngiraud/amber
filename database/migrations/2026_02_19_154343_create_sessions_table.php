@@ -13,10 +13,13 @@ return new class extends Migration
         Schema::create('sessions', function (Blueprint $table) {
             $table->ulid('id')->primary();
             $table->ulid('project_id')->index();
+            $table->date('date')->nullable();
             $table->datetime('started_at');
             $table->datetime('ended_at')->nullable();
             $table->unsignedInteger('duration_minutes')->nullable();
+            $table->unsignedInteger('rounded_minutes')->nullable();
             $table->unsignedTinyInteger('source');
+            $table->text('description')->nullable();
             $table->text('notes')->nullable();
             $table->boolean('is_validated')->default(false);
             $table->timestamps();

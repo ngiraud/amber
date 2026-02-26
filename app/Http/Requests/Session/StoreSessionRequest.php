@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Session;
 
+use App\Models\Project;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreSessionRequest extends FormRequest
 {
@@ -16,7 +18,10 @@ class StoreSessionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'project_id' => ['required', 'string', 'exists:projects,id'],
+            'project_id' => ['required', 'string', Rule::exists(Project::class, 'id')],
+            'started_at' => ['sometimes', 'date'],
+            'ended_at' => ['sometimes', 'date', 'after:started_at'],
+            'description' => ['nullable', 'string'],
             'notes' => ['nullable', 'string'],
         ];
     }

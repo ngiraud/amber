@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Actions\Session\CreateManualSession;
+use App\Actions\Session\CreateSession;
 use App\Actions\Session\DeleteSession;
 use App\Actions\Session\UpdateSession;
+use App\Data\SessionData;
 use App\Enums\RoundingStrategy;
 use App\Enums\SessionSource;
 use App\Models\Project;
@@ -15,15 +16,15 @@ use Illuminate\Support\Facades\Event;
 pest()->group('session');
 
 describe('store manual session controller', function () {
-    it('delegates to CreateManualSession and redirects back', function () {
+    it('delegates to CreateSession and redirects back', function () {
         $project = Project::factory()->create();
 
-        CreateManualSession::fake()
+        CreateSession::fake()
             ->shouldReceive('handle')
             ->once()
             ->andReturn(Session::factory()->make());
 
-        $this->post(route('sessions.store-manual'), [
+        $this->post(route('sessions.store'), [
             'project_id' => $project->id,
             'started_at' => '2026-02-26 09:00:00',
             'ended_at' => '2026-02-26 10:00:00',
@@ -40,7 +41,7 @@ describe('update session controller', function () {
             ->once()
             ->with(
                 Mockery::on(fn ($s) => $s->id === $session->id),
-                Mockery::type('array')
+                Mockery::type(SessionData::class)
             )
             ->andReturn($session);
 
@@ -64,15 +65,19 @@ describe('destroy session controller', function () {
     });
 })->group('controllers');
 
-describe('CreateManualSession action', function () {
+describe('CreateSession action', function () {
     beforeEach(fn () => Event::fake());
 
     it('creates a completed session with computed minutes', function () {
         $project = Project::factory()->create(['rounding' => RoundingStrategy::Quarter]);
-        $startedAt = CarbonImmutable::parse('2026-02-26 09:00:00');
-        $endedAt = CarbonImmutable::parse('2026-02-26 09:50:00');
 
-        $session = CreateManualSession::make()->handle($project, $startedAt, $endedAt, 'Test work');
+        $data = new SessionData(
+            startedAt: CarbonImmutable::parse('2026-02-26 09:00:00'),
+            endedAt: CarbonImmutable::parse('2026-02-26 09:50:00'),
+            description: 'Test work',
+        );
+
+        $session = CreateSession::make()->manual()->handle($project, $data);
 
         expect($session->source)->toBe(SessionSource::Manual)
             ->and($session->duration_minutes)->toBe(50)
@@ -80,6 +85,29 @@ describe('CreateManualSession action', function () {
             ->and($session->description)->toBe('Test work')
             ->and($session->date->toDateString())->toBe('2026-02-26')
             ->and($session->is_validated)->toBeTrue();
+    });
+
+    it('creates an active session when no endedAt is provided', function () {
+        $project = Project::factory()->create();
+
+        $session = CreateSession::make()->manual()->handle($project, new SessionData(notes: 'in progress'));
+
+        expect($session->ended_at)->toBeNull()
+            ->and($session->is_validated)->toBeFalse()
+            ->and($session->notes)->toBe('in progress');
+    });
+
+    it('sets source to Reconstructed', function () {
+        $project = Project::factory()->create();
+
+        $data = new SessionData(
+            startedAt: CarbonImmutable::parse('2026-02-26 09:00:00'),
+            endedAt: CarbonImmutable::parse('2026-02-26 10:00:00'),
+        );
+
+        $session = CreateSession::make()->reconstructed()->handle($project, $data);
+
+        expect($session->source)->toBe(SessionSource::Reconstructed);
     });
 })->group('actions');
 
@@ -96,9 +124,9 @@ describe('UpdateSession action', function () {
             'rounded_minutes' => 60,
         ]);
 
-        $updated = UpdateSession::make()->handle($session, [
-            'ended_at' => '2026-02-26 09:45:00',
-        ]);
+        $updated = UpdateSession::make()->handle($session, new SessionData(
+            endedAt: CarbonImmutable::parse('2026-02-26 09:45:00'),
+        ));
 
         expect($updated->duration_minutes)->toBe(45)
             ->and($updated->rounded_minutes)->toBe(45);
@@ -110,9 +138,9 @@ describe('UpdateSession action', function () {
             'description' => 'Old description',
         ]);
 
-        $updated = UpdateSession::make()->handle($session, [
-            'description' => 'New description',
-        ]);
+        $updated = UpdateSession::make()->handle($session, new SessionData(
+            description: 'New description',
+        ));
 
         expect($updated->description)->toBe('New description')
             ->and($updated->duration_minutes)->toBe($session->duration_minutes);

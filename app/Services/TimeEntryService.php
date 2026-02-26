@@ -2,14 +2,13 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\TimeEntry;
+namespace App\Services;
 
-use App\Actions\Action;
 use App\Enums\RoundingStrategy;
 
-class RoundMinutes extends Action
+class TimeEntryService
 {
-    public function handle(int $rawMinutes, RoundingStrategy $strategy): int
+    public function roundMinutesAccordingStrategy(int $rawMinutes, RoundingStrategy $strategy): int
     {
         if ($rawMinutes <= 0) {
             return 0;

@@ -5,34 +5,20 @@ declare(strict_types=1);
 namespace App\Actions\Session;
 
 use App\Actions\Action;
-use App\Actions\TimeEntry\RoundMinutes;
+use App\Data\SessionData;
 use App\Events\SessionStopped;
 use App\Models\Session;
+use Carbon\CarbonImmutable;
 
 class StopSession extends Action
 {
-    public function __construct(private readonly RoundMinutes $roundMinutes) {}
+    public function __construct(private readonly UpdateSession $updateSession) {}
 
     public function handle(Session $session): Session
     {
-        $endedAt = now();
-        $durationMinutes = (int) $session->started_at->diffInMinutes($endedAt);
-
-        $session->loadMissing('project');
-
-        $roundedMinutes = $this->roundMinutes->handle(
-            $durationMinutes,
-            $session->project->rounding,
-        );
-
-        $session->update([
-            'ended_at' => $endedAt,
-            'duration_minutes' => $durationMinutes,
-            'rounded_minutes' => $roundedMinutes,
-            'date' => $session->started_at->toDateString(),
-        ]);
-
-        $stopped = $session->fresh();
+        $stopped = $this->updateSession->handle($session, new SessionData(
+            endedAt: CarbonImmutable::now(),
+        ));
 
         SessionStopped::dispatch($stopped);
 

@@ -5,48 +5,31 @@ declare(strict_types=1);
 namespace App\Actions\Session;
 
 use App\Actions\Action;
-use App\Actions\TimeEntry\RoundMinutes;
+use App\Data\SessionData;
 use App\Models\Session;
-use Carbon\CarbonImmutable;
+use App\Services\TimeEntryService;
 
 class UpdateSession extends Action
 {
-    public function __construct(private readonly RoundMinutes $roundMinutes) {}
+    public function __construct(private readonly TimeEntryService $timeEntryService) {}
 
-    public function handle(Session $session, array $data): Session
+    public function handle(Session $session, SessionData $data): Session
     {
-        $startedAt = isset($data['started_at'])
-            ? CarbonImmutable::parse($data['started_at'])
-            : CarbonImmutable::instance($session->started_at);
+        $startedAt = $data->startedAt ?? $session->started_at;
+        $endedAt = $data->endedAt ?? $session->ended_at;
 
-        $endedAt = isset($data['ended_at'])
-            ? CarbonImmutable::parse($data['ended_at'])
-            : ($session->ended_at ? CarbonImmutable::instance($session->ended_at) : null);
-
-        $updates = [
+        $session->update([
             'started_at' => $startedAt,
             'date' => $startedAt->toDateString(),
-        ];
+            'description' => $data->description ?? $session->description,
+            'notes' => $data->notes ?? $session->notes,
 
-        if ($endedAt !== null) {
-            $durationMinutes = (int) $startedAt->diffInMinutes($endedAt);
-            $session->loadMissing('project');
-            $roundedMinutes = $this->roundMinutes->handle($durationMinutes, $session->project->rounding);
-
-            $updates['ended_at'] = $endedAt;
-            $updates['duration_minutes'] = $durationMinutes;
-            $updates['rounded_minutes'] = $roundedMinutes;
-        }
-
-        if (array_key_exists('description', $data)) {
-            $updates['description'] = $data['description'];
-        }
-
-        if (array_key_exists('notes', $data)) {
-            $updates['notes'] = $data['notes'];
-        }
-
-        $session->update($updates);
+            ...$endedAt !== null ? [
+                'ended_at' => $endedAt,
+                'duration_minutes' => $durationMinutes = (int) $startedAt->diffInMinutes($endedAt),
+                'rounded_minutes' => $this->timeEntryService->roundMinutesAccordingStrategy($durationMinutes, $session->project->rounding),
+            ] : [],
+        ]);
 
         return $session->fresh();
     }

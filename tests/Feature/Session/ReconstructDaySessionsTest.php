@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\TimeEntry\ReconstructDayEntries;
+use App\Actions\Session\ReconstructDailySessions;
 use App\Enums\SessionSource;
 use App\Models\ActivityEvent;
 use App\Models\Project;
@@ -10,9 +10,9 @@ use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
 
-pest()->group('actions', 'time-entry');
+pest()->group('actions', 'session');
 
-describe('ReconstructDayEntries action', function () {
+describe('ReconstructDaySessions action', function () {
     beforeEach(fn () => Event::fake());
 
     it('creates sessions from activity event blocks', function () {
@@ -27,7 +27,7 @@ describe('ReconstructDayEntries action', function () {
             'occurred_at' => $today->setTime(9, 20),
         ]);
 
-        $generated = ReconstructDayEntries::make()->handle($today);
+        $generated = ReconstructDailySessions::make()->handle($today);
 
         expect($generated)->toHaveCount(1)
             ->and($generated->first()->source)->toBe(SessionSource::Reconstructed)
@@ -47,7 +47,7 @@ describe('ReconstructDayEntries action', function () {
             'occurred_at' => $today->setTime(9, 45),
         ]);
 
-        $generated = ReconstructDayEntries::make()->handle($today);
+        $generated = ReconstructDailySessions::make()->handle($today);
 
         expect($generated)->toHaveCount(2);
     });
@@ -67,7 +67,7 @@ describe('ReconstructDayEntries action', function () {
             'ended_at' => $today->setTime(9, 30),
         ]);
 
-        $generated = ReconstructDayEntries::make()->handle($today);
+        $generated = ReconstructDailySessions::make()->handle($today);
 
         expect($generated)->toHaveCount(0);
     });
@@ -80,7 +80,7 @@ describe('ReconstructDayEntries action', function () {
         ActivityEvent::factory()->recycle($project1)->create(['occurred_at' => $today->setTime(9, 0)]);
         ActivityEvent::factory()->recycle($project2)->create(['occurred_at' => $today->setTime(10, 0)]);
 
-        $generated = ReconstructDayEntries::make()->handle($today, $project1);
+        $generated = ReconstructDailySessions::make()->handle($today, $project1);
 
         expect($generated)->toHaveCount(1)
             ->and($generated->first()->project_id)->toBe($project1->id);

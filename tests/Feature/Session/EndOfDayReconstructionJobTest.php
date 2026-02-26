@@ -2,18 +2,18 @@
 
 declare(strict_types=1);
 
-use App\Actions\TimeEntry\ReconstructDayEntries;
+use App\Actions\Session\ReconstructDailySessions;
 use App\Jobs\EndOfDayReconstructionJob;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
 
-pest()->group('time-entry');
+pest()->group('session');
 
 describe('EndOfDayReconstructionJob', function () {
     beforeEach(fn () => Event::fake());
 
-    it('calls ReconstructDayEntries for yesterday by default', function () {
-        ReconstructDayEntries::fake()
+    it('calls ReconstructDaySessions for yesterday by default', function () {
+        ReconstructDailySessions::fake()
             ->shouldReceive('handle')
             ->once()
             ->with(Mockery::on(fn (CarbonImmutable $date) => $date->isYesterday()));
@@ -21,10 +21,10 @@ describe('EndOfDayReconstructionJob', function () {
         dispatch_sync(new EndOfDayReconstructionJob);
     });
 
-    it('calls ReconstructDayEntries for a specific date when provided', function () {
+    it('calls ReconstructDaySessions for a specific date when provided', function () {
         $date = '2026-02-20';
 
-        ReconstructDayEntries::fake()
+        ReconstructDailySessions::fake()
             ->shouldReceive('handle')
             ->once()
             ->with(Mockery::on(fn (CarbonImmutable $d) => $d->toDateString() === $date));

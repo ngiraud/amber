@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\Actions\TimeEntry;
+namespace App\Actions\Session;
 
 use App\Actions\Action;
-use App\Enums\SessionSource;
+use App\Data\SessionData;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
-class ReconstructDayEntries extends Action
+class ReconstructDailySessions extends Action
 {
     /** Gap above which we consider activity belongs to a new work block (in minutes). */
     private const int IDLE_THRESHOLD_MINUTES = 30;
@@ -20,7 +20,7 @@ class ReconstructDayEntries extends Action
     /** Padding added after the last event in a block (in minutes). */
     private const int BLOCK_END_PADDING_MINUTES = 15;
 
-    public function __construct(private readonly RoundMinutes $roundMinutes) {}
+    public function __construct(private readonly CreateSession $createSession) {}
 
     /**
      * @return Collection<int, Session>
@@ -60,19 +60,9 @@ class ReconstructDayEntries extends Action
                     continue;
                 }
 
-                $durationMinutes = (int) $blockStart->diffInMinutes($blockEnd);
-                $roundedMinutes = $this->roundMinutes->handle($durationMinutes, $proj->rounding);
-
-                $session = Session::create([
-                    'project_id' => $projectId,
-                    'started_at' => $blockStart,
-                    'ended_at' => $blockEnd,
-                    'duration_minutes' => $durationMinutes,
-                    'rounded_minutes' => $roundedMinutes,
-                    'date' => $date->toDateString(),
-                    'source' => SessionSource::Reconstructed,
-                    'is_validated' => false,
-                ]);
+                $session = $this->createSession
+                    ->reconstructed()
+                    ->handle($proj, new SessionData(startedAt: $blockStart, endedAt: $blockEnd));
 
                 $generated->push($session);
             }
