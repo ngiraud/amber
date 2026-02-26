@@ -2,7 +2,18 @@
 
 declare(strict_types=1);
 
-test('home redirects to clients index', function () {
+pest()->group('controllers');
+
+test('home renders the dashboard page', function () {
     $this->get(route('home'))
-        ->assertRedirectToRoute('clients.index');
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('Dashboard')
+            ->has('date')
+            ->has('sessions')
+            ->has('total_minutes')
+            ->has('week_minutes')
+            ->has('month_minutes')
+            ->has('projects')
+        );
 });

@@ -1,0 +1,130 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Actions\Session\CreateManualSession;
+use App\Actions\Session\DeleteSession;
+use App\Actions\Session\UpdateSession;
+use App\Enums\RoundingStrategy;
+use App\Enums\SessionSource;
+use App\Models\Project;
+use App\Models\Session;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Event;
+
+pest()->group('session');
+
+describe('store manual session controller', function () {
+    it('delegates to CreateManualSession and redirects back', function () {
+        $project = Project::factory()->create();
+
+        CreateManualSession::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->andReturn(Session::factory()->make());
+
+        $this->post(route('sessions.store-manual'), [
+            'project_id' => $project->id,
+            'started_at' => '2026-02-26 09:00:00',
+            'ended_at' => '2026-02-26 10:00:00',
+        ])->assertRedirect();
+    });
+})->group('controllers');
+
+describe('update session controller', function () {
+    it('delegates to UpdateSession and redirects back', function () {
+        $session = Session::factory()->create(['ended_at' => now()]);
+
+        UpdateSession::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->with(
+                Mockery::on(fn ($s) => $s->id === $session->id),
+                Mockery::type('array')
+            )
+            ->andReturn($session);
+
+        $this->patch(route('sessions.update', $session), [
+            'description' => 'Updated description',
+        ])->assertRedirect();
+    });
+})->group('controllers');
+
+describe('destroy session controller', function () {
+    it('delegates to DeleteSession and redirects back', function () {
+        $session = Session::factory()->create(['ended_at' => now()]);
+
+        DeleteSession::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->with(Mockery::on(fn ($s) => $s->id === $session->id));
+
+        $this->delete(route('sessions.destroy', $session))
+            ->assertRedirect();
+    });
+})->group('controllers');
+
+describe('CreateManualSession action', function () {
+    beforeEach(fn () => Event::fake());
+
+    it('creates a completed session with computed minutes', function () {
+        $project = Project::factory()->create(['rounding' => RoundingStrategy::Quarter]);
+        $startedAt = CarbonImmutable::parse('2026-02-26 09:00:00');
+        $endedAt = CarbonImmutable::parse('2026-02-26 09:50:00');
+
+        $session = CreateManualSession::make()->handle($project, $startedAt, $endedAt, 'Test work');
+
+        expect($session->source)->toBe(SessionSource::Manual)
+            ->and($session->duration_minutes)->toBe(50)
+            ->and($session->rounded_minutes)->toBe(60) // ceil(50/15)*15 = 60
+            ->and($session->description)->toBe('Test work')
+            ->and($session->date->toDateString())->toBe('2026-02-26')
+            ->and($session->is_validated)->toBeTrue();
+    });
+})->group('actions');
+
+describe('UpdateSession action', function () {
+    beforeEach(fn () => Event::fake());
+
+    it('updates times and recalculates minutes', function () {
+        $project = Project::factory()->create(['rounding' => RoundingStrategy::Quarter]);
+        $session = Session::factory()->create([
+            'project_id' => $project->id,
+            'started_at' => '2026-02-26 09:00:00',
+            'ended_at' => '2026-02-26 10:00:00',
+            'duration_minutes' => 60,
+            'rounded_minutes' => 60,
+        ]);
+
+        $updated = UpdateSession::make()->handle($session, [
+            'ended_at' => '2026-02-26 09:45:00',
+        ]);
+
+        expect($updated->duration_minutes)->toBe(45)
+            ->and($updated->rounded_minutes)->toBe(45);
+    });
+
+    it('updates description without changing times', function () {
+        $session = Session::factory()->create([
+            'ended_at' => now(),
+            'description' => 'Old description',
+        ]);
+
+        $updated = UpdateSession::make()->handle($session, [
+            'description' => 'New description',
+        ]);
+
+        expect($updated->description)->toBe('New description')
+            ->and($updated->duration_minutes)->toBe($session->duration_minutes);
+    });
+})->group('actions');
+
+describe('DeleteSession action', function () {
+    it('deletes the session from the database', function () {
+        $session = Session::factory()->create(['ended_at' => now()]);
+
+        DeleteSession::make()->handle($session);
+
+        $this->assertDatabaseMissing('sessions', ['id' => $session->id]);
+    });
+})->group('actions');

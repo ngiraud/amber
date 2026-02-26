@@ -6,6 +6,7 @@ namespace Database\Factories;
 
 use App\Enums\ActivityEventType;
 use App\Models\Project;
+use App\Models\ProjectRepository;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -20,7 +21,7 @@ class ActivityEventFactory extends Factory
     {
         return [
             'project_id' => Project::factory(),
-            'project_repository_id' => null,
+            'project_repository_id' => ProjectRepository::factory(),
             'session_id' => null,
             'source_type' => 'git',
             'type' => ActivityEventType::GitCommit,

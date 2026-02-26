@@ -75,11 +75,16 @@ export type SessionSource = {
 export type Session = {
     id: string;
     project_id: string;
+    date: string | null;
     started_at: string;
     ended_at: string | null;
+    started_at_formatted: string | null;
+    ended_at_formatted: string | null;
     duration_minutes: number | null;
+    rounded_minutes: number | null;
     source: SessionSource;
     notes: string | null;
+    description: string | null;
     is_validated: boolean;
     created_at: string;
     updated_at: string;
@@ -111,6 +116,17 @@ export type ActivityEvent = {
     detail: string;
     created_at: string;
     updated_at: string;
+};
+
+export type TimelineDay = {
+    date: string;
+    total_minutes: number;
+    projects: {
+        id: string;
+        name: string | undefined;
+        color: string | undefined;
+        minutes: number;
+    }[];
 };
 
 export type AppSettings = {

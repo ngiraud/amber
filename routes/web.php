@@ -7,8 +7,10 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
+use App\Http\Controllers\ReconstructTimeEntriesController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TimelineController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
@@ -41,8 +43,18 @@ Route::delete('/projects/{project}/repositories/{repository}', [ProjectRepositor
 // Sessions
 Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
 Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
+Route::post('/sessions/manual', [SessionController::class, 'storeManual'])->name('sessions.store-manual');
 Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
+Route::patch('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
+Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 Route::patch('/sessions/{session}/stop', [SessionController::class, 'stop'])->name('sessions.stop');
+
+// Timeline
+Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
+Route::get('/timeline/{date}', [TimelineController::class, 'show'])->name('timeline.show');
+
+// Reconstruct
+Route::post('/sessions/reconstruct', ReconstructTimeEntriesController::class)->name('sessions.reconstruct');
 
 // Settings
 Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

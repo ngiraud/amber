@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Actions\Session\CreateManualSession;
+use App\Actions\Session\DeleteSession;
 use App\Actions\Session\StartSession;
 use App\Actions\Session\StopSession;
+use App\Actions\Session\UpdateSession;
 use App\Http\Requests\Session\StopSessionRequest;
+use App\Http\Requests\Session\StoreManualSessionRequest;
 use App\Http\Requests\Session\StoreSessionRequest;
+use App\Http\Requests\Session\UpdateSessionRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Project;
 use App\Models\Session;
+use Carbon\CarbonImmutable;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -46,6 +52,35 @@ class SessionController extends Controller
         $action->handle($project, $request->validated('notes'));
 
         return redirect()->route('sessions.index');
+    }
+
+    public function storeManual(StoreManualSessionRequest $request, CreateManualSession $action): RedirectResponse
+    {
+        $project = Project::findOrFail($request->validated('project_id'));
+
+        $action->handle(
+            $project,
+            CarbonImmutable::parse($request->validated('started_at')),
+            CarbonImmutable::parse($request->validated('ended_at')),
+            $request->validated('description'),
+            $request->validated('notes'),
+        );
+
+        return redirect()->back();
+    }
+
+    public function update(UpdateSessionRequest $request, Session $session, UpdateSession $action): RedirectResponse
+    {
+        $action->handle($session, $request->validated());
+
+        return redirect()->back();
+    }
+
+    public function destroy(Session $session, DeleteSession $action): RedirectResponse
+    {
+        $action->handle($session);
+
+        return redirect()->back();
     }
 
     public function stop(StopSessionRequest $request, Session $session, StopSession $action): RedirectResponse
