@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Resources\ActivityEventResource;
 use App\Models\ActivityEvent;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -20,10 +21,10 @@ class ActivityEventController extends Controller
                     ActivityEvent::query()
                         ->with(['project', 'projectRepository'])
                         ->latest('occurred_at')
-                        ->cursorPaginate(50)
+                        ->cursorPaginate()
                 )
             ),
-            'hasNewEvents' => $request->filled('since_id') && ActivityEvent::query()->where('id', '>', $request->string('since_id'))->exists(),
+            'hasNewEvents' => $request->filled('since_occurred_at') && ActivityEvent::query()->where('occurred_at', '>', Carbon::createFromTimestamp($request->integer('since_occurred_at')))->exists(),
         ]);
     }
 }

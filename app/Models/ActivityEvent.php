@@ -19,6 +19,8 @@ class ActivityEvent extends Model
     /** @use HasFactory<\Database\Factories\ActivityEventFactory> */
     use HasFactory, HasUlids;
 
+    protected $perPage = 50;
+
     /**
      * @return BelongsTo<Project, $this>
      */
