@@ -7,12 +7,9 @@ namespace App\Actions\Session;
 use App\Actions\Action;
 use App\Data\SessionData;
 use App\Models\Session;
-use App\Services\TimeEntryService;
 
 class UpdateSession extends Action
 {
-    public function __construct(private readonly TimeEntryService $timeEntryService) {}
-
     public function handle(Session $session, SessionData $data): Session
     {
         $startedAt = $data->startedAt ?? $session->started_at;
@@ -27,7 +24,7 @@ class UpdateSession extends Action
             ...$endedAt !== null ? [
                 'ended_at' => $endedAt,
                 'duration_minutes' => $durationMinutes = (int) $startedAt->diffInMinutes($endedAt),
-                'rounded_minutes' => $this->timeEntryService->roundMinutesAccordingStrategy($durationMinutes, $session->project->rounding),
+                'rounded_minutes' => $session->project->rounding->round($durationMinutes),
             ] : [],
         ]);
 

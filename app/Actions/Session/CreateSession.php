@@ -9,14 +9,11 @@ use App\Data\SessionData;
 use App\Enums\SessionSource;
 use App\Models\Project;
 use App\Models\Session;
-use App\Services\TimeEntryService;
 use Carbon\CarbonImmutable;
 
 class CreateSession extends Action
 {
     protected SessionSource $source = SessionSource::Manual;
-
-    public function __construct(private readonly TimeEntryService $timeEntryService) {}
 
     public function handle(Project $project, SessionData $data): Session
     {
@@ -32,7 +29,7 @@ class CreateSession extends Action
             ...$data->endedAt !== null ? [
                 'ended_at' => $data->endedAt,
                 'duration_minutes' => $durationMinutes = (int) $startedAt->diffInMinutes($data->endedAt),
-                'rounded_minutes' => $this->timeEntryService->roundMinutesAccordingStrategy($durationMinutes, $project->rounding),
+                'rounded_minutes' => $project->rounding->round($durationMinutes),
                 'date' => $startedAt->toDateString(),
                 'is_validated' => true,
             ] : [],

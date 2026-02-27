@@ -19,4 +19,13 @@ enum RoundingStrategy: int
     {
         return Str::headline($this->name);
     }
+
+    public function round(int $rawMinutes): int
+    {
+        if ($rawMinutes <= 0) {
+            return 0;
+        }
+
+        return (int) ceil($rawMinutes / $this->value) * $this->value;
+    }
 }
