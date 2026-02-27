@@ -11,9 +11,12 @@ import type { Session } from '@/types';
 
 const props = defineProps<{
     session: Session;
+    showDate?: boolean;
 }>();
 
-const { formatTime } = useDateFormat();
+defineOptions({ inheritAttrs: false });
+
+const { formatTime, formatDate } = useDateFormat();
 
 const confirmDelete = ref(false);
 
@@ -35,7 +38,7 @@ function deleteSession(): void {
 </script>
 
 <template>
-    <div class="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+    <div v-bind="$attrs" class="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
         <div class="flex min-w-0 items-center gap-3">
             <span v-if="session.project?.color" class="size-2.5 shrink-0 rounded-full" :style="{ backgroundColor: session.project.color }" />
 
@@ -43,7 +46,10 @@ function deleteSession(): void {
                 <p class="truncate text-sm font-medium">
                     {{ session.project?.name ?? 'Unknown project' }}
                 </p>
-                <p v-if="session.description" class="truncate text-xs text-muted-foreground">
+                <p v-if="showDate" class="truncate text-xs text-muted-foreground">
+                    {{ formatDate(session.started_at) }}
+                </p>
+                <p v-else-if="session.description" class="truncate text-xs text-muted-foreground">
                     {{ session.description }}
                 </p>
             </div>
@@ -60,7 +66,7 @@ function deleteSession(): void {
                 {{ session.source.label }}
             </Badge>
 
-            <Button variant="ghost" size="icon" class="size-7 text-muted-foreground hover:text-destructive" @click="confirmDelete = true">
+            <Button variant="ghost" size="icon" class="size-7 text-muted-foreground hover:text-destructive" @click.stop="confirmDelete = true">
                 <Trash2Icon class="size-3.5" />
             </Button>
         </div>

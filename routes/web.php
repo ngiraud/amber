@@ -46,15 +46,14 @@ Route::patch('/sessions/{session}/stop', [SessionTimerController::class, 'stop']
 Route::post('/sessions/reconstruct', [SessionTimerController::class, 'reconstruct'])->name('sessions.reconstruct');
 
 // Sessions — CRUD
-Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
+Route::get('/sessions/{session?}', [SessionController::class, 'index'])->name('sessions.index');
 Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
-Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
 Route::patch('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
 Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
 
 // Timeline
+Route::get('/timeline/{date}/{session?}', [TimelineController::class, 'show'])->name('timeline.show');
 Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
-Route::get('/timeline/{date}', [TimelineController::class, 'show'])->name('timeline.show');
 
 // Settings
 Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

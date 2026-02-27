@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as timelineRoutes from '@/routes/timeline';
 import type { Project, Session } from '@/types';
+import * as sessionRoutes from '@/routes/sessions';
 
 const props = defineProps<{
     date: string;
@@ -96,7 +97,9 @@ const dateLabel = computed(() => {
         </div>
 
         <div v-else class="flex flex-col gap-1.5">
-            <TimeEntryRow v-for="session in sessions" :key="session.id" :session="session" />
+            <a v-for="session in sessions" :key="session.id" :href="sessionRoutes.index({ session: session }).url">
+                <TimeEntryRow :session="session" />
+            </a>
         </div>
     </AppLayout>
 </template>

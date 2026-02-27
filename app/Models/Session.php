@@ -18,6 +18,8 @@ class Session extends Model
     /** @use HasFactory<\Database\Factories\SessionFactory> */
     use HasFactory, HasUlids;
 
+    protected $perPage = 50;
+
     public static function findActive(array $relationships = []): ?static
     {
         return static::query()->active()->with($relationships)->first();

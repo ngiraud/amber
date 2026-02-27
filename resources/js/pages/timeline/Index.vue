@@ -35,7 +35,7 @@ function navigate(direction: -1 | 1): void {
 }
 
 function selectDay(date: string): void {
-    router.get(timelineRoutes.show(date).url);
+    router.get(timelineRoutes.show({ date: date }).url);
 }
 </script>
 

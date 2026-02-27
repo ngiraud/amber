@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 import type { ActivityEvent, Paginator } from '@/types';
 
 type ActivityLogProps = {
-    events: Paginator<ActivityEvent>;
-    hasNewEvents: boolean;
+    events?: Paginator<ActivityEvent>;
+    hasNewEvents?: boolean;
     propName?: string;
     preserveUrl?: boolean;
     scrollClass?: string;
@@ -25,7 +25,7 @@ const props = withDefaults(defineProps<ActivityLogProps>(), {
 const { formatDateTimeISO } = useDateFormat();
 
 const scrollContainer = useTemplateRef<HTMLDivElement>('scrollContainer');
-const sinceOccurredAt = ref<number | null>(props.events.data[0]?.occurred_at_timestamp ?? null);
+const sinceOccurredAt = ref<number | null>(props.events?.data[0]?.occurred_at_timestamp ?? null);
 
 const openTooltipId = ref<string | null>(null);
 

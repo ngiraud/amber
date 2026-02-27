@@ -6,10 +6,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\Timeline\ShowTimelineDayRequest;
 use App\Http\Requests\Timeline\ViewTimelineRequest;
-use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Project;
 use App\Models\Session;
+use App\ViewModels\EventsViewModel;
 use App\ViewModels\TimelineIndexViewModel;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -21,25 +21,25 @@ class TimelineController extends Controller
         return Inertia::render('timeline/Index', $viewModel);
     }
 
-    public function show(ShowTimelineDayRequest $request): Response
+    public function show(ShowTimelineDayRequest $request, string $date, ?Session $session, EventsViewModel $eventsViewModel): Response
     {
         $day = $request->getDate();
-
-        $sessions = Session::query()
-            ->with('project.client')
-            ->whereDate('date', $day)
-            ->orderBy('started_at')
-            ->get();
-
-        $projects = Project::active()->with('client')->get();
 
         return Inertia::render('timeline/Show', [
             'date' => $day->toDateString(),
             'previous_date' => $day->subDay()->toDateString(),
             'next_date' => $day->addDay()->toDateString(),
-            'sessions' => SessionResource::collection($sessions),
-            'total_minutes' => $sessions->sum('rounded_minutes'),
-            'projects' => ProjectResource::collection($projects),
+            'projects' => fn () => Project::active()->with('client')->get(),
+            'sessions' => fn () => SessionResource::collection(
+                Session::query()
+                    ->with('project.client')
+                    ->where('date', $day)
+                    ->orderBy('started_at')
+                    ->get()
+            ),
+            'total_minutes' => fn () => Session::where('date', $day)->sum('rounded_minutes'),
+            'selectedSession' => $session->id ? SessionResource::make($session) : null,
+            $eventsViewModel,
         ]);
     }
 }
