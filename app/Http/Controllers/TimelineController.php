@@ -4,66 +4,26 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\Timeline\ShowTimelineDayRequest;
+use App\Http\Requests\Timeline\ViewTimelineRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Project;
 use App\Models\Session;
-use Carbon\CarbonImmutable;
-use Illuminate\Http\Request;
+use App\ViewModels\TimelineIndexViewModel;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class TimelineController extends Controller
 {
-    public function index(Request $request): Response
+    public function index(ViewTimelineRequest $request, TimelineIndexViewModel $viewModel): Response
     {
-        $year = $request->integer('year', now()->year);
-        $month = $request->integer('month', now()->month);
-
-        $startOfMonth = CarbonImmutable::create($year, $month, 1)->startOfMonth();
-        $endOfMonth = $startOfMonth->endOfMonth();
-
-        $sessions = Session::query()
-            ->with('project')
-            ->whereNotNull('ended_at')
-            ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
-            ->get();
-
-        $days = collect();
-        $current = $startOfMonth;
-
-        while ($current->lte($endOfMonth)) {
-            $daySessions = $sessions->filter(
-                fn (Session $s) => $s->date?->isSameDay($current)
-            )->values();
-
-            $days->push([
-                'date' => $current->toDateString(),
-                'total_minutes' => $daySessions->sum('rounded_minutes'),
-                'projects' => $daySessions
-                    ->groupBy('project_id')
-                    ->map(fn ($group) => [
-                        'id' => $group->first()->project_id,
-                        'name' => $group->first()->project?->name,
-                        'color' => $group->first()->project?->color,
-                        'minutes' => $group->sum('rounded_minutes'),
-                    ])
-                    ->values(),
-            ]);
-
-            $current = $current->addDay();
-        }
-
-        return Inertia::render('timeline/Index', [
-            'year' => $year,
-            'month' => $month,
-            'days' => $days,
-        ]);
+        return Inertia::render('timeline/Index', $viewModel);
     }
 
-    public function show(string $date): Response
+    public function show(ShowTimelineDayRequest $request): Response
     {
-        $day = CarbonImmutable::parse($date);
+        $day = $request->getDate();
 
         $sessions = Session::query()
             ->with('project.client')
@@ -75,6 +35,8 @@ class TimelineController extends Controller
 
         return Inertia::render('timeline/Show', [
             'date' => $day->toDateString(),
+            'previous_date' => $day->subDay()->toDateString(),
+            'next_date' => $day->addDay()->toDateString(),
             'sessions' => SessionResource::collection($sessions),
             'total_minutes' => $sessions->sum('rounded_minutes'),
             'projects' => ProjectResource::collection($projects),

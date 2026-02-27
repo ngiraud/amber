@@ -13,6 +13,8 @@ import type { Project, Session } from '@/types';
 
 const props = defineProps<{
     date: string;
+    previous_date: string;
+    next_date: string;
     sessions: Session[];
     total_minutes: number;
     projects: Project[];
@@ -32,16 +34,18 @@ const formattedTotal = computed(() => {
 });
 
 function navigate(direction: -1 | 1): void {
-    const d = new Date(props.date + 'T00:00:00');
-    d.setDate(d.getDate() + direction);
-    const newDate = d.toISOString().split('T')[0];
-    router.get(timelineRoutes.show(newDate).url);
+    const date = direction === -1 ? props.previous_date : props.next_date;
+    router.get(timelineRoutes.show(date).url);
 }
 
 function reconstruct(): void {
-    router.post(sessionRoutes.reconstruct().url, { date: props.date }, {
-        preserveScroll: true,
-    });
+    router.post(
+        sessionRoutes.reconstruct().url,
+        { date: props.date },
+        {
+            preserveScroll: true,
+        },
+    );
 }
 </script>
 
@@ -73,9 +77,7 @@ function reconstruct(): void {
 
         <div v-if="sessions.length === 0" class="mt-6 text-center">
             <p class="text-sm text-muted-foreground">No sessions for this day.</p>
-            <p class="mt-1 text-xs text-muted-foreground">
-                Start a session or add a manual one.
-            </p>
+            <p class="mt-1 text-xs text-muted-foreground">Start a session or add a manual one.</p>
         </div>
 
         <div v-else class="flex flex-col gap-1.5">

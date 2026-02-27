@@ -102,7 +102,7 @@ class HandleFileWatcherMessage
 
     protected function isAllowedExtension(string $filePath): bool
     {
-        $allowed = config('activity.fswatch.allowed_extensions', []);
+        $allowed = config('activity.sources.fswatch.allowed_extensions', []);
 
         if (empty($allowed)) {
             return true;

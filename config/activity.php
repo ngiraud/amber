@@ -63,59 +63,54 @@ return [
     |
     */
 
-    'git' => [
-        'author_emails' => env('ACTIVITY_GIT_AUTHOR_EMAILS', ''),
-    ],
-
     /*
     |--------------------------------------------------------------------------
-    | File Watcher (fswatch)
+    | Activity Sources
     |--------------------------------------------------------------------------
     |
-    | Configuration for the fswatch-based file system activity detector.
-    | You can toggle it, set a debounce delay, exclude path patterns,
-    | and restrict detection to specific file extensions.
+    | Configuration for each activity source. Each source can be toggled
+    | individually via the 'enabled' flag.
     |
     */
 
-    'fswatch' => [
-        'enabled' => (bool) env('ACTIVITY_FSWATCH_ENABLED', true),
-        'debounce_seconds' => (int) env('ACTIVITY_FSWATCH_DEBOUNCE', 3),
-        'excluded_patterns' => [
-            '\.git/',
-            '\.idea/',
-            'node_modules/',
-            'vendor/',
-            '\.DS_Store',
-            'storage/',
-            '\.php-cs-fixer\.cache',
-            '\.sqlite',
-            '\.cache',
-        ],
-        'allowed_extensions' => [
-            'php', 'js', 'ts', 'vue', 'jsx', 'tsx',
-            'css', 'scss', 'sass', 'less',
-            'html', 'blade.php',
-            'json', 'yaml', 'yml', 'toml', 'env',
-            'md', 'mdx',
-            'py', 'rb', 'go', 'rs', 'java', 'kt', 'swift',
-            'sh', 'bash', 'zsh',
-            'sql',
-        ],
-    ],
+    'sources' => [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Claude Code Integration
-    |--------------------------------------------------------------------------
-    |
-    | Configuration for detecting activity from Claude Code session logs.
-    | Set the path to the directory where Claude Code stores project data.
-    |
-    */
+        'git' => [
+            'enabled' => (bool) env('ACTIVITY_GIT_ENABLED', true),
+            'author_emails' => env('ACTIVITY_GIT_AUTHOR_EMAILS', ''),
+        ],
 
-    'claude' => [
-        'projects_path' => env('ACTIVITY_CLAUDE_PROJECTS_PATH', '~/.claude/projects'),
+        'claude-code' => [
+            'enabled' => (bool) env('ACTIVITY_CLAUDE_ENABLED', true),
+            'projects_path' => env('ACTIVITY_CLAUDE_PROJECTS_PATH', '~/.claude/projects'),
+        ],
+
+        'fswatch' => [
+            'enabled' => (bool) env('ACTIVITY_FSWATCH_ENABLED', true),
+            'debounce_seconds' => (int) env('ACTIVITY_FSWATCH_DEBOUNCE', 3),
+            'excluded_patterns' => [
+                '\.git/',
+                '\.idea/',
+                'node_modules/',
+                'vendor/',
+                '\.DS_Store',
+                'storage/',
+                '\.php-cs-fixer\.cache',
+                '\.sqlite',
+                '\.cache',
+            ],
+            'allowed_extensions' => [
+                'php', 'js', 'ts', 'vue', 'jsx', 'tsx',
+                'css', 'scss', 'sass', 'less',
+                'html', 'blade.php',
+                'json', 'yaml', 'yml', 'toml', 'env',
+                'md', 'mdx',
+                'py', 'rb', 'go', 'rs', 'java', 'kt', 'swift',
+                'sh', 'bash', 'zsh',
+                'sql',
+            ],
+        ],
+
     ],
 
 ];

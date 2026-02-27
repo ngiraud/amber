@@ -52,9 +52,9 @@ class ReconstructDailySessions extends Action
         $generated = collect();
 
         foreach ($events->groupBy('project_id') as $projectId => $projectEvents) {
-            $proj = $projects->get($projectId);
+            $currentProject = $projects->get($projectId);
 
-            if ($proj === null) {
+            if ($currentProject === null) {
                 continue;
             }
 
@@ -74,7 +74,7 @@ class ReconstructDailySessions extends Action
 
                 $session = $this->createSession
                     ->reconstructed()
-                    ->handle($proj, new SessionData(startedAt: $blockStart, endedAt: $blockEnd));
+                    ->handle($currentProject, new SessionData(startedAt: $blockStart, endedAt: $blockEnd));
 
                 $generated->push($session);
             }
@@ -115,7 +115,7 @@ class ReconstructDailySessions extends Action
             $lastTime = $time;
         }
 
-        if ($blockStart !== null && $lastTime !== null) {
+        if ($blockStart !== null) {
             $blocks[] = [$blockStart, $lastTime->addMinutes($blockEndPaddingMinutes)];
         }
 

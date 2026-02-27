@@ -2,9 +2,9 @@
 import { router } from '@inertiajs/vue3';
 import { Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
+import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import { useDateFormat } from '@/composables/useDateFormat';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Session } from '@/types';
@@ -36,12 +36,8 @@ function deleteSession(): void {
 
 <template>
     <div class="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
-        <div class="flex items-center gap-3 min-w-0">
-            <span
-                v-if="session.project?.color"
-                class="shrink-0 size-2.5 rounded-full"
-                :style="{ backgroundColor: session.project.color }"
-            />
+        <div class="flex min-w-0 items-center gap-3">
+            <span v-if="session.project?.color" class="size-2.5 shrink-0 rounded-full" :style="{ backgroundColor: session.project.color }" />
 
             <div class="min-w-0">
                 <p class="truncate text-sm font-medium">
@@ -54,9 +50,7 @@ function deleteSession(): void {
         </div>
 
         <div class="flex shrink-0 items-center gap-3">
-            <span class="font-mono text-sm text-muted-foreground">
-                {{ formatTime(session.started_at) }} → {{ formatTime(session.ended_at) }}
-            </span>
+            <span class="font-mono text-sm text-muted-foreground"> {{ formatTime(session.started_at) }} → {{ formatTime(session.ended_at) }} </span>
 
             <span class="font-mono text-sm font-medium tabular-nums">
                 {{ formatMinutes(session.rounded_minutes) }}
@@ -66,12 +60,7 @@ function deleteSession(): void {
                 {{ session.source.label }}
             </Badge>
 
-            <Button
-                variant="ghost"
-                size="icon"
-                class="size-7 text-muted-foreground hover:text-destructive"
-                @click="confirmDelete = true"
-            >
+            <Button variant="ghost" size="icon" class="size-7 text-muted-foreground hover:text-destructive" @click="confirmDelete = true">
                 <Trash2Icon class="size-3.5" />
             </Button>
         </div>

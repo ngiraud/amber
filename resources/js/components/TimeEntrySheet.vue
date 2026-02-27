@@ -19,13 +19,9 @@ const open = ref(false);
 
 const isEdit = !!props.session;
 
-const defaultStartedAt = props.session
-    ? props.session.started_at.substring(0, 16)
-    : `${props.date}T09:00`;
+const defaultStartedAt = props.session ? props.session.started_at.substring(0, 16) : `${props.date}T09:00`;
 
-const defaultEndedAt = props.session
-    ? props.session.ended_at?.substring(0, 16) ?? `${props.date}T10:00`
-    : `${props.date}T10:00`;
+const defaultEndedAt = props.session ? (props.session.ended_at?.substring(0, 16) ?? `${props.date}T10:00`) : `${props.date}T10:00`;
 </script>
 
 <template>
@@ -40,7 +36,7 @@ const defaultEndedAt = props.session
             </SheetHeader>
 
             <Form
-                :action="isEdit ? sessionRoutes.update(session!) : sessionRoutes.storeManual()"
+                :action="isEdit ? sessionRoutes.update(session!) : sessionRoutes.store()"
                 :method="isEdit ? 'patch' : 'post'"
                 class="mt-6 flex flex-col gap-5 px-4"
                 #default="{ errors, processing }"
@@ -65,25 +61,13 @@ const defaultEndedAt = props.session
                 <div class="flex gap-3">
                     <div class="flex flex-1 flex-col gap-2">
                         <Label for="started_at">Start</Label>
-                        <Input
-                            id="started_at"
-                            name="started_at"
-                            type="datetime-local"
-                            :default-value="defaultStartedAt"
-                            required
-                        />
+                        <Input id="started_at" name="started_at" type="datetime-local" :default-value="defaultStartedAt" required />
                         <p v-if="errors.started_at" class="text-sm text-destructive">{{ errors.started_at }}</p>
                     </div>
 
                     <div class="flex flex-1 flex-col gap-2">
                         <Label for="ended_at">End</Label>
-                        <Input
-                            id="ended_at"
-                            name="ended_at"
-                            type="datetime-local"
-                            :default-value="defaultEndedAt"
-                            required
-                        />
+                        <Input id="ended_at" name="ended_at" type="datetime-local" :default-value="defaultEndedAt" required />
                         <p v-if="errors.ended_at" class="text-sm text-destructive">{{ errors.ended_at }}</p>
                     </div>
                 </div>
@@ -101,7 +85,7 @@ const defaultEndedAt = props.session
 
                 <SheetFooter>
                     <Button type="submit" :disabled="processing" class="w-full">
-                        {{ processing ? 'Saving…' : (isEdit ? 'Save Changes' : 'Add Session') }}
+                        {{ processing ? 'Saving…' : isEdit ? 'Save Changes' : 'Add Session' }}
                     </Button>
                 </SheetFooter>
             </Form>

@@ -14,7 +14,7 @@ pest()->group('activity', 'sources');
 
 function makeClaudeSource(string $projectsPath): ClaudeCodeActivitySource
 {
-    Config::set('activity.claude.projects_path', $projectsPath);
+    Config::set('activity.sources.claude-code.projects_path', $projectsPath);
 
     return new ClaudeCodeActivitySource;
 }

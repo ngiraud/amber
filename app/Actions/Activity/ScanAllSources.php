@@ -7,14 +7,12 @@ namespace App\Actions\Activity;
 use App\Actions\Action;
 use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
 use App\Models\ActivityEvent;
 use App\Models\ProjectRepository;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
-use ReflectionClass;
-use Symfony\Component\Finder\Finder;
 
 class ScanAllSources extends Action
 {
@@ -44,25 +42,14 @@ class ScanAllSources extends Action
     }
 
     /**
-     * Discover all concrete ActivitySource implementations under the given path.
-     *
      * @return Collection<int, ActivitySource>
      */
-    public function discoverSources(?string $path = null): Collection
+    public function discoverSources(): Collection
     {
-        $path ??= app_path('Services/ActivitySources');
-        $namespace = app()->getNamespace();
-
-        return collect((new Finder)->in($path)->files()->name('*.php'))
-            ->map(fn ($file) => $namespace.str_replace(
-                ['/', '.php'],
-                ['\\', ''],
-                Str::after($file->getRealPath(), realpath(app_path()).DIRECTORY_SEPARATOR)
-            ))
-            ->filter(fn (string $class) => class_exists($class)
-                && is_subclass_of($class, ActivitySource::class)
-                && ! (new ReflectionClass($class))->isAbstract()
-            )
+        return collect(ActivityEventSourceType::cases())
+            ->filter(fn (ActivityEventSourceType $type) => $type->isEnabled())
+            ->map(fn (ActivityEventSourceType $type) => $type->sourceClass())
+            ->filter()
             ->map(fn (string $class) => app($class))
             ->filter(fn (ActivitySource $source) => $source->isAvailable())
             ->values();

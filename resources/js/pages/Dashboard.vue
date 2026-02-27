@@ -61,7 +61,7 @@ const dateLabel = computed(() => {
             </PageHeader>
         </template>
 
-        <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="mb-6 grid grid-cols-3 gap-4">
             <Card>
                 <CardHeader class="pb-2">
                     <CardTitle class="text-sm font-medium text-muted-foreground">Today</CardTitle>
