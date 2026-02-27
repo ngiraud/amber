@@ -9,9 +9,9 @@ import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/AppLayout.vue';
+import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
 import type { Project, Session } from '@/types';
-import * as sessionRoutes from '@/routes/sessions';
 
 const props = defineProps<{
     date: string;

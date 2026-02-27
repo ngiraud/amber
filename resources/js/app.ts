@@ -15,7 +15,7 @@ createInertiaApp({
             .mount(el);
     },
     defaults: {
-        visitOptions: (href, options) => {
+        visitOptions: () => {
             return { viewTransition: true };
         },
     },
