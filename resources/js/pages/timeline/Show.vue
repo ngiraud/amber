@@ -1,16 +1,15 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
-import { computed, ref, watch } from 'vue';
+import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
-import SessionDetailSheet from '@/components/SessionDetailSheet.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
-import type { ActivityEvent, Paginator, Project, Session } from '@/types';
+import type { Project, Session } from '@/types';
 
 const props = defineProps<{
     date: string;
@@ -19,16 +18,7 @@ const props = defineProps<{
     sessions: Session[];
     total_minutes: number;
     projects: Project[];
-    selectedSession: Session | null;
-    events?: Paginator<ActivityEvent> | null;
-    hasNewEvents?: boolean;
 }>();
-
-const activeSessionId = ref<string | null>(props.selectedSession?.id ?? null);
-
-watch(() => props.selectedSession?.id, (id) => {
-    activeSessionId.value = id ?? null;
-});
 
 const dateLabel = computed(() => {
     const d = new Date(props.date + 'T00:00:00');
@@ -54,38 +44,6 @@ function reconstruct(): void {
         { date: props.date },
         {
             preserveScroll: true,
-        },
-    );
-}
-
-function onSessionOpen(session: Session): void {
-    if (activeSessionId.value === session.id) return;
-
-    activeSessionId.value = session.id;
-
-    router.get(
-        timelineRoutes.show({ date: props.date, session: session }).url,
-        {},
-        {
-            preserveState: true,
-            preserveScroll: true,
-            only: ['selectedSession', 'events', 'hasNewEvents'],
-            reset: ['events'],
-        },
-    );
-}
-
-function onSessionClose(): void {
-    activeSessionId.value = null;
-
-    router.get(
-        timelineRoutes.show({ date: props.date, session: undefined }).url,
-        {},
-        {
-            preserveState: true,
-            preserveScroll: true,
-            only: [],
-            reset: ['events'],
         },
     );
 }
@@ -123,18 +81,13 @@ function onSessionClose(): void {
         </div>
 
         <div v-else class="flex flex-col gap-1.5">
-            <SessionDetailSheet
+            <TimeEntryRow
                 v-for="session in sessions"
                 :key="session.id"
                 :session="session"
-                :open="activeSessionId === session.id"
-                :events="selectedSession?.id === session.id ? events : undefined"
-                :has-new-events="selectedSession?.id === session.id ? hasNewEvents : false"
-                events-prop-name="events"
-                @update:open="(isOpen: boolean) => isOpen ? onSessionOpen(session) : onSessionClose()"
-            >
-                <TimeEntryRow :session="session" class="cursor-pointer" />
-            </SessionDetailSheet>
+                class="cursor-pointer"
+                @click="router.visit(sessionRoutes.show(session).url)"
+            />
 
             <div class="mt-3 flex justify-end border-t pt-3">
                 <p class="text-sm font-medium">

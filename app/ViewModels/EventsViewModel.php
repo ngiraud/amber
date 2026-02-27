@@ -21,10 +21,6 @@ class EventsViewModel implements ProvidesInertiaProperties
 {
     public function toInertiaProperties(RenderContext $context): iterable
     {
-        if (! $this->shouldDisplayEvents($context)) {
-            return [];
-        }
-
         $sinceOccurredAt = $this->parseSinceOccurredAt($context);
 
         if ($context->request->filled('since_occurred_at') && $sinceOccurredAt === null) {
@@ -47,15 +43,6 @@ class EventsViewModel implements ProvidesInertiaProperties
         ];
     }
 
-    protected function shouldDisplayEvents(RenderContext $context): bool
-    {
-        if (! $context->request->routeIs('timeline.show', 'sessions.index')) {
-            return true;
-        }
-
-        return ! is_null($context->request->route('session'));
-    }
-
     protected function getQuery(RenderContext $context): Builder
     {
         $model = $this->getModel($context);
@@ -73,7 +60,7 @@ class EventsViewModel implements ProvidesInertiaProperties
             return $context->request->route('client');
         }
 
-        if ($context->request->routeIs('timeline.show', 'sessions.index')) {
+        if ($context->request->routeIs('sessions.show')) {
             return $context->request->route('session');
         }
 
@@ -87,11 +74,11 @@ class EventsViewModel implements ProvidesInertiaProperties
     /** @return string[] */
     protected function getRelations(RenderContext $context): array
     {
-        if ($context->request->routeIs('projects.show', 'timeline.show', 'sessions.index')) {
-            return ['projectRepository'];
+        if ($context->request->routeIs('clients.show')) {
+            return ['project', 'projectRepository'];
         }
 
-        return ['project', 'projectRepository'];
+        return ['projectRepository'];
     }
 
     private function parseSinceOccurredAt(RenderContext $context): ?Carbon

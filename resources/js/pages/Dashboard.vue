@@ -97,9 +97,9 @@ const dateLabel = computed(() => {
         </div>
 
         <div v-else class="flex flex-col gap-1.5">
-            <a v-for="session in sessions" :key="session.id" :href="sessionRoutes.index({ session: session }).url">
+            <Link v-for="session in sessions" :key="session.id" :href="sessionRoutes.show({ session: session }).url">
                 <TimeEntryRow :session="session" />
-            </a>
+            </Link>
         </div>
     </AppLayout>
 </template>

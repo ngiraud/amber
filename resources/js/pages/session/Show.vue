@@ -1,25 +1,22 @@
 <script setup lang="ts">
-import { watch } from 'vue';
+import { router } from '@inertiajs/vue3';
+import { ArrowLeftIcon } from 'lucide-vue-next';
 import ActivityLog from '@/components/ActivityLog.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import SessionTimer from '@/components/SessionTimer.vue';
 import { Badge } from '@/components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useDateFormat } from '@/composables/useDateFormat';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type { ActivityEvent, Paginator, Session } from '@/types';
 
 const props = defineProps<{
     session: Session;
-    events?: Paginator<ActivityEvent> | null;
+    backUrl: string;
+    events: Paginator<ActivityEvent>;
     hasNewEvents?: boolean;
-    eventsPropName?: string;
 }>();
-
-const emit = defineEmits<{
-    open: [];
-    close: [];
-}>();
-
-const open = defineModel<boolean>('open', { default: false });
 
 const { formatDateTime } = useDateFormat();
 
@@ -31,29 +28,24 @@ function formatMinutes(minutes: number | null): string {
     if (m === 0) return `${h}h`;
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
-
-watch(open, (isOpen) => {
-    if (isOpen) {
-        emit('open');
-    } else {
-        emit('close');
-    }
-});
 </script>
 
 <template>
-    <Sheet v-model:open="open">
-        <SheetTrigger as-child>
-            <slot />
-        </SheetTrigger>
+    <AppLayout title="Session">
+        <template #header>
+            <PageHeader :title="session.project?.client?.name + ' — ' + session.project?.name">
+                <template #actions>
+                    <Button variant="outline" size="sm" @click="router.visit(props.backUrl)">
+                        <ArrowLeftIcon class="mr-1.5 size-3.5" />
+                        Back
+                    </Button>
+                </template>
+            </PageHeader>
+        </template>
 
-        <SheetContent class="flex flex-col gap-0 overflow-hidden p-0 sm:max-w-[80%]">
-            <SheetHeader class="shrink-0 border-b p-6 pb-4">
-                <SheetTitle>Session Details</SheetTitle>
-            </SheetHeader>
-
-            <div class="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto p-6">
-                <div class="rounded-lg border bg-card p-4">
+        <div class="flex flex-col gap-6">
+            <Card>
+                <CardContent>
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
                             <span
@@ -97,23 +89,16 @@ watch(open, (isOpen) => {
                         <p class="text-xs text-muted-foreground">Description</p>
                         <p class="mt-0.5 text-sm">{{ session.description }}</p>
                     </div>
-                </div>
+                </CardContent>
+            </Card>
 
-                <div class="flex min-h-0 flex-1 flex-col">
-                    <h3 class="shrink-0 text-sm font-semibold">Activity Events</h3>
+            <div class="mt-8 flex min-h-0 flex-1 flex-col">
+                <h2 class="shrink-0 text-base font-semibold">Activity Events</h2>
 
-                    <div class="mt-2 min-h-0 flex-1 flex-col">
-                        <div v-if="events === null || events === undefined" class="h-40 animate-pulse rounded-md bg-zinc-950" />
-                        <ActivityLog
-                            v-else
-                            :events="events"
-                            :has-new-events="hasNewEvents ?? false"
-                            :prop-name="eventsPropName ?? 'events'"
-                            scroll-class="max-h-full overflow-y-auto"
-                        />
-                    </div>
+                <div class="mt-3 min-h-0 flex-1">
+                    <ActivityLog :events="events" :has-new-events="hasNewEvents ?? false" scroll-class="h-full overflow-y-auto" />
                 </div>
             </div>
-        </SheetContent>
-    </Sheet>
+        </div>
+    </AppLayout>
 </template>

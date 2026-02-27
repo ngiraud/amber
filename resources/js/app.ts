@@ -14,6 +14,11 @@ createInertiaApp({
             .use(plugin)
             .mount(el);
     },
+    defaults: {
+        visitOptions: (href, options) => {
+            return { viewTransition: true };
+        },
+    },
     progress: {
         color: '#4B5563',
     },

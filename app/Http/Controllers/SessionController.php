@@ -16,24 +16,30 @@ use App\Models\Project;
 use App\Models\Session;
 use App\ViewModels\EventsViewModel;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class SessionController extends Controller
 {
-    public function index(Request $request, ?Session $session, EventsViewModel $eventsViewModel): Response
+    public function index(): Response
     {
         return Inertia::render('session/Index', [
-            'sessions' => $session->id && $request->inertia() ? [] : Inertia::scroll(
+            'sessions' => Inertia::scroll(
                 SessionResource::collection(
-                    Session::query()->with('project.client')->latest('started_at')->cursorPaginate()
+                    Session::with('project.client')->latest('started_at')->cursorPaginate()
                 )
             ),
             'projects' => fn () => ProjectResource::collection(
                 Project::active()->with('client')->get()
             ),
-            'selectedSession' => fn () => $session->id ? SessionResource::make($session->load('project.client')) : null,
+        ]);
+    }
+
+    public function show(Session $session, EventsViewModel $eventsViewModel): Response
+    {
+        return Inertia::render('session/Show', [
+            'session' => fn () => SessionResource::make($session->load('project.client')),
+            'backUrl' => url()->previous(route('sessions.index')),
             $eventsViewModel,
         ]);
     }
