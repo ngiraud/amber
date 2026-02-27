@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Jobs\EndOfDayReconstructionJob;
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::timezone('Europe/Paris')->group(function () {
@@ -10,5 +9,5 @@ Schedule::timezone('Europe/Paris')->group(function () {
     Schedule::command('activity:scan')->everyMinute();
     Schedule::command('activity:check-idle')->everyMinute();
     Schedule::command('activity:check-untracked')->everyMinute();
-    Schedule::job(new EndOfDayReconstructionJob)->dailyAt('00:05');
+    Schedule::command('sessions:reconstruct')->everyTwoHours();
 });

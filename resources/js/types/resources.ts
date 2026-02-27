@@ -78,8 +78,6 @@ export type Session = {
     date: string | null;
     started_at: string;
     ended_at: string | null;
-    started_at_formatted: string | null;
-    ended_at_formatted: string | null;
     duration_minutes: number | null;
     rounded_minutes: number | null;
     source: SessionSource;
@@ -109,7 +107,6 @@ export type ActivityEvent = {
     type: EnumValue;
     occurred_at: string;
     occurred_at_timestamp: number;
-    occurred_at_formatted: string;
     metadata: Record<string, unknown>;
     project_name?: string;
     repository_name?: string;

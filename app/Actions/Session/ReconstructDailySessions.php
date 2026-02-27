@@ -10,16 +10,12 @@ use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Support\Collection;
 
 class ReconstructDailySessions extends Action
 {
-    /** Gap above which we consider activity belongs to a new work block (in minutes). */
-    private const int IDLE_THRESHOLD_MINUTES = 30;
-
-    /** Padding added after the last event in a block (in minutes). */
-    private const int BLOCK_END_PADDING_MINUTES = 15;
-
     public function __construct(private readonly CreateSession $createSession) {}
 
     /**
@@ -27,34 +23,50 @@ class ReconstructDailySessions extends Action
      */
     public function handle(CarbonImmutable $date, ?Project $project = null): Collection
     {
-        $eventsQuery = ActivityEvent::query()
+        $idleThresholdMinutes = config('activity.idle_timeout_minutes');
+        $blockEndPaddingMinutes = config('activity.block_end_padding_minutes');
+
+        $events = ActivityEvent::query()
             ->whereDate('occurred_at', $date)
             ->whereNotNull('project_id')
-            ->orderBy('occurred_at');
+            ->orderBy('occurred_at')
+            ->when($project !== null, fn (Builder $q) => $q->where('project_id', $project->id))
+            ->get();
 
-        if ($project !== null) {
-            $eventsQuery->where('project_id', $project->id);
-        }
+        $projectIds = $events->pluck('project_id')->unique()->values();
 
-        $events = $eventsQuery->get();
+        $projects = match (is_null($project)) {
+            true => Project::whereIn('id', $projectIds)->get(),
+            false => EloquentCollection::wrap([$project]),
+        };
+
+        $projects = $projects->keyBy('id');
+
+        $existingSessions = Session::query()
+            ->whereIn('project_id', $projectIds)
+            ->where('started_at', '<', $date->endOfDay())
+            ->where(fn ($q) => $q->whereNull('ended_at')->orWhere('ended_at', '>', $date->startOfDay()))
+            ->get()
+            ->groupBy('project_id');
 
         $generated = collect();
 
         foreach ($events->groupBy('project_id') as $projectId => $projectEvents) {
-            $proj = Project::find($projectId);
+            $proj = $projects->get($projectId);
 
             if ($proj === null) {
                 continue;
             }
 
-            $blocks = $this->detectBlocks($projectEvents);
+            $blocks = $this->detectBlocks($projectEvents, $idleThresholdMinutes, $blockEndPaddingMinutes);
+
+            $projectSessions = $existingSessions->get($projectId) ?? collect();
 
             foreach ($blocks as [$blockStart, $blockEnd]) {
-                $overlaps = Session::query()
-                    ->where('project_id', $projectId)
-                    ->where('started_at', '<', $blockEnd)
-                    ->where(fn ($q) => $q->whereNull('ended_at')->orWhere('ended_at', '>', $blockStart))
-                    ->exists();
+                $overlaps = $projectSessions->contains(
+                    fn (Session $session): bool => $session->started_at < $blockEnd
+                        && ($session->ended_at === null || $session->ended_at > $blockStart)
+                );
 
                 if ($overlaps) {
                     continue;
@@ -77,7 +89,7 @@ class ReconstructDailySessions extends Action
      * @param  Collection<int, ActivityEvent>  $events
      * @return array<int, array{CarbonImmutable, CarbonImmutable}>
      */
-    private function detectBlocks(Collection $events): array
+    private function detectBlocks(Collection $events, int $idleThresholdMinutes, int $blockEndPaddingMinutes): array
     {
         $blocks = [];
         $blockStart = null;
@@ -95,8 +107,8 @@ class ReconstructDailySessions extends Action
 
             $gap = (int) $lastTime->diffInMinutes($time);
 
-            if ($gap > self::IDLE_THRESHOLD_MINUTES) {
-                $blocks[] = [$blockStart, $lastTime->addMinutes(self::BLOCK_END_PADDING_MINUTES)];
+            if ($gap > $idleThresholdMinutes) {
+                $blocks[] = [$blockStart, $lastTime->addMinutes($blockEndPaddingMinutes)];
                 $blockStart = $time;
             }
 
@@ -104,7 +116,7 @@ class ReconstructDailySessions extends Action
         }
 
         if ($blockStart !== null && $lastTime !== null) {
-            $blocks[] = [$blockStart, $lastTime->addMinutes(self::BLOCK_END_PADDING_MINUTES)];
+            $blocks[] = [$blockStart, $lastTime->addMinutes($blockEndPaddingMinutes)];
         }
 
         return $blocks;

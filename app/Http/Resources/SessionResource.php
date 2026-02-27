@@ -24,8 +24,6 @@ class SessionResource extends JsonResource
             'date' => $this->date?->toDateString(),
             'started_at' => $this->started_at,
             'ended_at' => $this->ended_at,
-            'started_at_formatted' => $this->started_at?->format('H:i'),
-            'ended_at_formatted' => $this->ended_at?->format('H:i'),
             'duration_minutes' => $this->duration_minutes,
             'rounded_minutes' => $this->rounded_minutes,
             'source' => $this->source->toArray(),

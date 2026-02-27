@@ -47,20 +47,20 @@ class SessionController extends Controller
 
         $action->handle($project, SessionData::fromArray($request->validated()));
 
-        return redirect()->back();
+        return back();
     }
 
     public function update(UpdateSessionRequest $request, Session $session, UpdateSession $action): RedirectResponse
     {
         $action->handle($session, SessionData::fromArray($request->validated()));
 
-        return redirect()->back();
+        return back();
     }
 
     public function destroy(Session $session, DeleteSession $action): RedirectResponse
     {
         $action->handle($session);
 
-        return redirect()->back();
+        return back();
     }
 }

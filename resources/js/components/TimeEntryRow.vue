@@ -5,12 +5,15 @@ import { ref } from 'vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
+import { useDateFormat } from '@/composables/useDateFormat';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Session } from '@/types';
 
 const props = defineProps<{
     session: Session;
 }>();
+
+const { formatTime } = useDateFormat();
 
 const confirmDelete = ref(false);
 
@@ -52,7 +55,7 @@ function deleteSession(): void {
 
         <div class="flex shrink-0 items-center gap-3">
             <span class="font-mono text-sm text-muted-foreground">
-                {{ session.started_at_formatted }} → {{ session.ended_at_formatted }}
+                {{ formatTime(session.started_at) }} → {{ formatTime(session.ended_at) }}
             </span>
 
             <span class="font-mono text-sm font-medium tabular-nums">

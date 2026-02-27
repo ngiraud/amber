@@ -13,8 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-// kept for activityEvents
-
 class Session extends Model
 {
     /** @use HasFactory<\Database\Factories\SessionFactory> */

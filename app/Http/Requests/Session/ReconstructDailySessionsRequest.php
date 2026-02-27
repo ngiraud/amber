@@ -17,7 +17,7 @@ class ReconstructDailySessionsRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date' => ['nullable', 'date', 'before:today'],
+            'date' => ['nullable', 'date', 'before:tomorrow'],
         ];
     }
 
