@@ -85,4 +85,18 @@ describe('ReconstructDaySessions action', function () {
         expect($generated)->toHaveCount(1)
             ->and($generated->first()->project_id)->toBe($project1->id);
     });
+
+    it('links activity events to the reconstructed session', function () {
+        $project = Project::factory()->create();
+        $today = CarbonImmutable::today();
+
+        $event1 = ActivityEvent::factory()->recycle($project)->create(['occurred_at' => $today->setTime(9, 0)]);
+        $event2 = ActivityEvent::factory()->recycle($project)->create(['occurred_at' => $today->setTime(9, 20)]);
+
+        $generated = ReconstructDailySessions::make()->handle($today);
+        $session = $generated->first();
+
+        expect($event1->fresh()->session_id)->toBe($session->id)
+            ->and($event2->fresh()->session_id)->toBe($session->id);
+    });
 });

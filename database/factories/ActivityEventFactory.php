@@ -26,7 +26,7 @@ class ActivityEventFactory extends Factory
             'source_type' => 'git',
             'type' => ActivityEventType::GitCommit,
             'occurred_at' => fake()->dateTimeBetween('-30 days', 'now'),
-            'metadata' => [],
+            'metadata' => ['message' => fake()->sentence(), 'hash' => fake()->sha1()],
         ];
     }
 }

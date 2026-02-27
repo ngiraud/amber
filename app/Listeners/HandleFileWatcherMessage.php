@@ -9,6 +9,7 @@ use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
+use App\Models\Session;
 use App\Services\FileWatcherService;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
@@ -63,13 +64,16 @@ class HandleFileWatcherMessage
                 continue;
             }
 
-            $this->recordEvent->handle(new ActivityEventData(
-                sourceType: ActivityEventSourceType::Fswatch,
-                type: ActivityEventType::FileChange,
-                occurredAt: $occurredAt,
-                projectRepository: $projectRepository,
-                metadata: ['file_path' => $filePath],
-            ));
+            $this->recordEvent->handle(
+                data: new ActivityEventData(
+                    sourceType: ActivityEventSourceType::Fswatch,
+                    type: ActivityEventType::FileChange,
+                    occurredAt: $occurredAt,
+                    projectRepository: $projectRepository,
+                    metadata: ['file_path' => $filePath],
+                ),
+                activeSession: Session::findActive()
+            );
         }
     }
 

@@ -76,6 +76,12 @@ class ReconstructDailySessions extends Action
                     ->reconstructed()
                     ->handle($currentProject, new SessionData(startedAt: $blockStart, endedAt: $blockEnd));
 
+                ActivityEvent::query()
+                    ->where('project_id', $currentProject->id)
+                    ->whereBetween('occurred_at', [$blockStart, $blockEnd])
+                    ->whereNull('session_id')
+                    ->update(['session_id' => $session->id]);
+
                 $generated->push($session);
             }
         }
