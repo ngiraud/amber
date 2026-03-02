@@ -22,12 +22,6 @@ describe('create client', function () {
             ->assertRedirectToRoute('clients.show', $client);
     });
 
-    it('shows the create form', function () {
-        $this->get(route('clients.create'))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page->component('client/Form'));
-    });
-
     it('validates that name is required', function () {
         $this->post(route('clients.store'), [])
             ->assertInvalid(['name']);

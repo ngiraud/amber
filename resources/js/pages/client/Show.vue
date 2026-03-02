@@ -9,6 +9,7 @@ import ProjectSheet from '@/components/ProjectSheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -16,6 +17,7 @@ import type { ActivityEvent, Client, Paginator } from '@/types';
 
 defineProps<{
     client: Client;
+    clients: Client[];
     events: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
@@ -50,11 +52,11 @@ const confirmDelete = ref(false);
 
                     <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 
-                    <Form :action="clientRoutes.destroy(client!)" #default="{ submit }">
+                    <Form :action="clientRoutes.destroy(client)" #default="{ submit }">
                         <ConfirmDialog
                             :open="confirmDelete"
                             title="Delete client"
-                            :message="`Are you sure you want to delete ${client!.name}? All associated projects will be deleted.`"
+                            :message="`Are you sure you want to delete ${client.name}? All associated projects, repositories, sessions, and activity events will be permanently deleted.`"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />
@@ -69,20 +71,24 @@ const confirmDelete = ref(false);
             <div class="flex items-center justify-between">
                 <h2 class="text-base font-semibold">Projects</h2>
 
-                <ProjectSheet :client="client">
+                <ProjectSheet :client="client" :clients="clients">
                     <Button size="sm">Add project</Button>
                 </ProjectSheet>
             </div>
 
-            <div v-if="!client.projects?.length" class="mt-6 text-center">
-                <p class="text-sm text-muted-foreground">No projects yet.</p>
-            </div>
+            <Empty v-if="!client.projects?.length" class="mt-6">
+                <EmptyTitle>No projects yet</EmptyTitle>
+                <EmptyDescription>Add a project to start tracking time for this client.</EmptyDescription>
+                <ProjectSheet :client="client" :clients="clients">
+                    <Button size="sm">Add project</Button>
+                </ProjectSheet>
+            </Empty>
 
             <div v-else class="mt-4 grid grid-cols-2 gap-3">
                 <Link
                     v-for="project in client.projects"
                     :key="project.id"
-                    :href="projectRoutes.show({ client: client, project: project })"
+                    :href="projectRoutes.show(project)"
                     class="flex flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
                 >
                     <div class="flex items-center gap-2.5">

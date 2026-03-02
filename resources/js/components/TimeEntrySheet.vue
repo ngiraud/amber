@@ -17,7 +17,7 @@ const props = defineProps<{
 
 const open = ref(false);
 
-const isEdit = !!props.session;
+const isEditing = !!props.session;
 
 const defaultStartedAt = props.session ? props.session.started_at.substring(0, 16) : `${props.date}T09:00`;
 
@@ -32,17 +32,17 @@ const defaultEndedAt = props.session ? (props.session.ended_at?.substring(0, 16)
 
         <SheetContent side="right" class="w-96">
             <SheetHeader>
-                <SheetTitle>{{ isEdit ? 'Edit Session' : 'Add Session' }}</SheetTitle>
+                <SheetTitle>{{ isEditing ? 'Edit Session' : 'Add Session' }}</SheetTitle>
             </SheetHeader>
 
             <Form
-                :action="isEdit ? sessionRoutes.update(session!) : sessionRoutes.store()"
-                :method="isEdit ? 'patch' : 'post'"
+                :action="isEditing ? sessionRoutes.update(session!) : sessionRoutes.store()"
+                :method="isEditing ? 'patch' : 'post'"
                 class="mt-6 flex flex-col gap-5 px-4"
                 #default="{ errors, processing }"
                 @success="() => (open = false)"
             >
-                <div v-if="!isEdit" class="flex flex-col gap-2">
+                <div v-if="!isEditing" class="flex flex-col gap-2">
                     <Label for="project_id">Project</Label>
                     <select
                         id="project_id"
@@ -85,7 +85,7 @@ const defaultEndedAt = props.session ? (props.session.ended_at?.substring(0, 16)
 
                 <SheetFooter>
                     <Button type="submit" :disabled="processing" class="w-full">
-                        {{ processing ? 'Saving…' : isEdit ? 'Save Changes' : 'Add Session' }}
+                        {{ processing ? 'Saving…' : isEditing ? 'Save Changes' : 'Add Session' }}
                     </Button>
                 </SheetFooter>
             </Form>

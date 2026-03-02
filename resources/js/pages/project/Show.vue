@@ -9,6 +9,7 @@ import RepositorySheet from '@/components/RepositorySheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -18,6 +19,7 @@ import type { ActivityEvent, Client, Paginator, Project, ProjectRepository } fro
 const props = defineProps<{
     client: Client;
     project: Project;
+    clients: Client[];
     events?: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
@@ -73,17 +75,17 @@ function removeRepo(): void {
                 </template>
 
                 <template #actions>
-                    <ProjectSheet :client="client" :project="project">
+                    <ProjectSheet :project="project" :clients="clients">
                         <Button variant="outline" size="sm">Edit</Button>
                     </ProjectSheet>
 
                     <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 
-                    <Form :action="projectRoutes.destroy({ client, project: project! })" #default="{ submit }">
+                    <Form :action="projectRoutes.destroy(project)" #default="{ submit }">
                         <ConfirmDialog
                             :open="confirmDelete"
                             title="Delete project"
-                            :message="`Are you sure you want to delete ${project!.name}?`"
+                            :message="`Are you sure you want to delete ${project.name}? All associated repositories, sessions, and activity events will be permanently deleted.`"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />
@@ -133,13 +135,21 @@ function removeRepo(): void {
                 </div>
             </div>
 
-            <p v-else class="mt-3 text-sm text-muted-foreground">No repositories linked yet.</p>
+            <Empty v-else class="mt-3">
+                <EmptyTitle>No repositories linked yet</EmptyTitle>
+                <EmptyDescription>Link a repository to automatically track commits for this project.</EmptyDescription>
+                <RepositorySheet :project="project">
+                    <Button size="sm" variant="outline">Add repository</Button>
+                </RepositorySheet>
+            </Empty>
         </div>
 
         <ConfirmDialog
             :open="repoToDelete !== null"
             title="Remove repository"
-            :message="repoToDelete ? `Remove ${repoToDelete.name} from this project?` : ''"
+            :message="
+                repoToDelete ? `Remove ${repoToDelete.name} from this project? All associated activity events will be permanently deleted.` : ''
+            "
             confirm-label="Remove"
             @confirm="removeRepo"
             @cancel="repoToDelete = null"

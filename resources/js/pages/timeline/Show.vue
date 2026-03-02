@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
@@ -75,10 +76,20 @@ function reconstruct(): void {
             </PageHeader>
         </template>
 
-        <div v-if="sessions.length === 0" class="mt-6 text-center">
-            <p class="text-sm text-muted-foreground">No sessions for this day.</p>
-            <p class="mt-1 text-xs text-muted-foreground">Start a session or add a manual one.</p>
-        </div>
+        <Empty v-if="sessions.length === 0" class="mt-4">
+            <EmptyTitle>No sessions for this day.</EmptyTitle>
+            <EmptyDescription>Start a session or add a manual one.</EmptyDescription>
+
+            <div class="flex gap-4">
+                <Button variant="outline" size="sm" @click="reconstruct">
+                    <RefreshCwIcon class="mr-1.5 size-3.5" />
+                    Reconstruct
+                </Button>
+                <TimeEntrySheet :date="date" :projects="projects">
+                    <Button size="sm">Add Session</Button>
+                </TimeEntrySheet>
+            </div>
+        </Empty>
 
         <div v-else class="flex flex-col gap-1.5">
             <TimeEntryRow

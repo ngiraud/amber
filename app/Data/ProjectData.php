@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Data;
 
 use App\Enums\RoundingStrategy;
+use App\Models\Client;
 
 class ProjectData
 {
     public function __construct(
+        public readonly Client $client,
         public readonly string $name,
         public readonly string $color,
         public readonly RoundingStrategy $rounding,
@@ -21,6 +23,7 @@ class ProjectData
     public static function fromArray(array $data): self
     {
         return new self(
+            client: $data['client_id'] instanceof Client ? $data['client_id'] : Client::findOrFail($data['client_id']),
             name: $data['name'],
             color: $data['color'],
             rounding: RoundingStrategy::from((int) $data['rounding']),
@@ -34,6 +37,7 @@ class ProjectData
     public function toArray(): array
     {
         return [
+            'client_id' => $this->client->id,
             'name' => $this->name,
             'color' => $this->color,
             'rounding' => $this->rounding,

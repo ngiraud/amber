@@ -18,43 +18,39 @@ describe('create project', function () {
         CreateProject::fake()
             ->shouldReceive('handle')
             ->once()
-            ->with(
-                Mockery::on(fn ($arg) => $arg->id === $client->id),
-                Mockery::on(fn ($data) => $data->name === 'New Project'),
-            )
+            ->with(Mockery::on(fn ($data) => $data->client->id === $client->id && $data->name === 'New Project'))
             ->andReturn($project);
 
-        $this->post(route('projects.store', $client), [
+        $this->post(route('projects.store'), [
+            'client_id' => $client->id,
             'name' => 'New Project',
             'color' => '#6366f1',
             'rounding' => RoundingStrategy::Quarter->value,
             'daily_reference_hours' => 7,
             'is_active' => true,
-        ])->assertRedirectToRoute('projects.show', [$client, $project]);
-    });
-
-    it('shows the create form with client data', function () {
-        $client = Client::factory()->create();
-
-        $this->get(route('projects.create', $client))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('project/Form')
-                ->has('client')
-            );
+        ])->assertRedirectToRoute('projects.show', $project);
     });
 
     it('validates required fields', function () {
-        $client = Client::factory()->create();
+        $this->post(route('projects.store'), [])
+            ->assertInvalid(['client_id', 'name', 'color', 'rounding', 'daily_reference_hours']);
+    });
 
-        $this->post(route('projects.store', $client), [])
-            ->assertInvalid(['name', 'color', 'rounding', 'daily_reference_hours']);
+    it('validates client_id must exist', function () {
+        $this->post(route('projects.store'), [
+            'client_id' => 'non-existent-id',
+            'name' => 'Test',
+            'color' => '#6366f1',
+            'rounding' => RoundingStrategy::Quarter->value,
+            'daily_reference_hours' => 7,
+        ])->assertInvalid(['client_id']);
     });
 
     it('validates color format', function () {
         $client = Client::factory()->create();
 
-        $this->post(route('projects.store', $client), [
+        $this->post(route('projects.store'), [
+            'client_id' => $client->id,
             'name' => 'Test',
             'color' => 'not-a-color',
             'rounding' => RoundingStrategy::Quarter->value,
@@ -65,7 +61,8 @@ describe('create project', function () {
     it('validates rounding is a valid enum value', function () {
         $client = Client::factory()->create();
 
-        $this->post(route('projects.store', $client), [
+        $this->post(route('projects.store'), [
+            'client_id' => $client->id,
             'name' => 'Test',
             'color' => '#6366f1',
             'rounding' => 999,
@@ -78,12 +75,13 @@ describe('CreateProject action', function () {
     it('creates a project under the client', function () {
         $client = Client::factory()->create();
         $data = new ProjectData(
+            client: $client,
             name: 'My Project',
             color: '#6366f1',
             rounding: RoundingStrategy::Quarter,
         );
 
-        $project = CreateProject::make()->handle($client, $data);
+        $project = CreateProject::make()->handle($data);
 
         expect($project)->toBeInstanceOf(Project::class)
             ->and($project->client_id)->toBe($client->id)
