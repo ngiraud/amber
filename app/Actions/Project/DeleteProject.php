@@ -12,8 +12,12 @@ class DeleteProject extends Action
 {
     public function handle(Project $project): void
     {
-        DB::transaction(function () use ($project) {
-            $project->delete();
+        DB::transaction(fn () => $project->delete());
+
+        defer(function () use ($project) {
+            $project->repositories()->delete();
+            $project->sessions()->delete();
+            $project->activityEvents()->delete();
         });
     }
 }

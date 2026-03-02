@@ -8,6 +8,7 @@ import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Empty, EmptyDescription } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
@@ -92,9 +93,9 @@ const dateLabel = computed(() => {
             </Card>
         </div>
 
-        <div v-if="sessions.length === 0" class="mt-4 text-center">
-            <p class="text-sm text-muted-foreground">No sessions today yet.</p>
-        </div>
+        <Empty v-if="sessions.length === 0" class="mt-4">
+            <EmptyDescription>No sessions today yet.</EmptyDescription>
+        </Empty>
 
         <div v-else class="flex flex-col gap-1.5">
             <Link v-for="session in sessions" :key="session.id" :href="sessionRoutes.show({ session: session }).url">

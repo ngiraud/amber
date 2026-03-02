@@ -16,6 +16,7 @@ class StoreProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'client_id' => ['required', 'string', Rule::exists('clients', 'id')],
             'name' => ['required', 'string', 'max:255'],
             'color' => ['required', 'string', 'size:7', 'starts_with:#'],
             'rounding' => ['required', Rule::enum(RoundingStrategy::class)],

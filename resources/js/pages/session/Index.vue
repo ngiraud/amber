@@ -4,6 +4,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Paginator, Project, Session } from '@/types';
@@ -26,9 +27,9 @@ defineProps<{
             </PageHeader>
         </template>
 
-        <div v-if="(sessions?.data || []).length === 0" class="mt-6 text-center">
-            <p class="text-sm text-muted-foreground">No sessions yet.</p>
-        </div>
+        <Empty v-if="(sessions?.data || []).length === 0" class="mt-6">
+            <EmptyTitle>No sessions yet.</EmptyTitle>
+        </Empty>
 
         <InfiniteScroll v-else data="sessions" :buffer="200">
             <template #loading>

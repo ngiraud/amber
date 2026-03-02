@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use App\Actions\Client\DeleteClient;
+use App\Models\ActivityEvent;
 use App\Models\Client;
 use App\Models\Project;
+use App\Models\ProjectRepository;
+use App\Models\Session;
 
 pest()->group('client');
 
@@ -28,13 +31,21 @@ describe('delete client', function () {
 })->group('controllers');
 
 describe('DeleteClient action', function () {
-    it('deletes the client and all its projects', function () {
+    it('deletes the client and all its projects, repositories, sessions, and activity events', function () {
+        $this->withoutDefer();
+
         $client = Client::factory()->create();
-        Project::factory()->count(2)->create(['client_id' => $client->id]);
+        $project = Project::factory()->create(['client_id' => $client->id]);
+        $repository = ProjectRepository::factory()->create(['project_id' => $project->id]);
+        $session = Session::factory()->create(['project_id' => $project->id]);
+        $event = ActivityEvent::factory()->create(['project_id' => $project->id, 'project_repository_id' => $repository->id]);
 
         DeleteClient::make()->handle($client);
 
         $this->assertDatabaseMissing('clients', ['id' => $client->id]);
-        $this->assertDatabaseEmpty('projects');
+        $this->assertDatabaseMissing('projects', ['id' => $project->id]);
+        $this->assertDatabaseMissing('project_repositories', ['id' => $repository->id]);
+        $this->assertDatabaseMissing('sessions', ['id' => $session->id]);
+        $this->assertDatabaseMissing('activity_events', ['id' => $event->id]);
     });
 })->group('actions');

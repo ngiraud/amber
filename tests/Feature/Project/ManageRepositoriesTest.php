@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Project\AttachRepository;
 use App\Actions\Project\DetachRepository;
+use App\Models\ActivityEvent;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\ProjectRepository;
@@ -29,7 +30,7 @@ describe('attach repository', function () {
         $this->post(route('projects.repositories.store', $project), [
             'local_path' => '/Users/nico/code/my-repo',
             'name' => 'my-repo',
-        ])->assertRedirectToRoute('projects.show', [$client, $project]);
+        ])->assertRedirectToRoute('projects.show', $project);
     });
 
     it('validates repository fields are required', function () {
@@ -52,7 +53,7 @@ describe('detach repository', function () {
             ->with(Mockery::on(fn ($arg) => $arg->id === $repository->id));
 
         $this->delete(route('projects.repositories.destroy', [$project, $repository]))
-            ->assertRedirectToRoute('projects.show', [$client, $project]);
+            ->assertRedirectToRoute('projects.show', $project);
     });
 
     it('returns 404 for a non-existent repository', function () {
@@ -84,5 +85,19 @@ describe('DetachRepository action', function () {
         DetachRepository::make()->handle($repository);
 
         $this->assertDatabaseMissing('project_repositories', ['id' => $repository->id]);
+    });
+
+    it('also deletes associated activity events', function () {
+        $this->withoutDefer();
+
+        $repository = ProjectRepository::factory()->create();
+        $event = ActivityEvent::factory()->create([
+            'project_id' => $repository->project_id,
+            'project_repository_id' => $repository->id,
+        ]);
+
+        DetachRepository::make()->handle($repository);
+
+        $this->assertDatabaseMissing('activity_events', ['id' => $event->id]);
     });
 })->group('actions');
