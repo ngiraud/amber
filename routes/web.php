@@ -8,7 +8,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
 use App\Http\Controllers\SessionController;
+use App\Http\Controllers\SessionTimerController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TimelineController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
@@ -38,11 +40,21 @@ Route::delete('/clients/{client}/projects/{project}', [ProjectController::class,
 Route::post('/projects/{project}/repositories', [ProjectRepositoryController::class, 'store'])->name('projects.repositories.store');
 Route::delete('/projects/{project}/repositories/{repository}', [ProjectRepositoryController::class, 'destroy'])->name('projects.repositories.destroy');
 
-// Sessions
+// Sessions — Timer
+Route::post('/sessions/start', [SessionTimerController::class, 'start'])->name('sessions.start');
+Route::patch('/sessions/{session}/stop', [SessionTimerController::class, 'stop'])->name('sessions.stop');
+Route::post('/sessions/reconstruct', [SessionTimerController::class, 'reconstruct'])->name('sessions.reconstruct');
+
+// Sessions — CRUD
 Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');
-Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
 Route::get('/sessions/{session}', [SessionController::class, 'show'])->name('sessions.show');
-Route::patch('/sessions/{session}/stop', [SessionController::class, 'stop'])->name('sessions.stop');
+Route::post('/sessions', [SessionController::class, 'store'])->name('sessions.store');
+Route::patch('/sessions/{session}', [SessionController::class, 'update'])->name('sessions.update');
+Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->name('sessions.destroy');
+
+// Timeline
+Route::get('/timeline/{date}', [TimelineController::class, 'show'])->name('timeline.show');
+Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
 
 // Settings
 Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');

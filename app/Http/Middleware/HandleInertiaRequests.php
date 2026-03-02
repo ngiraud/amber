@@ -42,6 +42,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'display_timezone' => config('app.display_timezone'),
+            'display_locale' => config('app.locale'),
             'activeSession' => fn () => ($s = Session::findActive(['project.client']))
                 ? SessionResource::make($s)
                 : null,

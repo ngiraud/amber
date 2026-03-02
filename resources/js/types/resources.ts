@@ -75,11 +75,14 @@ export type SessionSource = {
 export type Session = {
     id: string;
     project_id: string;
+    date: string | null;
     started_at: string;
     ended_at: string | null;
     duration_minutes: number | null;
+    rounded_minutes: number | null;
     source: SessionSource;
     notes: string | null;
+    description: string | null;
     is_validated: boolean;
     created_at: string;
     updated_at: string;
@@ -104,13 +107,23 @@ export type ActivityEvent = {
     type: EnumValue;
     occurred_at: string;
     occurred_at_timestamp: number;
-    occurred_at_formatted: string;
     metadata: Record<string, unknown>;
     project_name?: string;
     repository_name?: string;
     detail: string;
     created_at: string;
     updated_at: string;
+};
+
+export type TimelineDay = {
+    date: string;
+    total_minutes: number;
+    projects: {
+        id: string;
+        name: string | undefined;
+        color: string | undefined;
+        minutes: number;
+    }[];
 };
 
 export type AppSettings = {

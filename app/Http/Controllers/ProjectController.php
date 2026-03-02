@@ -10,14 +10,12 @@ use App\Actions\Project\UpdateProject;
 use App\Data\ProjectData;
 use App\Http\Requests\Project\StoreProjectRequest;
 use App\Http\Requests\Project\UpdateProjectRequest;
-use App\Http\Resources\ActivityEventResource;
 use App\Http\Resources\ClientResource;
 use App\Http\Resources\ProjectResource;
 use App\Models\Client;
 use App\Models\Project;
-use Carbon\Carbon;
+use App\ViewModels\EventsViewModel;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -58,22 +56,12 @@ class ProjectController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Request $request, Client $client, Project $project): Response
+    public function show(Client $client, Project $project, EventsViewModel $eventsViewModel): Response
     {
-        $project->load('repositories');
-
         return Inertia::render('project/Show', [
-            'client' => ClientResource::make($client),
-            'project' => ProjectResource::make($project),
-            'events' => Inertia::scroll(
-                ActivityEventResource::collection(
-                    $project->activityEvents()
-                        ->with('projectRepository')
-                        ->latest('occurred_at')
-                        ->cursorPaginate()
-                )
-            ),
-            'hasNewEvents' => $request->filled('since_occurred_at') && $project->activityEvents()->where('occurred_at', '>', Carbon::createFromTimestamp($request->integer('since_occurred_at')))->exists(),
+            'client' => fn () => ClientResource::make($client),
+            'project' => fn () => ProjectResource::make($project->load('repositories')),
+            $eventsViewModel,
         ]);
     }
 

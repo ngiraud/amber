@@ -18,7 +18,7 @@ import type { ActivityEvent, Client, Paginator, Project, ProjectRepository } fro
 const props = defineProps<{
     client: Client;
     project: Project;
-    events: Paginator<ActivityEvent>;
+    events?: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
 

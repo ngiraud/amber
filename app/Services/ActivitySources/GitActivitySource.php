@@ -58,7 +58,7 @@ class GitActivitySource implements ActivitySource
         $authorEmails = AppSetting::get('git_author_emails');
 
         if (empty($authorEmails)) {
-            $authorEmails = explode(',', config('activity.git.author_emails', ''));
+            $authorEmails = explode(',', config('activity.sources.git.author_emails', ''));
         }
 
         $authorEmails = array_filter(array_map('trim', $authorEmails));

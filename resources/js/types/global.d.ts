@@ -22,6 +22,8 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            display_timezone: string;
+            display_locale: string;
             activeSession: Session | null;
             [key: string]: unknown;
         };

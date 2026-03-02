@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Enums\ActivityEventSourceType;
 use App\Models\ProjectRepository;
 use Native\Desktop\Facades\ChildProcess;
 
@@ -18,14 +19,18 @@ class FileWatcherService
 
     public function start(): void
     {
+        if (! ActivityEventSourceType::Fswatch->isEnabled()) {
+            return;
+        }
+
         $paths = $this->watchedPaths();
 
         if (empty($paths)) {
             return;
         }
 
-        $excluded = config('activity.fswatch.excluded_patterns', []);
-        $debounce = (int) config('activity.fswatch.debounce_seconds', 3);
+        $excluded = config('activity.sources.fswatch.excluded_patterns', []);
+        $debounce = (int) config('activity.sources.fswatch.debounce_seconds', 3);
 
         $excludeArgs = array_merge(...array_map(fn (string $p) => ['--exclude', $p], $excluded));
         $args = array_merge(

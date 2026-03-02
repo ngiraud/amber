@@ -15,7 +15,7 @@ class RecordActivityEvent extends Action
     public function handle(ActivityEventData $data, ?Session $activeSession = null): ?ActivityEvent
     {
         // Not sure about this yet, because we record an event each time a file has been "watched" if activated
-        //        $activeSession ??= Session::findActive();
+        $activeSession ??= Session::findActive();
 
         $sessionId = ($activeSession?->project_id === $data->projectRepository->project_id) ? $activeSession->id : null;
 
