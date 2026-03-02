@@ -56,7 +56,7 @@ const confirmDelete = ref(false);
                         <ConfirmDialog
                             :open="confirmDelete"
                             title="Delete client"
-                            :message="`Are you sure you want to delete ${client.name}? All associated projects will be deleted.`"
+                            :message="`Are you sure you want to delete ${client.name}? All associated projects, repositories, sessions, and activity events will be permanently deleted.`"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />

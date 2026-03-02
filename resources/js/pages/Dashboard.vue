@@ -12,6 +12,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
 import type { Project, Session } from '@/types';
+import { Empty, EmptyDescription } from '@/components/ui/empty';
 
 const props = defineProps<{
     date: string;
@@ -92,9 +93,9 @@ const dateLabel = computed(() => {
             </Card>
         </div>
 
-        <div v-if="sessions.length === 0" class="mt-4 text-center">
-            <p class="text-sm text-muted-foreground">No sessions today yet.</p>
-        </div>
+        <Empty v-if="sessions.length === 0" class="mt-4">
+            <EmptyDescription>No sessions today yet.</EmptyDescription>
+        </Empty>
 
         <div v-else class="flex flex-col gap-1.5">
             <Link v-for="session in sessions" :key="session.id" :href="sessionRoutes.show({ session: session }).url">

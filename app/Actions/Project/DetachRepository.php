@@ -12,8 +12,8 @@ class DetachRepository extends Action
 {
     public function handle(ProjectRepository $repository): void
     {
-        DB::transaction(function () use ($repository) {
-            $repository->delete();
-        });
+        DB::transaction(fn () => $repository->delete());
+
+        defer(fn () => $repository->activityEvents()->delete());
     }
 }
