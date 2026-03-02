@@ -65,7 +65,7 @@ describe('GitActivitySource', function () {
     });
 
     it('filters commits by author email when configured from config', function () {
-        Config::set('activity.git.author_emails', 'fromconfig@example.com');
+        Config::set('activity.sources.git.author_emails', 'fromconfig@example.com');
 
         ProjectRepository::factory()->create(['local_path' => '/some/project']);
 

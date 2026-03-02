@@ -2,15 +2,12 @@
 
 declare(strict_types=1);
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
-
-Schedule::command('menubar:update-timer')->everyMinute();
-Schedule::command('activity:scan')->everyMinute();
-Schedule::command('activity:check-idle')->everyMinute();
-Schedule::command('activity:check-untracked')->everyMinute();
+Schedule::timezone('Europe/Paris')->group(function () {
+    Schedule::command('menubar:update-timer')->everyMinute();
+    Schedule::command('activity:scan')->everyMinute();
+    Schedule::command('activity:check-idle')->everyMinute();
+    Schedule::command('activity:check-untracked')->everyMinute();
+    Schedule::command('sessions:reconstruct')->everyTwoHours();
+});

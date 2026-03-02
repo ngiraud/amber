@@ -18,6 +18,8 @@ class Session extends Model
     /** @use HasFactory<\Database\Factories\SessionFactory> */
     use HasFactory, HasUlids;
 
+    protected $perPage = 50;
+
     public static function findActive(array $relationships = []): ?static
     {
         return static::query()->active()->with($relationships)->first();
@@ -44,14 +46,6 @@ class Session extends Model
         return $this->hasMany(ActivityEvent::class);
     }
 
-    /**
-     * @return HasMany<TimeEntry, $this>
-     */
-    public function timeEntries(): HasMany
-    {
-        return $this->hasMany(TimeEntry::class);
-    }
-
     #[Scope]
     protected function active(Builder $query): void
     {
@@ -60,6 +54,7 @@ class Session extends Model
 
     /**
      * @return array{
+     *   date: 'date',
      *   started_at: 'datetime',
      *   ended_at: 'datetime',
      *   source: 'App\\Enums\\SessionSource',
@@ -69,6 +64,7 @@ class Session extends Model
     protected function casts(): array
     {
         return [
+            'date' => 'date',
             'started_at' => 'datetime',
             'ended_at' => 'datetime',
             'source' => SessionSource::class,

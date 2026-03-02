@@ -23,9 +23,7 @@ class NativeAppServiceProvider implements ProvidesPhpIni
 
         MenuBarService::make()->initialize();
 
-        if (config('activity.fswatch.enabled')) {
-            FileWatcherService::make()->start();
-        }
+        FileWatcherService::make()->start();
     }
 
     /**

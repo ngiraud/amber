@@ -28,17 +28,3 @@ describe('list sessions', function () {
             );
     });
 })->group('controllers');
-
-describe('show session', function () {
-    it('renders the show page with session data', function () {
-        $session = Session::factory()->completed()->for(Project::factory()->create())->create();
-
-        $this->get(route('sessions.show', $session))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('session/Show')
-                ->has('session')
-                ->where('session.id', $session->id)
-            );
-    });
-})->group('controllers');

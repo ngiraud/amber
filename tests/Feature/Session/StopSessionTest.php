@@ -27,13 +27,16 @@ describe('stop session controller', function () {
 describe('StopSession action', function () {
     beforeEach(fn () => Event::fake());
 
-    it('sets ended_at and computes duration_minutes', function () {
+    it('sets ended_at, computes duration_minutes and rounded_minutes', function () {
         $session = Session::factory()->create(['started_at' => now()->subHour()]);
+        $session->loadMissing('project');
 
         $stopped = StopSession::make()->handle($session);
 
         expect($stopped->ended_at)->not->toBeNull()
-            ->and($stopped->duration_minutes)->toBeGreaterThan(0);
+            ->and($stopped->duration_minutes)->toBeGreaterThan(0)
+            ->and($stopped->rounded_minutes)->toBeGreaterThan(0)
+            ->and($stopped->date)->not->toBeNull();
 
         $this->assertDatabaseHas('sessions', [
             'id' => $session->id,

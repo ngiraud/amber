@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ActivityIcon, ClockIcon, FolderIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
+import { ActivityIcon, CalendarDaysIcon, ClockIcon, FolderIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import {
     Sidebar,
@@ -20,6 +20,7 @@ import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
 import * as sessionRoutes from '@/routes/sessions';
 import * as settingsRoutes from '@/routes/settings';
+import * as timelineRoutes from '@/routes/timeline';
 
 const { isCurrentUrl } = useCurrentUrl();
 </script>
@@ -42,6 +43,22 @@ const { isCurrentUrl } = useCurrentUrl();
             <SidebarGroup>
                 <SidebarGroupContent>
                     <SidebarMenu>
+                        <SidebarMenuItem>
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(home())" tooltip="Dashboard">
+                                <Link :href="home().url" prefetch class="items-center justify-center">
+                                    <LayoutDashboardIcon />
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+
+                        <SidebarMenuItem>
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(timelineRoutes.index())" tooltip="Timeline">
+                                <Link :href="timelineRoutes.index().url" prefetch class="items-center justify-center">
+                                    <CalendarDaysIcon />
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+
                         <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(clientRoutes.index())" tooltip="Clients">
                                 <Link :href="clientRoutes.index()" prefetch class="items-center justify-center">

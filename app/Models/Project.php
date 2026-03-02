@@ -54,14 +54,6 @@ class Project extends Model
         return $this->hasMany(ActivityEvent::class);
     }
 
-    /**
-     * @return HasMany<TimeEntry, $this>
-     */
-    public function timeEntries(): HasMany
-    {
-        return $this->hasMany(TimeEntry::class);
-    }
-
     #[Scope]
     protected function active(Builder $query): void
     {

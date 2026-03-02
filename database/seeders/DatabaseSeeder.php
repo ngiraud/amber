@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\RoundingStrategy;
+use App\Models\ActivityEvent;
 use App\Models\Client;
 use App\Models\Project;
 use App\Models\User;
@@ -54,6 +55,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $saas = Project::factory()->create([
+            'id' => '01kj5qc6ad8d7408erk4e4dtq9',
             'client_id' => $startup->id,
             'name' => 'SaaS Platform',
             'color' => '#10b981',
@@ -63,11 +65,12 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $saas->repositories()->createMany([
-            ['local_path' => '/Users/nico/Web/saas-starter', 'name' => 'SAAS Starter'],
+            ['local_path' => '/Users/nico/Web/saas-starter', 'name' => 'SAAS Starter', 'id' => '01kj5qc6ae8e484z0fczpqkzsq'],
             ['local_path' => '/Users/nico/code/saas-mobile', 'name' => 'SAAS Mobile'],
         ]);
 
         $thisProject = Project::factory()->create([
+            'id' => '01kj5qc6afcnqgn9zek1nx1zsz',
             'client_id' => $startup->id,
             'name' => 'CRA Tracker project',
             'color' => '#000000',
@@ -77,7 +80,20 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $thisProject->repositories()->createMany([
-            ['local_path' => '/Users/nico/code/activity-record-desktop', 'name' => 'CRA Tracker'],
+            ['local_path' => '/Users/nico/code/activity-record-desktop', 'name' => 'CRA Tracker', 'id' => '01kj5qc6agq8dw5z7pqg6xqg0v'],
         ]);
+
+        $this->pushActivityEvents();
+    }
+
+    protected function pushActivityEvents(): void
+    {
+        $json = file_get_contents(storage_path('sample-data/activity_events.json'));
+
+        collect(json_decode($json, true))
+            ->chunk(50)
+            ->each(function ($chunk) {
+                ActivityEvent::insert($chunk->all());
+            });
     }
 }

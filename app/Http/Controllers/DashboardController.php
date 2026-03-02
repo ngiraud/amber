@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
+use App\ViewModels\DashboardViewModel;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): RedirectResponse
+    public function __invoke(DashboardViewModel $viewModel): Response
     {
-        return redirect()->route('clients.index');
+        return Inertia::render('Dashboard', $viewModel);
     }
 }

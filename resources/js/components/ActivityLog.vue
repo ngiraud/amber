@@ -3,12 +3,13 @@ import { InfiniteScroll, router } from '@inertiajs/vue3';
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { cn } from '@/lib/utils';
 import type { ActivityEvent, Paginator } from '@/types';
 
 type ActivityLogProps = {
-    events: Paginator<ActivityEvent>;
-    hasNewEvents: boolean;
+    events?: Paginator<ActivityEvent>;
+    hasNewEvents?: boolean;
     propName?: string;
     preserveUrl?: boolean;
     scrollClass?: string;
@@ -21,8 +22,10 @@ const props = withDefaults(defineProps<ActivityLogProps>(), {
     hasNewEvents: false,
 });
 
+const { formatDateTimeISO } = useDateFormat();
+
 const scrollContainer = useTemplateRef<HTMLDivElement>('scrollContainer');
-const sinceOccurredAt = ref<number | null>(props.events.data[0]?.occurred_at_timestamp ?? null);
+const sinceOccurredAt = ref<number | null>(props.events?.data[0]?.occurred_at_timestamp ?? null);
 
 const openTooltipId = ref<string | null>(null);
 
@@ -80,7 +83,7 @@ function refresh(): void {
 
             <TransitionGroup name="log-entry" tag="div">
                 <div v-for="event in events.data" :key="event.id" class="flex items-baseline gap-3 py-0.5 leading-relaxed">
-                    <span class="shrink-0 text-zinc-500">[{{ event.occurred_at_formatted }}]</span>
+                    <span class="shrink-0 text-zinc-500">[{{ formatDateTimeISO(event.occurred_at) }}]</span>
                     <span :class="cn('w-20 shrink-0 truncate', event.source_type.color)">{{ event.source_type.label }}</span>
                     <span :class="cn('w-30 shrink-0 truncate', event.source_type.color)">{{ event.type.label }}</span>
                     <Tooltip :open="openTooltipId === event.id">

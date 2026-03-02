@@ -10,6 +10,7 @@ use App\Models\ActivityEvent;
 use App\Models\ProjectRepository;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Tests\Fixtures\FakeActivitySource;
 
@@ -73,6 +74,16 @@ describe('ScanAllSources', function () {
         $events = app(ScanAllSources::class)->handle($now->subMinutes(10));
 
         expect($events)->toHaveCount(0);
+    });
+
+    it('discoverSources skips disabled sources', function () {
+        Config::set('activity.sources.git.enabled', false);
+        Config::set('activity.sources.claude-code.enabled', false);
+        Config::set('activity.sources.fswatch.enabled', false);
+
+        $sources = app(ScanAllSources::class)->discoverSources();
+
+        expect($sources)->toHaveCount(0);
     });
 
     it('deduplicates events with the same type, occurred_at, and sourceType', function () {

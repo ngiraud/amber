@@ -5,23 +5,23 @@ declare(strict_types=1);
 namespace App\Actions\Session;
 
 use App\Actions\Action;
+use App\Data\SessionData;
 use App\Events\SessionStopped;
 use App\Models\Session;
+use Carbon\CarbonImmutable;
 
 class StopSession extends Action
 {
+    public function __construct(private readonly UpdateSession $updateSession) {}
+
     public function handle(Session $session): Session
     {
-        $endedAt = now();
-        $durationMinutes = (int) $session->started_at->diffInMinutes($endedAt);
+        $stopped = $this->updateSession->handle($session, new SessionData(
+            endedAt: CarbonImmutable::now(),
+        ));
 
-        $session->update([
-            'ended_at' => $endedAt,
-            'duration_minutes' => $durationMinutes,
-        ]);
+        SessionStopped::dispatch($stopped);
 
-        SessionStopped::dispatch($session->fresh());
-
-        return $session->fresh();
+        return $stopped;
     }
 }
