@@ -4,6 +4,7 @@ import ClientSheet from '@/components/ClientSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import type { Client, Paginator } from '@/types';
@@ -25,12 +26,13 @@ defineProps<{
             </PageHeader>
         </template>
 
-        <div v-if="clients.data.length === 0" class="mt-6 text-center">
-            <p class="text-sm text-muted-foreground">No clients yet.</p>
+        <Empty v-if="clients.data.length === 0" class="mt-6">
+            <EmptyTitle>No clients yet</EmptyTitle>
+            <EmptyDescription>Get started by adding your first client.</EmptyDescription>
             <ClientSheet>
-                <button class="mt-3 text-sm font-medium underline underline-offset-4">Add your first client</button>
+                <Button size="sm">New client</Button>
             </ClientSheet>
-        </div>
+        </Empty>
 
         <div v-else class="flex flex-col gap-1.5">
             <Link

@@ -25,6 +25,7 @@ describe('update project', function () {
             ->andReturn($project);
 
         $this->patch(route('projects.update', $project), [
+            'client_id' => $client->id,
             'name' => 'Updated Project',
             'color' => '#6366f1',
             'rounding' => RoundingStrategy::Quarter->value,
@@ -33,31 +34,36 @@ describe('update project', function () {
         ])->assertRedirectToRoute('projects.show', $project);
     });
 
-    it('shows the edit form with project data', function () {
-        $client = Client::factory()->create();
-        $project = Project::factory()->create(['client_id' => $client->id]);
+    it('can reassign a project to a different client', function () {
+        $oldClient = Client::factory()->create();
+        $newClient = Client::factory()->create();
+        $project = Project::factory()->create(['client_id' => $oldClient->id]);
 
-        $this->get(route('projects.edit', $project))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('project/Form')
-                ->has('client')
-                ->has('project')
-            );
+        $this->patch(route('projects.update', $project), [
+            'client_id' => $newClient->id,
+            'name' => $project->name,
+            'color' => $project->color,
+            'rounding' => $project->rounding->value,
+            'daily_reference_hours' => $project->daily_reference_hours,
+        ])->assertRedirectToRoute('projects.show', $project);
+
+        $this->assertDatabaseHas('projects', ['id' => $project->id, 'client_id' => $newClient->id]);
     });
 
     it('validates required fields', function () {
         $project = Project::factory()->create();
 
         $this->patch(route('projects.update', $project), [])
-            ->assertInvalid(['name', 'color', 'rounding', 'daily_reference_hours']);
+            ->assertInvalid(['client_id', 'name', 'color', 'rounding', 'daily_reference_hours']);
     });
 })->group('controllers');
 
 describe('UpdateProject action', function () {
     it('updates the project in the database', function () {
+        $client = Client::factory()->create();
         $project = Project::factory()->create(['name' => 'Old Name']);
         $data = new ProjectData(
+            client: $client,
             name: 'New Name',
             color: '#ff0000',
             rounding: RoundingStrategy::HalfHour,
@@ -65,6 +71,6 @@ describe('UpdateProject action', function () {
 
         UpdateProject::make()->handle($project, $data);
 
-        $this->assertDatabaseHas('projects', ['id' => $project->id, 'name' => 'New Name', 'color' => '#ff0000']);
+        $this->assertDatabaseHas('projects', ['id' => $project->id, 'name' => 'New Name', 'color' => '#ff0000', 'client_id' => $client->id]);
     });
 })->group('actions');

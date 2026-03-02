@@ -9,6 +9,7 @@ import RepositorySheet from '@/components/RepositorySheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -18,6 +19,7 @@ import type { ActivityEvent, Client, Paginator, Project, ProjectRepository } fro
 const props = defineProps<{
     client: Client;
     project: Project;
+    clients: Client[];
     events?: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
@@ -73,7 +75,7 @@ function removeRepo(): void {
                 </template>
 
                 <template #actions>
-                    <ProjectSheet :client="client" :project="project">
+                    <ProjectSheet :project="project" :clients="clients">
                         <Button variant="outline" size="sm">Edit</Button>
                     </ProjectSheet>
 
@@ -133,7 +135,13 @@ function removeRepo(): void {
                 </div>
             </div>
 
-            <p v-else class="mt-3 text-sm text-muted-foreground">No repositories linked yet.</p>
+            <Empty v-else class="mt-3">
+                <EmptyTitle>No repositories linked yet</EmptyTitle>
+                <EmptyDescription>Link a repository to automatically track commits for this project.</EmptyDescription>
+                <RepositorySheet :project="project">
+                    <Button size="sm" variant="outline">Add repository</Button>
+                </RepositorySheet>
+            </Empty>
         </div>
 
         <ConfirmDialog

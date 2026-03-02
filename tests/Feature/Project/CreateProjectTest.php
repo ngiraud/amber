@@ -18,10 +18,7 @@ describe('create project', function () {
         CreateProject::fake()
             ->shouldReceive('handle')
             ->once()
-            ->with(
-                Mockery::on(fn ($arg) => $arg->id === $client->id),
-                Mockery::on(fn ($data) => $data->name === 'New Project'),
-            )
+            ->with(Mockery::on(fn ($data) => $data->client->id === $client->id && $data->name === 'New Project'))
             ->andReturn($project);
 
         $this->post(route('projects.store'), [
@@ -32,17 +29,6 @@ describe('create project', function () {
             'daily_reference_hours' => 7,
             'is_active' => true,
         ])->assertRedirectToRoute('projects.show', $project);
-    });
-
-    it('shows the create form with client data', function () {
-        $client = Client::factory()->create();
-
-        $this->get(route('projects.create', ['client_id' => $client->id]))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('project/Form')
-                ->has('client')
-            );
     });
 
     it('validates required fields', function () {
@@ -89,12 +75,13 @@ describe('CreateProject action', function () {
     it('creates a project under the client', function () {
         $client = Client::factory()->create();
         $data = new ProjectData(
+            client: $client,
             name: 'My Project',
             color: '#6366f1',
             rounding: RoundingStrategy::Quarter,
         );
 
-        $project = CreateProject::make()->handle($client, $data);
+        $project = CreateProject::make()->handle($data);
 
         expect($project)->toBeInstanceOf(Project::class)
             ->and($project->client_id)->toBe($client->id)

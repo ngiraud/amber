@@ -10,8 +10,9 @@ import * as projectRoutes from '@/routes/projects';
 import type { Client, Project } from '@/types';
 
 const props = defineProps<{
-    client: Client;
+    client?: Client;
     project?: Project;
+    clients: Client[];
 }>();
 
 const ROUNDING_OPTIONS = [
@@ -22,9 +23,8 @@ const ROUNDING_OPTIONS = [
 
 const open = ref(false);
 const isEditing = computed(() => !!props.project);
-const action = computed(() =>
-    isEditing.value ? projectRoutes.update(props.project!) : projectRoutes.store(),
-);
+const action = computed(() => (isEditing.value ? projectRoutes.update(props.project!) : projectRoutes.store()));
+const selectedClientId = computed(() => props.project?.client_id ?? props.client?.id);
 
 const color = ref(props.project?.color ?? '#6366f1');
 
@@ -53,7 +53,18 @@ watch(open, (isOpen) => {
                 #default="{ errors, processing }"
                 @success="() => (open = false)"
             >
-                <input v-if="!isEditing" type="hidden" name="client_id" :value="client.id" />
+                <InputField label="Client" :error="errors.client_id" required>
+                    <select
+                        name="client_id"
+                        class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
+                    >
+                        <option value="" disabled :selected="!selectedClientId">Select a client…</option>
+                        <option v-for="c in clients" :key="c.id" :value="c.id" :selected="c.id === selectedClientId">
+                            {{ c.name }}
+                        </option>
+                    </select>
+                </InputField>
+
                 <InputField label="Name" :error="errors.name" required>
                     <Input name="name" type="text" :default-value="project?.name" :placeholder="isEditing ? undefined : 'My project'" autofocus />
                 </InputField>

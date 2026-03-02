@@ -25,17 +25,6 @@ describe('update client', function () {
             ->assertRedirectToRoute('clients.show', $client);
     });
 
-    it('shows the edit form with client data', function () {
-        $client = Client::factory()->create();
-
-        $this->get(route('clients.edit', $client))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('client/Form')
-                ->has('client')
-            );
-    });
-
     it('validates that name is required', function () {
         $client = Client::factory()->create();
 

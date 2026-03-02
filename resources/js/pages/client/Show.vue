@@ -9,6 +9,7 @@ import ProjectSheet from '@/components/ProjectSheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -16,6 +17,7 @@ import type { ActivityEvent, Client, Paginator } from '@/types';
 
 defineProps<{
     client: Client;
+    clients: Client[];
     events: Paginator<ActivityEvent>;
     hasNewEvents: boolean;
 }>();
@@ -69,14 +71,18 @@ const confirmDelete = ref(false);
             <div class="flex items-center justify-between">
                 <h2 class="text-base font-semibold">Projects</h2>
 
-                <ProjectSheet :client="client">
+                <ProjectSheet :client="client" :clients="clients">
                     <Button size="sm">Add project</Button>
                 </ProjectSheet>
             </div>
 
-            <div v-if="!client.projects?.length" class="mt-6 text-center">
-                <p class="text-sm text-muted-foreground">No projects yet.</p>
-            </div>
+            <Empty v-if="!client.projects?.length" class="mt-6">
+                <EmptyTitle>No projects yet</EmptyTitle>
+                <EmptyDescription>Add a project to start tracking time for this client.</EmptyDescription>
+                <ProjectSheet :client="client" :clients="clients">
+                    <Button size="sm">Add project</Button>
+                </ProjectSheet>
+            </Empty>
 
             <div v-else class="mt-4 grid grid-cols-2 gap-3">
                 <Link

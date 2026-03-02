@@ -20,25 +20,23 @@ Route::get('/activity', ActivityEventController::class)->name('activity.index');
 
 // Clients
 Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');
-Route::get('/clients/create', [ClientController::class, 'create'])->name('clients.create');
 Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
 Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
-Route::get('/clients/{client}/edit', [ClientController::class, 'edit'])->name('clients.edit');
 Route::patch('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
 Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
 // Projects
 Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
-Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
 Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
 Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
-Route::get('/projects/{project}/edit', [ProjectController::class, 'edit'])->name('projects.edit');
 Route::patch('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
 Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
 
 // Repositories
-Route::post('/projects/{project}/repositories', [ProjectRepositoryController::class, 'store'])->name('projects.repositories.store');
-Route::delete('/projects/{project}/repositories/{repository}', [ProjectRepositoryController::class, 'destroy'])->name('projects.repositories.destroy');
+Route::scopeBindings()->group(function () {
+    Route::post('/projects/{project}/repositories', [ProjectRepositoryController::class, 'store'])->name('projects.repositories.store');
+    Route::delete('/projects/{project}/repositories/{repository}', [ProjectRepositoryController::class, 'destroy'])->name('projects.repositories.destroy');
+});
 
 // Sessions — Timer
 Route::post('/sessions/start', [SessionTimerController::class, 'start'])->name('sessions.start');

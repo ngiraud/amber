@@ -32,14 +32,6 @@ class ClientController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create(): Response
-    {
-        return Inertia::render('client/Form');
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(StoreClientRequest $request, CreateClient $action): RedirectResponse
@@ -56,17 +48,8 @@ class ClientController extends Controller
     {
         return Inertia::render('client/Show', [
             'client' => fn () => ClientResource::make($client->load('projects')),
+            'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
             $eventsViewModel,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Client $client): Response
-    {
-        return Inertia::render('client/Form', [
-            'client' => ClientResource::make($client),
         ]);
     }
 

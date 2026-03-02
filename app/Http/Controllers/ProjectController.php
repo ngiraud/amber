@@ -16,7 +16,6 @@ use App\Models\Client;
 use App\Models\Project;
 use App\ViewModels\EventsViewModel;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -28,21 +27,10 @@ class ProjectController extends Controller
     public function index(): Response
     {
         return Inertia::render('project/Index', [
-            'projects' => ProjectResource::collection(
+            'projects' => fn () => ProjectResource::collection(
                 Project::query()->with('client')->withCount('repositories')->latest('id')->paginate()
             ),
-        ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create(Request $request): Response
-    {
-        $client = Client::findOrFail($request->query('client_id'));
-
-        return Inertia::render('project/Form', [
-            'client' => ClientResource::make($client),
+            'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
         ]);
     }
 
@@ -51,8 +39,7 @@ class ProjectController extends Controller
      */
     public function store(StoreProjectRequest $request, CreateProject $action): RedirectResponse
     {
-        $client = Client::findOrFail($request->validated('client_id'));
-        $project = $action->handle($client, ProjectData::fromArray($request->validated()));
+        $project = $action->handle(ProjectData::fromArray($request->validated()));
 
         return redirect()->route('projects.show', $project);
     }
@@ -65,18 +52,8 @@ class ProjectController extends Controller
         return Inertia::render('project/Show', [
             'client' => fn () => ClientResource::make($project->client),
             'project' => fn () => ProjectResource::make($project->load('repositories')),
+            'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
             $eventsViewModel,
-        ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Project $project): Response
-    {
-        return Inertia::render('project/Form', [
-            'client' => ClientResource::make($project->client),
-            'project' => ProjectResource::make($project),
         ]);
     }
 
@@ -85,7 +62,7 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project, UpdateProject $action): RedirectResponse
     {
-        $action->handle($project, ProjectData::fromArray($request->validated()));
+        $action->handle(project: $project, data: ProjectData::fromArray($request->validated()));
 
         return redirect()->route('projects.show', $project);
     }
@@ -95,10 +72,10 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project, DeleteProject $action): RedirectResponse
     {
-        $client_id = $project->client_id;
+        $clientId = $project->client_id;
 
         $action->handle($project);
 
-        return redirect()->route('clients.show', $client_id);
+        return redirect()->route('clients.show', $clientId);
     }
 }
