@@ -1,12 +1,12 @@
-# CRA Tracker — Plan d'architecture et roadmap
+# Activity Report Tracker — Plan d'architecture et roadmap
 
 ## Contexte
 
-App desktop macOS (NativePHP + Electron) qui tracke automatiquement l'activité de développement et génère des CRA mensuels. Le scaffold existe (Laravel 12, NativePHP, Inertia/Vue
+App desktop macOS (NativePHP + Electron) qui tracke automatiquement l'activité de développement et génère des rapports d'activité (CRA) mensuels. Le scaffold existe (Laravel 12, NativePHP, Inertia/Vue
 3, Tailwind v4, Actions pattern). Tout le domaine métier est à construire.
 
-**Décisions** : multi-projet dès le départ, 3 sources d'activité (Git + fswatch + Claude Code), menu bar dès le début, CRA/PDF en dernier. Table `sessions` Laravel HTTP supprimée —
-le terme "session" désigne nos sessions de travail.
+**Décisions** : multi-projet dès le départ, 4 sources d'activité (Git + GitHub + fswatch + Claude Code), menu bar dès le début, activity reports/PDF en dernier. Table `sessions` Laravel HTTP supprimée —
+le terme "session" désigne nos sessions de travail. Résumé LLM optionnel via Laravel AI SDK (multi-provider : Mistral, OpenAI, Anthropic, Ollama).
 
 ---
 
@@ -34,18 +34,18 @@ session/manual/reconstructed), description?, is_validated (bool default true), t
 
 **app_settings** : id, key (unique), value (json), timestamps
 
-**cra_reports** : id (ulid), client_id (FK cascade), month (int), year (int), status (enum: draft/finalized/sent), total_minutes, total_days (decimal 5,2), total_amount_ht? (
+**activity_reports** : id (ulid), client_id (FK cascade), month (int), year (int), status (enum: draft/finalized/sent), total_minutes, total_days (decimal 5,2), total_amount_ht? (
 decimal 10,2), generated_at?, pdf_path?, notes?, timestamps — UNIQUE(client_id, month, year)
 
-**cra_report_lines** : id (ulid), cra_report_id (FK cascade), project_id (FK), date, minutes (int), days (decimal 4,2), description?, timestamps
+**activity_report_lines** : id (ulid), activity_report_id (FK cascade), project_id (FK), date, minutes (int), days (decimal 4,2), description?, timestamps
 
 ### Enums (`app/Enums/`)
 
 - `RoundingStrategy` : quarter, half_hour, hour
 - `SessionSource` : manual, auto, reconstructed
-- `ActivityEventType` : git_commit, file_change, claude_session_start, claude_session_end, claude_file_touch
+- `ActivityEventType` : git_commit, git_branch_switch, git_pr_opened, git_pr_merged, file_change, claude_session_start, claude_session_end, claude_file_touch
 - `TimeEntrySource` : session, manual, reconstructed
-- `CraStatus` : draft, finalized, sent
+- `ActivityReportStatus` : draft, finalized, sent
 
 ---
 
@@ -70,7 +70,8 @@ interface ActivitySource
 
 ### Implémentations
 
-- `GitActivitySource` (`app/Services/ActivitySources/GitActivitySource.php`) — parse `git log` des repos configurés, filtre par email auteur
+- `GitActivitySource` (`app/Services/ActivitySources/GitActivitySource.php`) — parse `git log` des repos configurés, filtre par email auteur. Capture aussi le nom de branche courante, les stats de diff (lignes ajoutées/supprimées) et les switches de branches via `git reflog`
+- `GitHubActivitySource` (`app/Services/ActivitySources/GitHubActivitySource.php`) — via CLI `gh`, récupère les PRs (ouverture, merge, titre, description) et les reviews associées aux repos du projet. Nécessite `gh` installé et authentifié
 - `ClaudeCodeActivitySource` (`app/Services/ActivitySources/ClaudeCodeActivitySource.php`) — parse JSON dans `~/.claude/projects/`, match au projet via le chemin
 - `FilesystemActivitySource` (`app/Services/ActivitySources/FilesystemActivitySource.php`) — reçoit les events fswatch en temps réel, les transforme en `ActivityEvent`
 
@@ -130,10 +131,12 @@ Les sources sont enregistrées via un ServiceProvider. Ajouter une nouvelle sour
 - `CreateTimeEntry`, `UpdateTimeEntry`, `DeleteTimeEntry`
 - `GenerateTimeEntriesFromSession`, `ReconstructDayEntries`, `RoundMinutes`
 
-### CRA (`app/Actions/Cra/`) — Phase 5
+### ActivityReport (`app/Actions/ActivityReport/`) — Phase 5
 
-- `GenerateCraReport`, `RegenerateCraReport`, `FinalizeCraReport`
-- `GenerateCraPdf`, `ExportCraExcel`
+- `CollectDayContext` — agrège commits, PRs, branches, prompts Claude pour une journée/projet
+- `GenerateActivityReport`, `RegenerateActivityReport`, `FinalizeActivityReport`
+- `SummarizeDayActivity` — envoie le contexte au LLM (optionnel) et retourne un résumé
+- `GenerateActivityReportPdf`, `ExportActivityReportExcel`
 
 ### Settings (`app/Actions/Settings/`)
 
@@ -158,7 +161,7 @@ Resource time-entries               → TimeEntryController
 POST time-entries/reconstruct       → ReconstructTimeEntriesController
 GET  timeline                       → TimelineController@index
 GET  timeline/{date}                → TimelineController@show
-Resource cra-reports                → CraReportController (Phase 5)
+Resource activity-reports            → ActivityReportController (Phase 5)
 GET  settings                       → SettingsController@edit
 PUT  settings                       → SettingsController@update
 
@@ -173,7 +176,7 @@ GET api/active-session, GET api/today-summary, GET api/projects/active
 - **Menu bar** : `MenuBar::create()` avec icône idle/active, context menu dynamique via `MenuBarService`
 - **Shortcuts** : `Cmd+Shift+T` toggle session, `Cmd+Shift+S` switch projet
 - **fswatch** : `ChildProcess::start(['fswatch', '-r', ...paths])` avec listener `MessageReceived`
-- **Notifications** : activité détectée, idle warning, auto-stop, rappel CRA
+- **Notifications** : activité détectée, idle warning, auto-stop, rappel rapport d'activité
 - **Scheduler** : scan sources (5min), idle check (1min), menu bar update (1min)
 
 ---
@@ -187,7 +190,7 @@ Projects/   Show, Create, Edit
 Sessions/   Index, Show
 Timeline/   Index, DayDetail
 TimeEntries/ Index, Create
-CraReports/ Index, Show, Create (Phase 5)
+ActivityReports/ Index, Show, Create (Phase 5)
 Settings/   Edit
 ```
 
@@ -198,7 +201,7 @@ Settings/   Edit
 ### Phase 1 — Foundation (modèles, CRUD, layout)
 
 1. Supprimer table `sessions` et `password_reset_tokens` de la migration Laravel
-2. Toutes les migrations domaine (sauf cra_reports/cra_report_lines → Phase 5)
+2. Toutes les migrations domaine (sauf activity_reports/activity_report_lines → Phase 5)
 3. Modèles avec relations, factories, seeders
 4. Enums
 5. DTOs dans `app/Data/`
@@ -249,15 +252,51 @@ Settings/   Edit
 8. `EndOfDayReconstructionJob`
 9. Tests rounding, reconstruction
 
-### Phase 5 — Génération CRA & PDF
+### Phase 4.5 — Enrichissement des sources de contexte
 
-1. Migrations cra_reports, cra_report_lines
-2. Actions CRA
-3. Package PDF
-4. Template Blade PDF
-5. Pages CRA
-6. Export Excel/CSV
-7. Tests génération
+Objectif : capturer suffisamment de contexte sémantique pour pouvoir décrire **ce qui a été fait** (pas seulement quand). Ces données alimenteront la génération des rapports d'activité (Phase 5).
+
+#### Enrichissement Git local
+
+1. Ajouter le **nom de branche** aux events `GitCommit` dans metadata (`git rev-parse --abbrev-ref HEAD` ou via `git log --format=%D`)
+2. Ajouter les **stats de diff** par commit dans metadata : lignes ajoutées/supprimées, fichiers modifiés (`git log --numstat`)
+3. Nouveau type `GitBranchSwitch` — détecter les changements de branche via `git reflog` pour contextualiser les sessions
+
+#### Source GitHub (PRs & reviews)
+
+4. Nouvelle source `GitHubActivitySource` — nécessite `gh` CLI installé et authentifié
+5. Détecter les repos GitHub parmi les `ProjectRepository` (via `git remote -v`)
+6. Récupérer les **PRs** de l'utilisateur : titre, description, état (opened/merged/closed), dates (`gh pr list --author @me --json`)
+7. Nouveau type `GitPrOpened`, `GitPrMerged` — événements avec titre et description en metadata
+8. Optionnel : récupérer les **reviews reçues/données** pour enrichir le contexte
+9. Setting `github_username` dans `app_settings` pour filtrer par auteur
+10. Tests pour chaque nouvelle source et les nouveaux types d'événements
+
+#### Enrichissement Claude Code
+
+11. Extraire les **messages utilisateur** (prompts) depuis les JSONL Claude Code pour avoir l'intention de travail en metadata
+
+### Phase 5 — Génération Activity Reports & PDF
+
+1. Migrations activity_reports, activity_report_lines
+2. Actions : `GenerateActivityReport`, `RegenerateActivityReport`, `FinalizeActivityReport`
+3. `CollectDayContext` — agrège pour une journée/projet : commits (messages + branche), PRs (titres), prompts Claude, stats de diff
+4. Descriptions auto des `activity_report_lines` basées sur le contexte agrégé (sans LLM : concaténation structurée des messages de commits, noms de branches, titres de PRs)
+5. Package PDF + Template Blade PDF
+6. Pages ActivityReports (Index, Show, Create)
+7. Export Excel/CSV
+8. Tests génération
+
+#### Option LLM (résumé intelligent via Laravel AI SDK)
+
+9. Installer `laravel/ai` — abstraction multi-provider (Mistral, OpenAI, Anthropic, Ollama)
+10. Setting `ai_provider` + `ai_api_key` + `ai_model` dans `app_settings` (désactivé par défaut)
+11. `SummarizeDayActivity` action — envoie le contexte agrégé d'une journée au LLM et retourne un résumé concis (1-2 phrases par projet)
+12. Prompt template configurable dans `config/activity-report.php` avec variables : `{commits}`, `{branches}`, `{prs}`, `{claude_prompts}`, `{files_changed}`
+13. Intégration dans `GenerateActivityReport` : si LLM activé, remplacer les descriptions brutes par les résumés LLM dans `activity_report_lines.description`
+14. Bouton "Résumer avec IA" dans la page ActivityReport Show pour régénérer les descriptions à la demande
+15. L'utilisateur peut éditer manuellement les descriptions après génération (LLM ou non)
+16. Tests avec fake du provider AI
 
 ### Phase 6 — Polish
 

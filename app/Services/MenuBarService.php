@@ -27,7 +27,7 @@ class MenuBarService
             ->showDockIcon()
             ->icon($this->resolveIcon($active))
             ->label($active !== null ? $this->formatElapsed($active) : '')
-            ->tooltip('CRA Tracker')
+            ->tooltip('Activity Tracker')
             ->onlyShowContextMenu()
             ->withContextMenu(
                 $active !== null ? $this->buildActiveMenu($active) : $this->buildIdleMenu()
