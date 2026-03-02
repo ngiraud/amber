@@ -6,7 +6,7 @@ namespace App\Enums;
 
 use App\Enums\Concerns\EnhanceEnum;
 
-enum CraStatus: int
+enum ActivityReportStatus: int
 {
     use EnhanceEnum;
 

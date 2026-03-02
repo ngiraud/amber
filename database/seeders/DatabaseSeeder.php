@@ -72,7 +72,7 @@ class DatabaseSeeder extends Seeder
         $thisProject = Project::factory()->create([
             'id' => '01kj5qc6afcnqgn9zek1nx1zsz',
             'client_id' => $startup->id,
-            'name' => 'CRA Tracker project',
+            'name' => 'CRA project',
             'color' => '#000000',
             'daily_rate' => 700,
             'hourly_rate' => null,
