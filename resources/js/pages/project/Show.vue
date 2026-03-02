@@ -147,7 +147,9 @@ function removeRepo(): void {
         <ConfirmDialog
             :open="repoToDelete !== null"
             title="Remove repository"
-            :message="repoToDelete ? `Remove ${repoToDelete.name} from this project? All associated activity events will be permanently deleted.` : ''"
+            :message="
+                repoToDelete ? `Remove ${repoToDelete.name} from this project? All associated activity events will be permanently deleted.` : ''
+            "
             confirm-label="Remove"
             @confirm="removeRepo"
             @cancel="repoToDelete = null"

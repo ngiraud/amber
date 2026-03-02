@@ -6,11 +6,11 @@ import PageHeader from '@/components/PageHeader.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
 import type { Project, Session } from '@/types';
-import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 
 const props = defineProps<{
     date: string;

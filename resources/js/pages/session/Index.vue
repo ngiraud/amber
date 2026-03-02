@@ -4,10 +4,10 @@ import PageHeader from '@/components/PageHeader.vue';
 import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import { Button } from '@/components/ui/button';
+import { Empty, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Paginator, Project, Session } from '@/types';
-import { Empty, EmptyTitle } from '@/components/ui/empty';
 
 defineProps<{
     sessions: Paginator<Session>;
