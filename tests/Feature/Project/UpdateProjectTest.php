@@ -24,20 +24,20 @@ describe('update project', function () {
             )
             ->andReturn($project);
 
-        $this->patch(route('projects.update', [$client, $project]), [
+        $this->patch(route('projects.update', $project), [
             'name' => 'Updated Project',
             'color' => '#6366f1',
             'rounding' => RoundingStrategy::Quarter->value,
             'daily_reference_hours' => 7,
             'is_active' => true,
-        ])->assertRedirectToRoute('projects.show', [$client, $project]);
+        ])->assertRedirectToRoute('projects.show', $project);
     });
 
     it('shows the edit form with project data', function () {
         $client = Client::factory()->create();
         $project = Project::factory()->create(['client_id' => $client->id]);
 
-        $this->get(route('projects.edit', [$client, $project]))
+        $this->get(route('projects.edit', $project))
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
                 ->component('project/Form')
@@ -47,10 +47,9 @@ describe('update project', function () {
     });
 
     it('validates required fields', function () {
-        $client = Client::factory()->create();
-        $project = Project::factory()->create(['client_id' => $client->id]);
+        $project = Project::factory()->create();
 
-        $this->patch(route('projects.update', [$client, $project]), [])
+        $this->patch(route('projects.update', $project), [])
             ->assertInvalid(['name', 'color', 'rounding', 'daily_reference_hours']);
     });
 })->group('controllers');

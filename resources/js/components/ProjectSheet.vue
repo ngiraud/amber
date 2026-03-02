@@ -23,7 +23,7 @@ const ROUNDING_OPTIONS = [
 const open = ref(false);
 const isEditing = computed(() => !!props.project);
 const action = computed(() =>
-    isEditing.value ? projectRoutes.update({ client: props.client, project: props.project! }) : projectRoutes.store(props.client),
+    isEditing.value ? projectRoutes.update(props.project!) : projectRoutes.store(),
 );
 
 const color = ref(props.project?.color ?? '#6366f1');
@@ -53,6 +53,7 @@ watch(open, (isOpen) => {
                 #default="{ errors, processing }"
                 @success="() => (open = false)"
             >
+                <input v-if="!isEditing" type="hidden" name="client_id" :value="client.id" />
                 <InputField label="Name" :error="errors.name" required>
                     <Input name="name" type="text" :default-value="project?.name" :placeholder="isEditing ? undefined : 'My project'" autofocus />
                 </InputField>

@@ -25,7 +25,7 @@ const ROUNDING_OPTIONS = [
 
 const isEditing = computed(() => !!props.project);
 const action = computed(() =>
-    isEditing.value ? projectRoutes.update({ client: props.client, project: props.project! }) : projectRoutes.store(props.client),
+    isEditing.value ? projectRoutes.update(props.project!) : projectRoutes.store(),
 );
 
 const color = ref(props.project?.color ?? '#6366f1');
@@ -53,7 +53,7 @@ const confirmDelete = ref(false);
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbLink as-child>
-                                <Link :href="projectRoutes.show({ client, project: project! })">{{ project!.name }}</Link>
+                                <Link :href="projectRoutes.show(project!)">{{ project!.name }}</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                     </template>
@@ -75,6 +75,7 @@ const confirmDelete = ref(false);
                 :transform="(data) => ({ ...data, is_active: data.is_active === '1' })"
                 #default="{ errors, processing }"
             >
+                <input v-if="!isEditing" type="hidden" name="client_id" :value="client.id" />
                 <InputField label="Name" :error="errors.name" required>
                     <Input name="name" type="text" :default-value="project?.name" :placeholder="isEditing ? undefined : 'My project'" autofocus />
                 </InputField>
@@ -147,7 +148,7 @@ const confirmDelete = ref(false);
                         </Button>
 
                         <Button variant="ghost" size="sm" as-child>
-                            <Link :href="isEditing ? projectRoutes.show({ client, project: project! }) : clientRoutes.show(client)"> Cancel </Link>
+                            <Link :href="isEditing ? projectRoutes.show(project!) : clientRoutes.show(client)"> Cancel </Link>
                         </Button>
                     </div>
 
@@ -165,7 +166,7 @@ const confirmDelete = ref(false);
             </Form>
         </div>
 
-        <Form v-if="isEditing" :action="projectRoutes.destroy({ client, project: project! })" #default="{ submit }">
+        <Form v-if="isEditing" :action="projectRoutes.destroy(project!)" #default="{ submit }">
             <ConfirmDialog
                 :open="confirmDelete"
                 title="Delete project"

@@ -79,11 +79,11 @@ function removeRepo(): void {
 
                     <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 
-                    <Form :action="projectRoutes.destroy({ client, project: project! })" #default="{ submit }">
+                    <Form :action="projectRoutes.destroy(project)" #default="{ submit }">
                         <ConfirmDialog
                             :open="confirmDelete"
                             title="Delete project"
-                            :message="`Are you sure you want to delete ${project!.name}?`"
+                            :message="`Are you sure you want to delete ${project.name}?`"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />

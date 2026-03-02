@@ -50,11 +50,11 @@ const confirmDelete = ref(false);
 
                     <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 
-                    <Form :action="clientRoutes.destroy(client!)" #default="{ submit }">
+                    <Form :action="clientRoutes.destroy(client)" #default="{ submit }">
                         <ConfirmDialog
                             :open="confirmDelete"
                             title="Delete client"
-                            :message="`Are you sure you want to delete ${client!.name}? All associated projects will be deleted.`"
+                            :message="`Are you sure you want to delete ${client.name}? All associated projects will be deleted.`"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />
@@ -82,7 +82,7 @@ const confirmDelete = ref(false);
                 <Link
                     v-for="project in client.projects"
                     :key="project.id"
-                    :href="projectRoutes.show({ client: client, project: project })"
+                    :href="projectRoutes.show(project)"
                     class="flex flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
                 >
                     <div class="flex items-center gap-2.5">

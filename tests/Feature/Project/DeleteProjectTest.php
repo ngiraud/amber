@@ -18,14 +18,12 @@ describe('delete project', function () {
             ->once()
             ->with(Mockery::on(fn ($arg) => $arg->id === $project->id));
 
-        $this->delete(route('projects.destroy', [$client, $project]))
+        $this->delete(route('projects.destroy', $project))
             ->assertRedirectToRoute('clients.show', $client);
     });
 
     it('returns 404 for a non-existent project', function () {
-        $client = Client::factory()->create();
-
-        $this->delete(route('projects.destroy', [$client, 'non-existent-id']))
+        $this->delete(route('projects.destroy', 'non-existent-id'))
             ->assertNotFound();
     });
 })->group('controllers');

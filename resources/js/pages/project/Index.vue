@@ -26,7 +26,7 @@ defineProps<{
             <Link
                 v-for="project in projects.data"
                 :key="project.id"
-                :href="projectRoutes.show({ client: project.client_id, project: project.id })"
+                :href="projectRoutes.show(project.id)"
                 class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent"
             >
                 <div class="flex items-center gap-3">

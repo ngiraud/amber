@@ -16,6 +16,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\ViewModels\EventsViewModel;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -36,8 +37,10 @@ class ProjectController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Client $client): Response
+    public function create(Request $request): Response
     {
+        $client = Client::findOrFail($request->query('client_id'));
+
         return Inertia::render('project/Form', [
             'client' => ClientResource::make($client),
         ]);
@@ -46,20 +49,21 @@ class ProjectController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreProjectRequest $request, Client $client, CreateProject $action): RedirectResponse
+    public function store(StoreProjectRequest $request, CreateProject $action): RedirectResponse
     {
+        $client = Client::findOrFail($request->validated('client_id'));
         $project = $action->handle($client, ProjectData::fromArray($request->validated()));
 
-        return redirect()->route('projects.show', [$client, $project]);
+        return redirect()->route('projects.show', $project);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Client $client, Project $project, EventsViewModel $eventsViewModel): Response
+    public function show(Project $project, EventsViewModel $eventsViewModel): Response
     {
         return Inertia::render('project/Show', [
-            'client' => fn () => ClientResource::make($client),
+            'client' => fn () => ClientResource::make($project->client),
             'project' => fn () => ProjectResource::make($project->load('repositories')),
             $eventsViewModel,
         ]);
@@ -68,10 +72,10 @@ class ProjectController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Client $client, Project $project): Response
+    public function edit(Project $project): Response
     {
         return Inertia::render('project/Form', [
-            'client' => ClientResource::make($client),
+            'client' => ClientResource::make($project->client),
             'project' => ProjectResource::make($project),
         ]);
     }
@@ -79,20 +83,22 @@ class ProjectController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateProjectRequest $request, Client $client, Project $project, UpdateProject $action): RedirectResponse
+    public function update(UpdateProjectRequest $request, Project $project, UpdateProject $action): RedirectResponse
     {
         $action->handle($project, ProjectData::fromArray($request->validated()));
 
-        return redirect()->route('projects.show', [$client, $project]);
+        return redirect()->route('projects.show', $project);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Client $client, Project $project, DeleteProject $action): RedirectResponse
+    public function destroy(Project $project, DeleteProject $action): RedirectResponse
     {
+        $client_id = $project->client_id;
+
         $action->handle($project);
 
-        return redirect()->route('clients.show', $client);
+        return redirect()->route('clients.show', $client_id);
     }
 }

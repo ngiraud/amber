@@ -29,7 +29,7 @@ describe('attach repository', function () {
         $this->post(route('projects.repositories.store', $project), [
             'local_path' => '/Users/nico/code/my-repo',
             'name' => 'my-repo',
-        ])->assertRedirectToRoute('projects.show', [$client, $project]);
+        ])->assertRedirectToRoute('projects.show', $project);
     });
 
     it('validates repository fields are required', function () {
@@ -52,7 +52,7 @@ describe('detach repository', function () {
             ->with(Mockery::on(fn ($arg) => $arg->id === $repository->id));
 
         $this->delete(route('projects.repositories.destroy', [$project, $repository]))
-            ->assertRedirectToRoute('projects.show', [$client, $project]);
+            ->assertRedirectToRoute('projects.show', $project);
     });
 
     it('returns 404 for a non-existent repository', function () {
