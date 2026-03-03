@@ -78,6 +78,7 @@ describe('ScanAllSources', function () {
 
     it('discoverSources skips disabled sources', function () {
         Config::set('activity.sources.git.enabled', false);
+        Config::set('activity.sources.github.enabled', false);
         Config::set('activity.sources.claude-code.enabled', false);
         Config::set('activity.sources.fswatch.enabled', false);
 

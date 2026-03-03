@@ -9,173 +9,258 @@ use App\Models\ProjectRepository;
 use App\Services\ActivitySources\ClaudeCodeActivitySource;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
 
-pest()->group('activity', 'sources');
+pest()->group('activity', 'sources', 'claude-code');
 
-function makeClaudeSource(string $projectsPath): ClaudeCodeActivitySource
+function claudeTestBase(): string
 {
-    Config::set('activity.sources.claude-code.projects_path', $projectsPath);
-
-    return new ClaudeCodeActivitySource;
+    return storage_path('framework/testing/claude-code-activity');
 }
 
-describe('ClaudeCodeActivitySource', function () {
-    it('returns claude-code as the identifier', function () {
-        expect((new ClaudeCodeActivitySource)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
-    });
+function claudeTestDir(string $name): string
+{
+    $dir = claudeTestBase().'/'.$name;
+    File::makeDirectory($dir, recursive: true, force: true);
 
-    it('is not available when projects path does not exist', function () {
-        $source = makeClaudeSource('/nonexistent/path/that/does/not/exist');
+    return $dir;
+}
 
-        expect($source->isAvailable())->toBeFalse();
-    });
+beforeEach(function () {
+    Config::set('activity.sources.claude-code.projects_path', claudeTestBase());
+    File::makeDirectory(claudeTestBase(), recursive: true, force: true);
+});
 
-    it('is available when projects path exists', function () {
-        $tmpDir = sys_get_temp_dir().'/claude-projects-'.uniqid();
-        mkdir($tmpDir);
+afterEach(function () {
+    File::deleteDirectory(claudeTestBase());
+});
 
-        $source = makeClaudeSource($tmpDir);
+it('returns claude-code as the identifier', function () {
+    expect((new ClaudeCodeActivitySource)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
+});
 
-        expect($source->isAvailable())->toBeTrue();
+it('is not available when projects path does not exist', function () {
+    Config::set('activity.sources.claude-code.projects_path', '/nonexistent/path/that/does/not/exist');
 
-        rmdir($tmpDir);
-    });
+    expect((new ClaudeCodeActivitySource)->isAvailable())->toBeFalse();
+});
 
-    it('returns empty collection when projects path is empty', function () {
-        $tmpDir = sys_get_temp_dir().'/claude-projects-'.uniqid();
-        mkdir($tmpDir);
+it('is available when projects path exists', function () {
+    expect((new ClaudeCodeActivitySource)->isAvailable())->toBeTrue();
+});
 
-        $source = makeClaudeSource($tmpDir);
-        $events = $source->scan(CarbonImmutable::now()->subHour(), collect());
+it('returns empty collection when projects path is empty', function () {
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), collect());
 
-        expect($events)->toHaveCount(0);
+    expect($events)->toHaveCount(0);
+});
 
-        rmdir($tmpDir);
-    });
+it('detects ClaudeSessionStart from system/local_command entries', function () {
+    $cwd = '/tmp/test-project';
+    $repo = ProjectRepository::factory()->create(['local_path' => $cwd]);
 
-    it('detects ClaudeSessionStart from system/local_command entries', function () {
-        $tmpDir = sys_get_temp_dir().'/claude-projects-'.uniqid();
-        $projectDir = $tmpDir.'/-tmp-test-project';
-        mkdir($projectDir, recursive: true);
+    $timestamp = CarbonImmutable::now()->subMinutes(30)->toIso8601ZuluString();
+    $sessionId = 'session-'.uniqid();
 
-        $cwd = '/tmp/test-project';
-        $repo = ProjectRepository::factory()->create(['local_path' => $cwd]);
+    $jsonl = json_encode([
+        'type' => 'system',
+        'subtype' => 'local_command',
+        'timestamp' => $timestamp,
+        'cwd' => $cwd,
+        'sessionId' => $sessionId,
+    ])."\n";
 
-        $timestamp = CarbonImmutable::now()->subMinutes(30)->toIso8601ZuluString();
-        $sessionId = 'session-'.uniqid();
+    $file = claudeTestDir('test-project').'/'.$sessionId.'.jsonl';
+    File::put($file, $jsonl);
 
-        $jsonl = json_encode([
-            'type' => 'system',
-            'subtype' => 'local_command',
-            'timestamp' => $timestamp,
-            'cwd' => $cwd,
-            'sessionId' => $sessionId,
-        ])."\n";
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
-        file_put_contents($projectDir.'/'.$sessionId.'.jsonl', $jsonl);
+    expect($events)->toHaveCount(1)
+        ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
+        ->and($events->first()->type)->toBe(ActivityEventType::ClaudeSessionStart)
+        ->and($events->first()->projectRepository->id)->toBe($repo->id)
+        ->and($events->first()->metadata['session_id'])->toBe($sessionId)
+        ->and($events->first()->metadata['source_file'])->toBe($file);
+});
 
-        $source = makeClaudeSource($tmpDir);
-        $events = $source->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+it('detects ClaudeFileTouch from assistant Edit/Write tool use', function () {
+    $cwd = '/tmp/test-project2';
+    $repo = ProjectRepository::factory()->create(['local_path' => $cwd]);
 
-        expect($events)->toHaveCount(1)
-            ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
-            ->and($events->first()->type)->toBe(ActivityEventType::ClaudeSessionStart)
-            ->and($events->first()->projectRepository->id)->toBe($repo->id)
-            ->and($events->first()->metadata['session_id'])->toBe($sessionId);
+    $line = json_encode([
+        'type' => 'assistant',
+        'timestamp' => CarbonImmutable::now()->subMinutes(10)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'message' => [
+            'role' => 'assistant',
+            'content' => [[
+                'type' => 'tool_use',
+                'name' => 'Edit',
+                'input' => ['file_path' => $cwd.'/src/App.php', 'old_string' => 'foo', 'new_string' => 'bar'],
+            ]],
+        ],
+    ])."\n";
 
-        exec("rm -rf {$tmpDir}");
-    });
+    $file = claudeTestDir('test-project2').'/session.jsonl';
+    File::put($file, $line);
 
-    it('detects ClaudeFileTouch from assistant Edit/Write tool use', function () {
-        $tmpDir = sys_get_temp_dir().'/claude-projects-'.uniqid();
-        $projectDir = $tmpDir.'/-tmp-test-project2';
-        mkdir($projectDir, recursive: true);
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
-        $cwd = '/tmp/test-project2';
-        $repo = ProjectRepository::factory()->create(['local_path' => $cwd]);
+    expect($events)->toHaveCount(1)
+        ->and($events->first()->type)->toBe(ActivityEventType::ClaudeFileTouch)
+        ->and($events->first()->metadata['tool'])->toBe('Edit')
+        ->and($events->first()->metadata['source_file'])->toBe($file)
+        ->and($events->first()->projectRepository->id)->toBe($repo->id);
+});
 
-        $timestamp = CarbonImmutable::now()->subMinutes(10)->toIso8601ZuluString();
-        $filePath = $cwd.'/src/App.php';
+it('skips events that occurred before the since timestamp', function () {
+    $cwd = '/tmp/test-project3';
+    ProjectRepository::factory()->create(['local_path' => $cwd]);
 
-        $line = json_encode([
-            'type' => 'assistant',
-            'timestamp' => $timestamp,
-            'cwd' => $cwd,
-            'message' => [
-                'role' => 'assistant',
-                'content' => [
-                    [
-                        'type' => 'tool_use',
-                        'name' => 'Edit',
-                        'input' => ['file_path' => $filePath, 'old_string' => 'foo', 'new_string' => 'bar'],
-                    ],
-                ],
-            ],
-        ])."\n";
+    $line = json_encode([
+        'type' => 'system',
+        'subtype' => 'local_command',
+        'timestamp' => CarbonImmutable::now()->subHours(2)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'sessionId' => 'old-session',
+    ])."\n";
 
-        file_put_contents($projectDir.'/session.jsonl', $line);
+    File::put(claudeTestDir('test-project3').'/old-session.jsonl', $line);
 
-        $source = makeClaudeSource($tmpDir);
-        $events = $source->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
-        expect($events)->toHaveCount(1)
-            ->and($events->first()->type)->toBe(ActivityEventType::ClaudeFileTouch)
-            ->and($events->first()->metadata['tool'])->toBe('Edit')
-            ->and($events->first()->projectRepository->id)->toBe($repo->id);
+    expect($events)->toHaveCount(0);
+});
 
-        exec("rm -rf {$tmpDir}");
-    });
+it('skips files where cwd does not match any repository', function () {
+    $line = json_encode([
+        'type' => 'system',
+        'subtype' => 'local_command',
+        'timestamp' => CarbonImmutable::now()->subMinutes(5)->toIso8601ZuluString(),
+        'cwd' => '/no/matching/repository',
+        'sessionId' => 'no-match',
+    ])."\n";
 
-    it('skips events that occurred before the since timestamp', function () {
-        $tmpDir = sys_get_temp_dir().'/claude-projects-'.uniqid();
-        $projectDir = $tmpDir.'/-tmp-test-project3';
-        mkdir($projectDir, recursive: true);
+    File::put(claudeTestDir('some-project').'/no-match.jsonl', $line);
 
-        $cwd = '/tmp/test-project3';
-        ProjectRepository::factory()->create(['local_path' => $cwd]);
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), collect());
 
-        $oldTimestamp = CarbonImmutable::now()->subHours(2)->toIso8601ZuluString();
+    expect($events)->toHaveCount(0);
+});
 
-        $line = json_encode([
-            'type' => 'system',
-            'subtype' => 'local_command',
-            'timestamp' => $oldTimestamp,
-            'cwd' => $cwd,
-            'sessionId' => 'old-session',
-        ])."\n";
+it('detects ClaudeUserPrompt from human entries with string content', function () {
+    $cwd = '/tmp/test-prompt-str';
+    $repo = ProjectRepository::factory()->create(['local_path' => $cwd]);
 
-        file_put_contents($projectDir.'/old-session.jsonl', $line);
+    $sessionId = 'session-'.uniqid();
 
-        $source = makeClaudeSource($tmpDir);
-        $events = $source->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $line = json_encode([
+        'type' => 'user',
+        'timestamp' => CarbonImmutable::now()->subMinutes(10)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'sessionId' => $sessionId,
+        'message' => ['role' => 'user', 'content' => 'Add a login button to the navbar'],
+    ])."\n";
 
-        expect($events)->toHaveCount(0);
+    $file = claudeTestDir('test-prompt-str').'/session.jsonl';
+    File::put($file, $line);
 
-        exec("rm -rf {$tmpDir}");
-    });
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
-    it('skips files where cwd does not match any repository', function () {
-        $tmpDir = sys_get_temp_dir().'/claude-projects-'.uniqid();
-        $projectDir = $tmpDir.'/some-project';
-        mkdir($projectDir, recursive: true);
+    expect($events)->toHaveCount(1)
+        ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
+        ->and($events->first()->type)->toBe(ActivityEventType::ClaudeUserPrompt)
+        ->and($events->first()->projectRepository->id)->toBe($repo->id)
+        ->and($events->first()->metadata['session_id'])->toBe($sessionId)
+        ->and($events->first()->metadata['prompt'])->toBe('Add a login button to the navbar')
+        ->and($events->first()->metadata['source_file'])->toBe($file);
+});
 
-        $timestamp = CarbonImmutable::now()->subMinutes(5)->toIso8601ZuluString();
+it('detects ClaudeUserPrompt from human entries with array content blocks', function () {
+    $cwd = '/tmp/test-prompt-arr';
+    ProjectRepository::factory()->create(['local_path' => $cwd]);
 
-        $line = json_encode([
-            'type' => 'system',
-            'subtype' => 'local_command',
-            'timestamp' => $timestamp,
-            'cwd' => '/no/matching/repository',
-            'sessionId' => 'no-match',
-        ])."\n";
+    $line = json_encode([
+        'type' => 'user',
+        'timestamp' => CarbonImmutable::now()->subMinutes(5)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'sessionId' => 'session-abc',
+        'message' => [
+            'role' => 'user',
+            'content' => [['type' => 'text', 'text' => 'Refactor the UserController to use actions']],
+        ],
+    ])."\n";
 
-        file_put_contents($projectDir.'/no-match.jsonl', $line);
+    File::put(claudeTestDir('test-prompt-arr').'/session.jsonl', $line);
 
-        $source = makeClaudeSource($tmpDir);
-        $events = $source->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
-        expect($events)->toHaveCount(0);
+    expect($events)->toHaveCount(1)
+        ->and($events->first()->type)->toBe(ActivityEventType::ClaudeUserPrompt)
+        ->and($events->first()->metadata['prompt'])->toBe('Refactor the UserController to use actions');
+});
 
-        exec("rm -rf {$tmpDir}");
-    });
+it('skips sidechain entries', function () {
+    $cwd = '/tmp/test-sidechain';
+    ProjectRepository::factory()->create(['local_path' => $cwd]);
+
+    $line = json_encode([
+        'type' => 'user',
+        'isSidechain' => true,
+        'timestamp' => CarbonImmutable::now()->subMinutes(5)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'sessionId' => 'session-sidechain',
+        'message' => ['role' => 'user', 'content' => 'This is an internal subagent prompt'],
+    ])."\n";
+
+    File::put(claudeTestDir('test-sidechain').'/session.jsonl', $line);
+
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+
+    expect($events)->toHaveCount(0);
+});
+
+it('skips user entries that contain tool results instead of a prompt', function () {
+    $cwd = '/tmp/test-tool-result';
+    ProjectRepository::factory()->create(['local_path' => $cwd]);
+
+    $line = json_encode([
+        'type' => 'user',
+        'timestamp' => CarbonImmutable::now()->subMinutes(5)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'sessionId' => 'session-tool',
+        'message' => [
+            'role' => 'user',
+            'content' => [[
+                'tool_use_id' => 'toolu_abc123',
+                'type' => 'tool_result',
+                'content' => 'some tool output',
+            ]],
+        ],
+    ])."\n";
+
+    File::put(claudeTestDir('test-tool-result').'/session.jsonl', $line);
+
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+
+    expect($events)->toHaveCount(0);
+});
+
+it('truncates long prompts to 500 characters', function () {
+    $cwd = '/tmp/test-prompt-long';
+    ProjectRepository::factory()->create(['local_path' => $cwd]);
+
+    $line = json_encode([
+        'type' => 'user',
+        'timestamp' => CarbonImmutable::now()->subMinutes(5)->toIso8601ZuluString(),
+        'cwd' => $cwd,
+        'sessionId' => 'session-long',
+        'message' => ['role' => 'user', 'content' => str_repeat('a', 600)],
+    ])."\n";
+
+    File::put(claudeTestDir('test-prompt-long').'/session.jsonl', $line);
+
+    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+
+    expect($events->first()->metadata['prompt'])->toHaveLength(500);
 });

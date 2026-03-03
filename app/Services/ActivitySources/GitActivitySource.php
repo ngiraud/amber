@@ -43,11 +43,29 @@ class GitActivitySource implements ActivitySource
      */
     protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since): Collection
     {
+        $authorEmails = $this->resolveAuthorEmails();
+
+        $commits = $this->scanCommits($repo, $since, $authorEmails);
+        $branchSwitches = $this->scanBranchSwitches($repo, $since, $authorEmails);
+
+        return $commits->merge($branchSwitches)->values();
+    }
+
+    /**
+     * @param  array<int, string>  $authorEmails
+     * @return Collection<int, ActivityEventData>
+     */
+    protected function scanCommits(ProjectRepository $repo, CarbonImmutable $since, array $authorEmails): Collection
+    {
+        // Use a unique separator to split commit blocks from --numstat output
+        $separator = '---COMMIT---';
+
         $result = Process::run([
             'git',
             '-C', $repo->local_path,
             'log',
-            '--format=%H|%ae|%aI|%s',
+            '--format='.$separator.'%H|%ae|%aI|%s',
+            '--numstat',
             '--after='.$since->toIso8601String(),
         ]);
 
@@ -55,17 +73,11 @@ class GitActivitySource implements ActivitySource
             return collect();
         }
 
-        $authorEmails = AppSetting::get('git_author_emails');
+        $currentBranch = $this->resolveCurrentBranch($repo);
 
-        if (empty($authorEmails)) {
-            $authorEmails = explode(',', config('activity.sources.git.author_emails', ''));
-        }
-
-        $authorEmails = array_filter(array_map('trim', $authorEmails));
-
-        return collect(explode("\n", mb_trim($result->output())))
+        return collect(explode($separator, mb_trim($result->output())))
             ->filter()
-            ->map(fn (string $line) => $this->parseLine($line))
+            ->map(fn (string $block) => $this->parseCommitBlock($block))
             ->filter()
             ->when(! empty($authorEmails), fn (Collection $events) => $events->filter(
                 fn (array $data) => ! empty($data['author_email']) && in_array($data['author_email'], $authorEmails)
@@ -79,17 +91,68 @@ class GitActivitySource implements ActivitySource
                     'hash' => $data['hash'],
                     'author_email' => $data['author_email'],
                     'message' => $data['message'],
+                    'branch' => $currentBranch,
+                    'added_lines' => $data['added_lines'],
+                    'removed_lines' => $data['removed_lines'],
+                    'changed_files' => $data['changed_files'],
                 ],
             ))
             ->values();
     }
 
     /**
-     * @return array{hash: string, author_email: string, occurred_at: CarbonImmutable, message: string}|null
+     * @param  array<int, string>  $authorEmails
+     * @return Collection<int, ActivityEventData>
      */
-    protected function parseLine(string $line): ?array
+    protected function scanBranchSwitches(ProjectRepository $repo, CarbonImmutable $since, array $authorEmails): Collection
     {
-        $parts = explode('|', $line, 4);
+        $result = Process::run([
+            'git',
+            '-C', $repo->local_path,
+            'reflog',
+            '--format=%ae|%gI|%gs',
+            '--after='.$since->toIso8601String(),
+        ]);
+
+        if ($result->failed()) {
+            return collect();
+        }
+
+        return collect(explode("\n", mb_trim($result->output())))
+            ->filter()
+            ->map(fn (string $line) => $this->parseReflogLine($line))
+            ->filter()
+            ->when(! empty($authorEmails), fn (Collection $events) => $events->filter(
+                fn (array $data) => ! empty($data['author_email']) && in_array($data['author_email'], $authorEmails)
+            ))
+            ->map(fn (array $data) => new ActivityEventData(
+                sourceType: $this->identifier(),
+                type: ActivityEventType::GitBranchSwitch,
+                occurredAt: $data['occurred_at'],
+                projectRepository: $repo,
+                metadata: [
+                    'from_branch' => $data['from_branch'],
+                    'to_branch' => $data['to_branch'],
+                    'author_email' => $data['author_email'],
+                ],
+            ))
+            ->values();
+    }
+
+    /**
+     * @return array{hash: string, author_email: string, occurred_at: CarbonImmutable, message: string, added_lines: int, removed_lines: int, changed_files: int}|null
+     */
+    protected function parseCommitBlock(string $block): ?array
+    {
+        $lines = array_filter(explode("\n", mb_trim($block)));
+        $lines = array_values($lines);
+
+        if (empty($lines)) {
+            return null;
+        }
+
+        // First line is the commit header
+        $parts = explode('|', $lines[0], 4);
 
         if (count($parts) < 4) {
             return null;
@@ -103,11 +166,91 @@ class GitActivitySource implements ActivitySource
             return null;
         }
 
+        // Remaining lines are numstat output: added\tremoved\tfile_path
+        $addedLines = 0;
+        $removedLines = 0;
+        $changedFiles = 0;
+
+        foreach (array_slice($lines, 1) as $numstatLine) {
+            $columns = explode("\t", $numstatLine);
+
+            if (count($columns) < 3) {
+                continue;
+            }
+
+            // Binary files show '-' instead of numbers
+            $addedLines += is_numeric($columns[0]) ? (int) $columns[0] : 0;
+            $removedLines += is_numeric($columns[1]) ? (int) $columns[1] : 0;
+            $changedFiles++;
+        }
+
         return [
             'hash' => $hash,
             'author_email' => $authorEmail,
             'occurred_at' => $occurredAt,
             'message' => $message,
+            'added_lines' => $addedLines,
+            'removed_lines' => $removedLines,
+            'changed_files' => $changedFiles,
         ];
+    }
+
+    /**
+     * @return array{author_email: string, occurred_at: CarbonImmutable, from_branch: string, to_branch: string}|null
+     */
+    protected function parseReflogLine(string $line): ?array
+    {
+        $parts = explode('|', $line, 3);
+
+        if (count($parts) < 3) {
+            return null;
+        }
+
+        [$authorEmail, $date, $subject] = $parts;
+
+        // Match "checkout: moving from {from} to {to}"
+        if (! preg_match('/^checkout: moving from (.+) to (.+)$/', mb_trim($subject), $matches)) {
+            return null;
+        }
+
+        try {
+            $occurredAt = CarbonImmutable::parse($date)->utc();
+        } catch (Throwable) {
+            return null;
+        }
+
+        return [
+            'author_email' => $authorEmail,
+            'occurred_at' => $occurredAt,
+            'from_branch' => $matches[1],
+            'to_branch' => $matches[2],
+        ];
+    }
+
+    protected function resolveCurrentBranch(ProjectRepository $repo): ?string
+    {
+        $result = Process::run(['git', '-C', $repo->local_path, 'rev-parse', '--abbrev-ref', 'HEAD']);
+
+        if ($result->failed()) {
+            return null;
+        }
+
+        $branch = mb_trim($result->output());
+
+        return $branch !== '' && $branch !== 'HEAD' ? $branch : null;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    protected function resolveAuthorEmails(): array
+    {
+        $authorEmails = AppSetting::get('git_author_emails');
+
+        if (empty($authorEmails)) {
+            $authorEmails = explode(',', config('activity.sources.git.author_emails', ''));
+        }
+
+        return array_filter(array_map('trim', $authorEmails));
     }
 }

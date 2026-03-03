@@ -13,12 +13,13 @@ enum ActivityEventSourceType: string
     use EnhanceEnum;
 
     case Git = 'git';
+    case GitHub = 'github';
     case ClaudeCode = 'claude-code';
     case Fswatch = 'fswatch';
 
     public function isEnabled(): bool
     {
-        return config()->boolean("activity.sources.{$this->name}.enabled", false);
+        return config()->boolean("activity.sources.{$this->value}.enabled", false);
     }
 
     /** @return class-string<ActivitySource>|null */
@@ -29,13 +30,14 @@ enum ActivityEventSourceType: string
 
     public function label(): string
     {
-        return Str::headline($this->name);
+        return Str::headline($this->value);
     }
 
     public function color(): string
     {
         return match ($this) {
             self::Git => 'text-green-400',
+            self::GitHub => 'text-purple-400',
             self::ClaudeCode => 'text-red-400',
             self::Fswatch => 'text-blue-400',
         };
