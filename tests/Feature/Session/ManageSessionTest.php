@@ -8,6 +8,7 @@ use App\Actions\Session\UpdateSession;
 use App\Data\SessionData;
 use App\Enums\RoundingStrategy;
 use App\Enums\SessionSource;
+use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
@@ -154,5 +155,18 @@ describe('DeleteSession action', function () {
         DeleteSession::make()->handle($session);
 
         $this->assertDatabaseMissing('sessions', ['id' => $session->id]);
+    });
+
+    it('resets activity events where session id was set', function () {
+        $session = Session::factory()->create(['ended_at' => now()]);
+
+        ActivityEvent::factory()->count(10)->for($session)->create();
+
+        expect(ActivityEvent::where('session_id', $session->id)->count())->toBe(10);
+        expect(ActivityEvent::whereNull('session_id')->count())->toBe(0);
+
+        DeleteSession::make()->handle($session);
+
+        expect(ActivityEvent::whereNull('session_id')->count())->toBe(10);
     });
 })->group('actions');
