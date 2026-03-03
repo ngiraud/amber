@@ -252,7 +252,7 @@ Settings/   Edit
 8. `EndOfDayReconstructionJob`
 9. Tests rounding, reconstruction
 
-### Phase 4.5 — Enrichissement des sources de contexte
+### ✅ Phase 4.5 — Enrichissement des sources de contexte
 
 Objectif : capturer suffisamment de contexte sémantique pour pouvoir décrire **ce qui a été fait** (pas seulement quand). Ces données alimenteront la génération des rapports d'activité (Phase 5).
 
