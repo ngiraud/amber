@@ -80,7 +80,7 @@ class ClaudeCodeActivitySource implements ActivitySource
         foreach (array_reverse($lines) as $line) {
             $obj = json_decode($line, true);
 
-            if (! is_array($obj) || ! isset($obj['timestamp'])) {
+            if (! is_array($obj) || ! isset($obj['timestamp']) || ($obj['isSidechain'] ?? false) === true) {
                 continue;
             }
 
@@ -104,6 +104,7 @@ class ClaudeCodeActivitySource implements ActivitySource
                     metadata: [
                         'session_id' => $obj['sessionId'] ?? null,
                         'cwd' => $cwd,
+                        'source_file' => $file,
                     ],
                 ));
 
@@ -129,13 +130,14 @@ class ClaudeCodeActivitySource implements ActivitySource
                         metadata: [
                             'tool' => $content['name'],
                             'file_path' => $content['input']['file_path'] ?? null,
+                            'source_file' => $file,
                         ],
                     ));
                 }
             }
 
             // User prompt
-            if (($obj['type'] ?? null) === 'human') {
+            if (($obj['type'] ?? null) === 'user') {
                 $prompt = $this->extractPromptText($obj['message']['content'] ?? null);
 
                 if ($prompt !== null) {
@@ -147,6 +149,7 @@ class ClaudeCodeActivitySource implements ActivitySource
                         metadata: [
                             'session_id' => $obj['sessionId'] ?? null,
                             'prompt' => mb_substr($prompt, 0, 500),
+                            'source_file' => $file,
                         ],
                     ));
                 }

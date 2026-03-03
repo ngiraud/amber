@@ -151,8 +151,9 @@ it('uses github_username from AppSetting when available', function () {
 
     expect($events)->toHaveCount(0);
 
-    Process::assertRan(fn ($process) => in_array('--author', (array) $process->command) &&
-        in_array('myuser', (array) $process->command));
+    Process::assertRan(
+        fn ($process) => in_array('--author', (array) $process->command) && in_array('myuser', (array) $process->command)
+    );
 });
 
 it('skips PRs created and merged before the since timestamp', function () {
