@@ -30,7 +30,7 @@ enum ActivityEventSourceType: string
 
     public function label(): string
     {
-        return Str::headline($this->name);
+        return Str::headline($this->value);
     }
 
     public function color(): string
