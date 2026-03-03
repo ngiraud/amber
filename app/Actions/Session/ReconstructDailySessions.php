@@ -64,8 +64,7 @@ class ReconstructDailySessions extends Action
 
             foreach ($blocks as [$blockStart, $blockEnd]) {
                 $overlaps = $projectSessions->contains(
-                    fn (Session $session): bool => $session->started_at < $blockEnd
-                        && ($session->ended_at === null || $session->ended_at > $blockStart)
+                    fn (Session $session): bool => $session->started_at < $blockEnd && ($session->ended_at === null || $session->ended_at > $blockStart)
                 );
 
                 if ($overlaps) {
