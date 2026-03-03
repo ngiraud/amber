@@ -29,6 +29,7 @@ return new class extends Migration
             ['key' => 'default_daily_rate', 'value' => json_encode(null, JSON_UNESCAPED_UNICODE), 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'default_daily_reference_hours', 'value' => json_encode(7, JSON_UNESCAPED_UNICODE), 'created_at' => $now, 'updated_at' => $now],
             ['key' => 'default_rounding_strategy', 'value' => json_encode(RoundingStrategy::Quarter->value, JSON_UNESCAPED_UNICODE), 'created_at' => $now, 'updated_at' => $now],
+            ['key' => 'github_username', 'value' => json_encode(null, JSON_UNESCAPED_UNICODE), 'created_at' => $now, 'updated_at' => $now],
         ]);
     }
 

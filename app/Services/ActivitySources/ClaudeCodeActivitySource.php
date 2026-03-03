@@ -133,6 +133,24 @@ class ClaudeCodeActivitySource implements ActivitySource
                     ));
                 }
             }
+
+            // User prompt
+            if (($obj['type'] ?? null) === 'human') {
+                $prompt = $this->extractPromptText($obj['message']['content'] ?? null);
+
+                if ($prompt !== null) {
+                    $events->push(new ActivityEventData(
+                        sourceType: $this->identifier(),
+                        type: ActivityEventType::ClaudeUserPrompt,
+                        occurredAt: $occurredAt,
+                        projectRepository: $matched,
+                        metadata: [
+                            'session_id' => $obj['sessionId'] ?? null,
+                            'prompt' => mb_substr($prompt, 0, 500),
+                        ],
+                    ));
+                }
+            }
         }
 
         return $events;
@@ -148,6 +166,23 @@ class ClaudeCodeActivitySource implements ActivitySource
 
             if (is_array($obj) && ! empty($obj['cwd'])) {
                 return $obj['cwd'];
+            }
+        }
+
+        return null;
+    }
+
+    protected function extractPromptText(mixed $content): ?string
+    {
+        if (is_string($content) && $content !== '') {
+            return $content;
+        }
+
+        if (is_array($content)) {
+            foreach ($content as $block) {
+                if (is_array($block) && ($block['type'] ?? null) === 'text' && ! empty($block['text'])) {
+                    return (string) $block['text'];
+                }
             }
         }
 

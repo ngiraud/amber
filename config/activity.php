@@ -80,6 +80,10 @@ return [
             'author_emails' => env('ACTIVITY_GIT_AUTHOR_EMAILS', ''),
         ],
 
+        'github' => [
+            'enabled' => (bool) env('ACTIVITY_GITHUB_ENABLED', true),
+        ],
+
         'claude-code' => [
             'enabled' => (bool) env('ACTIVITY_CLAUDE_ENABLED', true),
             'projects_path' => env('ACTIVITY_CLAUDE_PROJECTS_PATH', '~/.claude/projects'),

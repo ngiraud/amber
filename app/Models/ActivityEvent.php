@@ -50,24 +50,33 @@ class ActivityEvent extends Model
     {
         return Attribute::make(
             get: function () {
-                if ($this->source_type === ActivityEventSourceType::Git) {
-                    return Str::of($this->metadata['message'])
+                return match ($this->type) {
+                    ActivityEventType::GitCommit => Str::of($this->metadata['message'] ?? '')
                         ->when(
                             ! empty($this->metadata['hash']),
                             fn (Stringable $str) => $str->prepend(sprintf('[%s] ', Str::of($this->metadata['hash'])->substr(0, 7)->toString()))
                         )
-                        ->toString();
-                }
-
-                if ($this->source_type === ActivityEventSourceType::Fswatch) {
-                    return $this->metadata['file_path'];
-                }
-
-                if ($this->type === ActivityEventType::ClaudeFileTouch) {
-                    return $this->metadata['file_path'];
-                }
-
-                return '';
+                        ->when(
+                            ! empty($this->metadata['branch']),
+                            fn (Stringable $str) => $str->append(sprintf(' (%s)', $this->metadata['branch']))
+                        )
+                        ->toString(),
+                    ActivityEventType::GitBranchSwitch => sprintf(
+                        '%s → %s',
+                        $this->metadata['from_branch'] ?? '',
+                        $this->metadata['to_branch'] ?? '',
+                    ),
+                    ActivityEventType::GitPrOpened,
+                    ActivityEventType::GitPrMerged => sprintf(
+                        'PR #%s: %s',
+                        $this->metadata['number'] ?? '',
+                        $this->metadata['title'] ?? '',
+                    ),
+                    ActivityEventType::FileChange => $this->metadata['file_path'] ?? '',
+                    ActivityEventType::ClaudeFileTouch => $this->metadata['file_path'] ?? '',
+                    ActivityEventType::ClaudeUserPrompt => mb_substr($this->metadata['prompt'] ?? '', 0, 80),
+                    default => '',
+                };
             },
         );
     }
