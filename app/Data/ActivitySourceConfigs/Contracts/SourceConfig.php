@@ -7,7 +7,7 @@ namespace App\Data\ActivitySourceConfigs\Contracts;
 interface SourceConfig
 {
     /** @param  array<string, mixed>  $data */
-    public static function fromArray(array $data): static;
+    public static function fromArray(array $data): self;
 
     /** @return array<string, mixed> */
     public function toArray(): array;

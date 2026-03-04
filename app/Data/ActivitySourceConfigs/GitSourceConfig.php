@@ -14,9 +14,9 @@ class GitSourceConfig implements SourceConfig
         public readonly array $author_emails,
     ) {}
 
-    public static function fromArray(array $data): static
+    public static function fromArray(array $data): self
     {
-        return new static(
+        return new self(
             enabled: (bool) ($data['enabled'] ?? true),
             author_emails: (array) ($data['author_emails'] ?? []),
         );

@@ -13,9 +13,9 @@ class ClaudeCodeSourceConfig implements SourceConfig
         public readonly string $projects_path,
     ) {}
 
-    public static function fromArray(array $data): static
+    public static function fromArray(array $data): self
     {
-        return new static(
+        return new self(
             enabled: (bool) ($data['enabled'] ?? true),
             projects_path: (string) ($data['projects_path'] ?? '~/.claude/projects'),
         );

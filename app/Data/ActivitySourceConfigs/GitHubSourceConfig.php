@@ -13,9 +13,9 @@ class GitHubSourceConfig implements SourceConfig
         public readonly ?string $username,
     ) {}
 
-    public static function fromArray(array $data): static
+    public static function fromArray(array $data): self
     {
-        return new static(
+        return new self(
             enabled: (bool) ($data['enabled'] ?? true),
             username: isset($data['username']) && $data['username'] !== '' ? (string) $data['username'] : null,
         );

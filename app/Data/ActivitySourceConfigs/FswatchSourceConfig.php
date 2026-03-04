@@ -19,9 +19,9 @@ class FswatchSourceConfig implements SourceConfig
         public readonly array $allowed_extensions,
     ) {}
 
-    public static function fromArray(array $data): static
+    public static function fromArray(array $data): self
     {
-        return new static(
+        return new self(
             enabled: (bool) ($data['enabled'] ?? true),
             debounce_seconds: (int) ($data['debounce_seconds'] ?? 3),
             excluded_patterns: (array) ($data['excluded_patterns'] ?? []),
