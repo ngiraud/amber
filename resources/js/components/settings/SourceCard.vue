@@ -87,9 +87,9 @@ async function handleTest(): Promise<void> {
         </CardContent>
 
         <!-- Footer: requirements + verify button (no top border — bg separation is enough) -->
-        <CardFooter class="bg-muted/40 flex items-center justify-between gap-4 px-6 py-3">
+        <CardFooter class="flex items-center justify-between gap-4 bg-muted/40 px-6 py-3">
             <p
-                class="text-muted-foreground text-xs [&_code]:bg-background [&_code]:rounded [&_code]:border [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11px]"
+                class="text-xs text-muted-foreground [&_code]:rounded [&_code]:border [&_code]:bg-background [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11px]"
                 v-html="requirements"
             />
 
