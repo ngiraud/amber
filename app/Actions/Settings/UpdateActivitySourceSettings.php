@@ -9,8 +9,10 @@ use App\Data\ActivitySourceConfigs\ClaudeCodeSourceConfig;
 use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
 use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
 use App\Data\ActivitySourceConfigs\GitSourceConfig;
+use App\Enums\ActivityEventSourceType;
 use App\Services\FileWatcherService;
 use App\Settings\ActivitySourceSettings;
+use Illuminate\Validation\ValidationException;
 
 class UpdateActivitySourceSettings extends Action
 {
@@ -21,6 +23,11 @@ class UpdateActivitySourceSettings extends Action
      */
     public function handle(array $data): void
     {
+        // Check availability BEFORE touching $this->settings so a failure leaves no side-effects
+        $this->assertSourcesAvailable($data);
+
+        $previousFswatch = $this->settings->fswatch;
+
         if (isset($data['git'])) {
             $this->settings->git = GitSourceConfig::fromArray(array_merge(
                 $this->settings->git->toArray(),
@@ -42,8 +49,6 @@ class UpdateActivitySourceSettings extends Action
             ));
         }
 
-        $previousFswatch = $this->settings->fswatch;
-
         if (isset($data['fswatch'])) {
             $this->settings->fswatch = FswatchSourceConfig::fromArray(array_merge(
                 $this->settings->fswatch->toArray(),
@@ -54,6 +59,52 @@ class UpdateActivitySourceSettings extends Action
         $this->settings->save();
 
         $this->handleFswatchLifecycle($previousFswatch);
+    }
+
+    /**
+     * @return array<string, bool>
+     */
+    protected function captureEnabledStates(): array
+    {
+        return collect(ActivityEventSourceType::cases())
+            ->mapWithKeys(fn (ActivityEventSourceType $type) => [
+                $type->settingsKey() => $this->settings->configFor($type)->isEnabled(),
+            ])
+            ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function assertSourcesAvailable(array $data): void
+    {
+        $previousEnabled = $this->captureEnabledStates();
+
+        $errors = [];
+
+        foreach (ActivityEventSourceType::cases() as $type) {
+            $key = $type->settingsKey();
+            $beingEnabled = ($data[$key]['enabled'] ?? null) === true;
+            $wasEnabled = $previousEnabled[$key];
+
+            if (! $beingEnabled) {
+                continue;
+            }
+
+            if ($wasEnabled) {
+                continue;
+            }
+
+            if (app(TestActivitySourceConnection::class)->handle($type)) {
+                continue;
+            }
+
+            $errors["{$key}.enabled"] = $type->requirements();
+        }
+
+        if (! empty($errors)) {
+            throw ValidationException::withMessages($errors);
+        }
     }
 
     protected function handleFswatchLifecycle(FswatchSourceConfig $previous): void

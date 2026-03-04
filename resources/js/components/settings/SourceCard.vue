@@ -12,6 +12,7 @@ const props = defineProps<{
     requirements: string;
     sourceValue: string;
     enabled: boolean;
+    error?: string;
 }>();
 
 const emit = defineEmits<{
@@ -80,6 +81,13 @@ async function handleTest(): Promise<void> {
                 <Switch :model-value="localEnabled" @update:model-value="onToggle" />
             </CardAction>
         </CardHeader>
+
+        <!-- Availability error -->
+        <div
+            v-if="error"
+            class="border-b bg-destructive/5 px-6 py-3 text-sm text-destructive [&_code]:rounded [&_code]:border [&_code]:border-destructive [&_code]:bg-destructive [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-[11px] [&_code]:text-white"
+            v-html="error"
+        ></div>
 
         <!-- Config content: only when enabled -->
         <CardContent v-if="localEnabled" class="py-5">

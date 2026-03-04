@@ -32,7 +32,14 @@ function saveGit(visitOptions: Record<string, unknown> = {}): void {
                     .filter(Boolean),
             },
         }))
-        .submit(sourcesRoutes.update(), visitOptions);
+        .submit(sourcesRoutes.update(), {
+            ...visitOptions,
+            onError: (errors: Record<string, string>) => {
+                if (errors['git.enabled']) {
+                    gitForm.enabled = props.activitySourceSettings.git.enabled;
+                }
+            },
+        });
 }
 
 // ── GitHub ─────────────────────────────────────────────────────────────────
@@ -50,7 +57,14 @@ function saveGithub(visitOptions: Record<string, unknown> = {}): void {
                 username: data.username || null,
             },
         }))
-        .submit(sourcesRoutes.update(), visitOptions);
+        .submit(sourcesRoutes.update(), {
+            ...visitOptions,
+            onError: (errors: Record<string, string>) => {
+                if (errors['github.enabled']) {
+                    githubForm.enabled = props.activitySourceSettings.github.enabled;
+                }
+            },
+        });
 }
 
 // ── Claude Code ────────────────────────────────────────────────────────────
@@ -68,7 +82,14 @@ function saveClaudeCode(visitOptions: Record<string, unknown> = {}): void {
                 projects_path: data.projects_path,
             },
         }))
-        .submit(sourcesRoutes.update(), visitOptions);
+        .submit(sourcesRoutes.update(), {
+            ...visitOptions,
+            onError: (errors: Record<string, string>) => {
+                if (errors['claude_code.enabled']) {
+                    claudeCodeForm.enabled = props.activitySourceSettings.claude_code.enabled;
+                }
+            },
+        });
 }
 
 // ── Fswatch ────────────────────────────────────────────────────────────────
@@ -96,7 +117,14 @@ function saveFswatch(visitOptions: Record<string, unknown> = {}): void {
                     .filter(Boolean),
             },
         }))
-        .submit(sourcesRoutes.update(), visitOptions);
+        .submit(sourcesRoutes.update(), {
+            ...visitOptions,
+            onError: (errors: Record<string, string>) => {
+                if (errors['fswatch.enabled']) {
+                    fswatchForm.enabled = props.activitySourceSettings.fswatch.enabled;
+                }
+            },
+        });
 }
 </script>
 
@@ -110,6 +138,7 @@ function saveFswatch(visitOptions: Record<string, unknown> = {}): void {
                 description="Detect commits and branch activity from local repositories"
                 :requirements="sourceInfo['git']?.requirements ?? ''"
                 source-value="git"
+                :error="gitForm.errors['git.enabled']"
                 @update:enabled="saveGit({ preserveScroll: true })"
             >
                 <form class="flex flex-col gap-4" @submit.prevent="saveGit()">
@@ -131,6 +160,7 @@ function saveFswatch(visitOptions: Record<string, unknown> = {}): void {
                 description="Detect pull requests, reviews, and issue activity"
                 :requirements="sourceInfo['github']?.requirements ?? ''"
                 source-value="github"
+                :error="githubForm.errors['github.enabled']"
                 @update:enabled="saveGithub({ preserveScroll: true })"
             >
                 <form class="flex flex-col gap-4" @submit.prevent="saveGithub()">
@@ -152,6 +182,7 @@ function saveFswatch(visitOptions: Record<string, unknown> = {}): void {
                 description="Detect Claude Code sessions and conversation history"
                 :requirements="sourceInfo['claude-code']?.requirements ?? ''"
                 source-value="claude-code"
+                :error="claudeCodeForm.errors['claude_code.enabled']"
                 @update:enabled="saveClaudeCode({ preserveScroll: true })"
             >
                 <form class="flex flex-col gap-4" @submit.prevent="saveClaudeCode()">
@@ -177,6 +208,7 @@ function saveFswatch(visitOptions: Record<string, unknown> = {}): void {
                 description="Detect file changes in real-time — restart required on toggle"
                 :requirements="sourceInfo['fswatch']?.requirements ?? ''"
                 source-value="fswatch"
+                :error="fswatchForm.errors['fswatch.enabled']"
                 @update:enabled="saveFswatch({ preserveScroll: true })"
             >
                 <form class="flex flex-col gap-4" @submit.prevent="saveFswatch()">

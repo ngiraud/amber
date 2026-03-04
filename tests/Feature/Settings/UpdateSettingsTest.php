@@ -285,6 +285,8 @@ describe('UpdateActivitySourceSettings action', function () {
         $sourceSettings->fswatch = new FswatchSourceConfig(false, 3, [], []);
         $sourceSettings->save();
 
+        TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(true);
+
         $watcher = Mockery::mock(FileWatcherService::class);
         $watcher->shouldReceive('start')->once();
         app()->instance(FileWatcherService::class, $watcher);
@@ -318,5 +320,73 @@ describe('UpdateActivitySourceSettings action', function () {
         UpdateActivitySourceSettings::make()->handle([
             'git' => ['enabled' => true, 'author_emails' => []],
         ]);
+    });
+
+    it('throws a validation error when enabling a source whose tool is not installed', function () {
+        $sourceSettings = app(ActivitySourceSettings::class);
+        $sourceSettings->git = new App\Data\ActivitySourceConfigs\GitSourceConfig(false, []);
+        $sourceSettings->save();
+
+        TestActivitySourceConnection::fake()
+            ->shouldReceive('handle')
+            ->with(ActivityEventSourceType::Git)
+            ->once()
+            ->andReturn(false);
+
+        UpdateActivitySourceSettings::make()->handle([
+            'git' => ['enabled' => true, 'author_emails' => []],
+        ]);
+    })->throws(Illuminate\Validation\ValidationException::class);
+
+    it('does not save settings when availability check fails', function () {
+        $sourceSettings = app(ActivitySourceSettings::class);
+        $sourceSettings->git = new App\Data\ActivitySourceConfigs\GitSourceConfig(false, []);
+        $sourceSettings->save();
+
+        TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(false);
+
+        try {
+            UpdateActivitySourceSettings::make()->handle([
+                'git' => ['enabled' => true, 'author_emails' => ['new@example.com']],
+            ]);
+        } catch (Illuminate\Validation\ValidationException) {
+            // expected
+        }
+
+        expect(app(ActivitySourceSettings::class)->git->enabled)->toBeFalse();
+    });
+
+    it('does not check availability when a source stays enabled', function () {
+        // git defaults to enabled=true; passing enabled=true again should not trigger a check
+        TestActivitySourceConnection::fake()->shouldNotReceive('handle');
+
+        UpdateActivitySourceSettings::make()->handle([
+            'git' => ['enabled' => true, 'author_emails' => []],
+        ]);
+    });
+
+    it('does not check availability when a source is being disabled', function () {
+        TestActivitySourceConnection::fake()->shouldNotReceive('handle');
+
+        UpdateActivitySourceSettings::make()->handle([
+            'git' => ['enabled' => false, 'author_emails' => []],
+        ]);
+    });
+
+    it('returns a validation error keyed by source field when tool is unavailable', function () {
+        $sourceSettings = app(ActivitySourceSettings::class);
+        $sourceSettings->github = new App\Data\ActivitySourceConfigs\GitHubSourceConfig(false, null);
+        $sourceSettings->save();
+
+        TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(false);
+
+        try {
+            UpdateActivitySourceSettings::make()->handle([
+                'github' => ['enabled' => true, 'username' => 'octocat'],
+            ]);
+            expect(true)->toBeFalse('expected ValidationException');
+        } catch (Illuminate\Validation\ValidationException $e) {
+            expect($e->errors())->toHaveKey('github.enabled');
+        }
     });
 })->group('actions');

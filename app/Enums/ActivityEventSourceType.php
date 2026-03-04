@@ -35,6 +35,12 @@ enum ActivityEventSourceType: string
         return $this->guessActivitySource();
     }
 
+    /** Key used as property name on ActivitySourceSettings and as form field prefix. */
+    public function settingsKey(): string
+    {
+        return str_replace('-', '_', $this->value);
+    }
+
     public function label(): string
     {
         return Str::headline($this->value);
