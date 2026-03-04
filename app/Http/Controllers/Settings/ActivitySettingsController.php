@@ -16,8 +16,7 @@ class ActivitySettingsController extends Controller
 {
     public function edit(ActivitySettings $settings): Response
     {
-        return Inertia::render('settings/Edit', [
-            'tab' => 'activity',
+        return Inertia::render('settings/Activity', [
             'activitySettings' => $settings->toArray(),
         ]);
     }

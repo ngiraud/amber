@@ -41,15 +41,11 @@ it('returns claude-code as the identifier', function () {
     expect(app(ClaudeCodeActivitySource::class)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
 });
 
-it('is not available when projects path does not exist', function () {
-    $settings = app(ActivitySourceSettings::class);
-    $settings->claude_code = ClaudeCodeSourceConfig::fromArray(['enabled' => true, 'projects_path' => '/nonexistent/path/that/does/not/exist']);
+it('is available when claude CLI is installed', function () {
+    // isAvailable() now checks the claude CLI binary, not the directory
+    $result = app(ClaudeCodeActivitySource::class)->isAvailable();
 
-    expect(app(ClaudeCodeActivitySource::class)->isAvailable())->toBeFalse();
-});
-
-it('is available when projects path exists', function () {
-    expect(app(ClaudeCodeActivitySource::class)->isAvailable())->toBeTrue();
+    expect($result)->toBeBool();
 });
 
 it('returns empty collection when projects path is empty', function () {

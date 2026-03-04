@@ -2,14 +2,20 @@
 
 declare(strict_types=1);
 
+use App\Actions\Settings\TestActivitySourceConnection;
 use App\Actions\Settings\UpdateActivitySettings;
 use App\Actions\Settings\UpdateActivitySourceSettings;
 use App\Actions\Settings\UpdateGeneralSettings;
 use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
+use App\Enums\ActivityEventSourceType;
+use App\Services\ActivitySources\ClaudeCodeActivitySource;
+use App\Services\ActivitySources\GitActivitySource;
+use App\Services\ActivitySources\GitHubActivitySource;
 use App\Services\FileWatcherService;
 use App\Settings\ActivitySettings;
 use App\Settings\ActivitySourceSettings;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Process;
 
 pest()->group('settings');
 
@@ -20,8 +26,7 @@ describe('general settings', function () {
         $this->get(route('settings.general'))
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
-                ->component('settings/Edit')
-                ->where('tab', 'general')
+                ->component('settings/General')
                 ->has('generalSettings')
                 ->has('timezones')
                 ->has('locales')
@@ -81,8 +86,7 @@ describe('activity settings', function () {
         $this->get(route('settings.activity'))
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
-                ->component('settings/Edit')
-                ->where('tab', 'activity')
+                ->component('settings/Activity')
                 ->has('activitySettings')
             );
     });
@@ -134,9 +138,9 @@ describe('source settings', function () {
         $this->get(route('settings.sources'))
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
-                ->component('settings/Edit')
-                ->where('tab', 'sources')
+                ->component('settings/Sources')
                 ->has('activitySourceSettings')
+                ->has('sourceInfo')
             );
     });
 
@@ -161,6 +165,93 @@ describe('source settings', function () {
         ])->assertInvalid(['git.enabled']);
     });
 })->group('controllers');
+
+describe('test source connection', function () {
+    it('delegates POST to TestActivitySourceConnection and returns JSON', function () {
+        TestActivitySourceConnection::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->with(ActivityEventSourceType::Git)
+            ->andReturn(true);
+
+        $this->postJson(route('settings.sources.test', ['source' => 'git']))
+            ->assertSuccessful()
+            ->assertJson(['available' => true]);
+    });
+
+    it('returns available false when action returns false', function () {
+        TestActivitySourceConnection::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->andReturn(false);
+
+        $this->postJson(route('settings.sources.test', ['source' => 'claude-code']))
+            ->assertSuccessful()
+            ->assertJson(['available' => false]);
+    });
+})->group('controllers');
+
+describe('TestActivitySourceConnection action', function () {
+    it('returns true when git is available', function () {
+        $source = Mockery::mock(GitActivitySource::class);
+        $source->shouldReceive('isAvailable')->once()->andReturn(true);
+        app()->instance(GitActivitySource::class, $source);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::Git))->toBeTrue();
+    });
+
+    it('returns false when git is unavailable', function () {
+        $source = Mockery::mock(GitActivitySource::class);
+        $source->shouldReceive('isAvailable')->once()->andReturn(false);
+        app()->instance(GitActivitySource::class, $source);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::Git))->toBeFalse();
+    });
+
+    it('returns true when gh is authenticated', function () {
+        $source = Mockery::mock(GitHubActivitySource::class);
+        $source->shouldReceive('isAvailable')->once()->andReturn(true);
+        app()->instance(GitHubActivitySource::class, $source);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::GitHub))->toBeTrue();
+    });
+
+    it('returns false when gh is not authenticated', function () {
+        $source = Mockery::mock(GitHubActivitySource::class);
+        $source->shouldReceive('isAvailable')->once()->andReturn(false);
+        app()->instance(GitHubActivitySource::class, $source);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::GitHub))->toBeFalse();
+    });
+
+    it('returns true when claude is available', function () {
+        $source = Mockery::mock(ClaudeCodeActivitySource::class);
+        $source->shouldReceive('isAvailable')->once()->andReturn(true);
+        app()->instance(ClaudeCodeActivitySource::class, $source);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::ClaudeCode))->toBeTrue();
+    });
+
+    it('returns false when claude is unavailable', function () {
+        $source = Mockery::mock(ClaudeCodeActivitySource::class);
+        $source->shouldReceive('isAvailable')->once()->andReturn(false);
+        app()->instance(ClaudeCodeActivitySource::class, $source);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::ClaudeCode))->toBeFalse();
+    });
+
+    it('returns true when fswatch is available', function () {
+        Process::fake(['*fswatch*' => Process::result(exitCode: 0)]);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::Fswatch))->toBeTrue();
+    });
+
+    it('returns false when fswatch is unavailable', function () {
+        Process::fake(['*fswatch*' => Process::result(exitCode: 1)]);
+
+        expect(TestActivitySourceConnection::make()->handle(ActivityEventSourceType::Fswatch))->toBeFalse();
+    });
+})->group('actions');
 
 describe('UpdateActivitySourceSettings action', function () {
     it('persists source settings as DTOs', function () {

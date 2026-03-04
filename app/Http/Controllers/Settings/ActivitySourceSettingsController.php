@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Settings;
 
+use App\Actions\Settings\TestActivitySourceConnection;
 use App\Actions\Settings\UpdateActivitySourceSettings;
 use App\Enums\ActivityEventSourceType;
 use App\Http\Controllers\Controller;
@@ -18,14 +19,18 @@ class ActivitySourceSettingsController extends Controller
 {
     public function edit(ActivitySourceSettings $settings): Response
     {
-        return Inertia::render('settings/Edit', [
-            'tab' => 'sources',
+        return Inertia::render('settings/Sources', [
             'activitySourceSettings' => [
                 'git' => $settings->git->toArray(),
                 'github' => $settings->github->toArray(),
                 'claude_code' => $settings->claude_code->toArray(),
                 'fswatch' => $settings->fswatch->toArray(),
             ],
+            'sourceInfo' => collect(ActivityEventSourceType::cases())
+                ->mapWithKeys(fn (ActivityEventSourceType $t) => [
+                    $t->value => ['requirements' => $t->requirements()],
+                ])
+                ->all(),
         ]);
     }
 
@@ -38,20 +43,8 @@ class ActivitySourceSettingsController extends Controller
         return redirect()->route('settings.sources');
     }
 
-    public function test(ActivityEventSourceType $source): JsonResponse
+    public function test(ActivityEventSourceType $source, TestActivitySourceConnection $action): JsonResponse
     {
-        if (! $source->isEnabled()) {
-            return response()->json(['available' => false, 'reason' => 'Source is disabled.']);
-        }
-
-        $sourceClass = $source->sourceClass();
-
-        if ($sourceClass === null) {
-            return response()->json(['available' => false, 'reason' => 'No source class found.']);
-        }
-
-        $available = app($sourceClass)->isAvailable();
-
-        return response()->json(['available' => $available]);
+        return response()->json(['available' => $action->handle($source)]);
     }
 }

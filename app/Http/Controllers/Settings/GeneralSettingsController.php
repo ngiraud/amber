@@ -17,8 +17,7 @@ class GeneralSettingsController extends Controller
 {
     public function edit(GeneralSettings $settings): Response
     {
-        return Inertia::render('settings/Edit', [
-            'tab' => 'general',
+        return Inertia::render('settings/General', [
             'generalSettings' => $settings->toArray(),
             'timezones' => timezone_identifiers_list(),
             'locales' => collect(AvailableLocale::cases())

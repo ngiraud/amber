@@ -50,12 +50,23 @@ enum ActivityEventSourceType: string
         };
     }
 
+    public function requirements(): string
+    {
+        return match ($this) {
+            self::Git => 'Requires git — <code>brew install git</code>',
+            self::GitHub => 'Requires GitHub CLI authenticated — <code>brew install gh && gh auth login</code>',
+            self::ClaudeCode => 'Requires Claude Code CLI — <code>npm install -g @anthropic-ai/claude-code</code>',
+            self::Fswatch => 'Requires fswatch — <code>brew install fswatch</code>',
+        };
+    }
+
     public function toArray(): array
     {
         return [
             'value' => $this->value,
             'label' => Str::ucfirst($this->label()),
             'color' => $this->color(),
+            'requirements' => $this->requirements(),
         ];
     }
 

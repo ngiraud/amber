@@ -16,37 +16,44 @@ return new class extends SettingsMigration
         );
 
         $this->migrator->add('activity_sources.git', [
-            'enabled' => $read('git_enabled') ?? true,
-            'author_emails' => $read('git_author_emails') ?? [],
+            'enabled' => true,
+            'author_emails' => [],
         ]);
 
         $this->migrator->add('activity_sources.github', [
-            'enabled' => $read('github_enabled') ?? true,
-            'username' => $read('github_username'),
+            'enabled' => true,
+            'username' => '',
         ]);
 
         $this->migrator->add('activity_sources.claude_code', [
-            'enabled' => $read('claude_code_enabled') ?? true,
-            'projects_path' => $read('claude_code_projects_path') ?? '~/.claude/projects',
+            'enabled' => true,
+            'projects_path' => '~/.claude/projects',
         ]);
 
         $this->migrator->add('activity_sources.fswatch', [
-            'enabled' => $read('fswatch_enabled') ?? true,
-            'debounce_seconds' => $read('fswatch_debounce_seconds') ?? 3,
-            'excluded_patterns' => $read('fswatch_excluded_patterns') ?? [],
-            'allowed_extensions' => $read('fswatch_allowed_extensions') ?? [],
+            'enabled' => true,
+            'debounce_seconds' => 3,
+            'excluded_patterns' => [
+                '\.git/',
+                '\.idea/',
+                'node_modules/',
+                'vendor/',
+                '\.DS_Store',
+                'storage/',
+                '\.php-cs-fixer\.cache',
+                '\.sqlite',
+                '\.cache',
+            ],
+            'allowed_extensions' => [
+                'php', 'js', 'ts', 'vue', 'jsx', 'tsx',
+                'css', 'scss', 'sass', 'less',
+                'html', 'blade.php',
+                'json', 'yaml', 'yml', 'toml', 'env',
+                'md', 'mdx',
+                'py', 'rb', 'go', 'rs', 'java', 'kt', 'swift',
+                'sh', 'bash', 'zsh',
+                'sql',
+            ],
         ]);
-
-        // Remove individual source settings from activity group
-        $this->migrator->delete('activity.git_enabled');
-        $this->migrator->delete('activity.git_author_emails');
-        $this->migrator->delete('activity.github_enabled');
-        $this->migrator->delete('activity.github_username');
-        $this->migrator->delete('activity.claude_code_enabled');
-        $this->migrator->delete('activity.claude_code_projects_path');
-        $this->migrator->delete('activity.fswatch_enabled');
-        $this->migrator->delete('activity.fswatch_debounce_seconds');
-        $this->migrator->delete('activity.fswatch_excluded_patterns');
-        $this->migrator->delete('activity.fswatch_allowed_extensions');
     }
 };

@@ -12,6 +12,7 @@ use App\Services\ActivitySources\Contracts\ActivitySource;
 use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Process;
 use Throwable;
 
 class ClaudeCodeActivitySource implements ActivitySource
@@ -25,7 +26,7 @@ class ClaudeCodeActivitySource implements ActivitySource
 
     public function isAvailable(): bool
     {
-        return is_dir($this->projectsPath());
+        return Process::run(['claude', '--version'])->successful();
     }
 
     /**

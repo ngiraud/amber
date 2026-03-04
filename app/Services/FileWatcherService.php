@@ -7,6 +7,7 @@ namespace App\Services;
 use App\Enums\ActivityEventSourceType;
 use App\Models\ProjectRepository;
 use App\Settings\ActivitySourceSettings;
+use Illuminate\Support\Facades\Process;
 use Native\Desktop\Facades\ChildProcess;
 
 class FileWatcherService
@@ -18,6 +19,11 @@ class FileWatcherService
     public static function make(): self
     {
         return app(self::class);
+    }
+
+    public static function isAvailable(): bool
+    {
+        return Process::run(['fswatch', '--version'])->successful();
     }
 
     public function start(): void
