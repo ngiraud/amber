@@ -4,18 +4,19 @@ declare(strict_types=1);
 
 namespace App\Services\ActivitySources;
 
-use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Contracts\ActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Throwable;
 
 class ClaudeCodeActivitySource implements ActivitySource
 {
-    protected string $projectsPath = '';
+    public function __construct(private readonly ActivitySourceSettings $settings) {}
 
     public function identifier(): ActivityEventSourceType
     {
@@ -194,19 +195,13 @@ class ClaudeCodeActivitySource implements ActivitySource
 
     protected function projectsPath(): string
     {
-        if (! empty($this->projectsPath)) {
-            return $this->projectsPath;
-        }
+        $path = $this->settings->claude_code->projects_path;
 
-        $path = config('activity.sources.claude-code.projects_path', '');
-
-        if (str_starts_with((string) $path, '~')) {
+        if (str_starts_with($path, '~')) {
             $home = $_SERVER['HOME'] ?? posix_getpwuid(posix_getuid())['dir'];
-            $path = $home.mb_substr((string) $path, 1);
+            $path = $home.mb_substr($path, 1);
         }
 
-        $this->projectsPath = $path;
-
-        return $this->projectsPath;
+        return $path;
     }
 }

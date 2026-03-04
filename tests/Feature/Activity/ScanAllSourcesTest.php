@@ -4,13 +4,17 @@ declare(strict_types=1);
 
 use App\Actions\Activity\ScanAllSources;
 use App\Data\ActivityEventData;
+use App\Data\ActivitySourceConfigs\ClaudeCodeSourceConfig;
+use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
+use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
+use App\Data\ActivitySourceConfigs\GitSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ActivityEvent;
 use App\Models\ProjectRepository;
 use App\Models\Session;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Event;
 use Tests\Fixtures\FakeActivitySource;
 
@@ -77,10 +81,11 @@ describe('ScanAllSources', function () {
     });
 
     it('discoverSources skips disabled sources', function () {
-        Config::set('activity.sources.git.enabled', false);
-        Config::set('activity.sources.github.enabled', false);
-        Config::set('activity.sources.claude-code.enabled', false);
-        Config::set('activity.sources.fswatch.enabled', false);
+        $settings = app(ActivitySourceSettings::class);
+        $settings->git = GitSourceConfig::fromArray(['enabled' => false, 'author_emails' => []]);
+        $settings->github = GitHubSourceConfig::fromArray(['enabled' => false, 'username' => null]);
+        $settings->claude_code = ClaudeCodeSourceConfig::fromArray(['enabled' => false, 'projects_path' => '~/.claude/projects']);
+        $settings->fswatch = FswatchSourceConfig::fromArray(['enabled' => false, 'debounce_seconds' => 3, 'excluded_patterns' => [], 'allowed_extensions' => []]);
 
         $sources = app(ScanAllSources::class)->discoverSources();
 

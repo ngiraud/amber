@@ -3,12 +3,13 @@
 declare(strict_types=1);
 
 use App\Data\ActivityEventData;
+use App\Data\ActivitySourceConfigs\ClaudeCodeSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use App\Services\ActivitySources\ClaudeCodeActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\File;
 
 pest()->group('activity', 'sources', 'claude-code');
@@ -27,7 +28,8 @@ function claudeTestDir(string $name): string
 }
 
 beforeEach(function () {
-    Config::set('activity.sources.claude-code.projects_path', claudeTestBase());
+    $settings = app(ActivitySourceSettings::class);
+    $settings->claude_code = ClaudeCodeSourceConfig::fromArray(['enabled' => true, 'projects_path' => claudeTestBase()]);
     File::makeDirectory(claudeTestBase(), recursive: true, force: true);
 });
 
@@ -36,21 +38,22 @@ afterEach(function () {
 });
 
 it('returns claude-code as the identifier', function () {
-    expect((new ClaudeCodeActivitySource)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
+    expect(app(ClaudeCodeActivitySource::class)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
 });
 
 it('is not available when projects path does not exist', function () {
-    Config::set('activity.sources.claude-code.projects_path', '/nonexistent/path/that/does/not/exist');
+    $settings = app(ActivitySourceSettings::class);
+    $settings->claude_code = ClaudeCodeSourceConfig::fromArray(['enabled' => true, 'projects_path' => '/nonexistent/path/that/does/not/exist']);
 
-    expect((new ClaudeCodeActivitySource)->isAvailable())->toBeFalse();
+    expect(app(ClaudeCodeActivitySource::class)->isAvailable())->toBeFalse();
 });
 
 it('is available when projects path exists', function () {
-    expect((new ClaudeCodeActivitySource)->isAvailable())->toBeTrue();
+    expect(app(ClaudeCodeActivitySource::class)->isAvailable())->toBeTrue();
 });
 
 it('returns empty collection when projects path is empty', function () {
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), collect());
 
     expect($events)->toHaveCount(0);
 });
@@ -73,7 +76,7 @@ it('detects ClaudeSessionStart from system/local_command entries', function () {
     $file = claudeTestDir('test-project').'/'.$sessionId.'.jsonl';
     File::put($file, $jsonl);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
@@ -104,7 +107,7 @@ it('detects ClaudeFileTouch from assistant Edit/Write tool use', function () {
     $file = claudeTestDir('test-project2').'/session.jsonl';
     File::put($file, $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->type)->toBe(ActivityEventType::ClaudeFileTouch)
@@ -127,7 +130,7 @@ it('skips events that occurred before the since timestamp', function () {
 
     File::put(claudeTestDir('test-project3').'/old-session.jsonl', $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -143,7 +146,7 @@ it('skips files where cwd does not match any repository', function () {
 
     File::put(claudeTestDir('some-project').'/no-match.jsonl', $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), collect());
 
     expect($events)->toHaveCount(0);
 });
@@ -165,7 +168,7 @@ it('detects ClaudeUserPrompt from human entries with string content', function (
     $file = claudeTestDir('test-prompt-str').'/session.jsonl';
     File::put($file, $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
@@ -193,7 +196,7 @@ it('detects ClaudeUserPrompt from human entries with array content blocks', func
 
     File::put(claudeTestDir('test-prompt-arr').'/session.jsonl', $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->type)->toBe(ActivityEventType::ClaudeUserPrompt)
@@ -215,7 +218,7 @@ it('skips sidechain entries', function () {
 
     File::put(claudeTestDir('test-sidechain').'/session.jsonl', $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -241,7 +244,7 @@ it('skips user entries that contain tool results instead of a prompt', function 
 
     File::put(claudeTestDir('test-tool-result').'/session.jsonl', $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -260,7 +263,7 @@ it('truncates long prompts to 500 characters', function () {
 
     File::put(claudeTestDir('test-prompt-long').'/session.jsonl', $line);
 
-    $events = (new ClaudeCodeActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(ClaudeCodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events->first()->metadata['prompt'])->toHaveLength(500);
 });

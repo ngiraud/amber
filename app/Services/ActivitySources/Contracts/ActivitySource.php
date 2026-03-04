@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Contracts;
+namespace App\Services\ActivitySources\Contracts;
 
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;

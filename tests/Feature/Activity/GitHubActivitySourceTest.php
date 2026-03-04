@@ -3,34 +3,35 @@
 declare(strict_types=1);
 
 use App\Data\ActivityEventData;
+use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
-use App\Models\AppSetting;
 use App\Models\ProjectRepository;
 use App\Services\ActivitySources\GitHubActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Process;
 
 pest()->group('activity', 'sources', 'github');
 
 it('returns github as the identifier', function () {
-    expect((new GitHubActivitySource)->identifier())->toBe(ActivityEventSourceType::GitHub);
+    expect(app(GitHubActivitySource::class)->identifier())->toBe(ActivityEventSourceType::GitHub);
 });
 
 it('is available when gh auth status succeeds', function () {
     Process::fake(fn () => Process::result('Logged in to github.com'));
 
-    expect((new GitHubActivitySource)->isAvailable())->toBeTrue();
+    expect(app(GitHubActivitySource::class)->isAvailable())->toBeTrue();
 });
 
 it('is not available when gh is not authenticated', function () {
     Process::fake(['*' => Process::result('', exitCode: 1)]);
 
-    expect((new GitHubActivitySource)->isAvailable())->toBeFalse();
+    expect(app(GitHubActivitySource::class)->isAvailable())->toBeFalse();
 });
 
 it('returns empty collection when no repositories are passed', function () {
-    $events = (new GitHubActivitySource)->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), collect());
 
     expect($events)->toHaveCount(0);
 });
@@ -46,7 +47,7 @@ it('skips repositories without a GitHub remote', function () {
         return Process::result('testuser');
     });
 
-    $events = (new GitHubActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -79,7 +80,7 @@ it('emits GitPrOpened for PRs created after since', function () {
         return Process::result('testuser');
     });
 
-    $events = (new GitHubActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
@@ -120,7 +121,7 @@ it('emits GitPrMerged for PRs merged after since', function () {
         return Process::result('testuser');
     });
 
-    $events = (new GitHubActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     // createdAt is 2 hours ago (before since=1 hour ago) → no GitPrOpened
     // mergedAt is 15 minutes ago (after since) → GitPrMerged
@@ -130,8 +131,9 @@ it('emits GitPrMerged for PRs merged after since', function () {
         ->and($events->first()->metadata)->toHaveKey('merged_at');
 });
 
-it('uses github_username from AppSetting when available', function () {
-    AppSetting::set('github_username', 'myuser');
+it('uses github_username from settings when available', function () {
+    $settings = app(ActivitySourceSettings::class);
+    $settings->github = GitHubSourceConfig::fromArray(['enabled' => true, 'username' => 'myuser']);
 
     ProjectRepository::factory()->create(['local_path' => '/some/project']);
 
@@ -147,7 +149,7 @@ it('uses github_username from AppSetting when available', function () {
         return Process::result('');
     });
 
-    $events = (new GitHubActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 
@@ -184,7 +186,7 @@ it('skips PRs created and merged before the since timestamp', function () {
         return Process::result('testuser');
     });
 
-    $events = (new GitHubActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });

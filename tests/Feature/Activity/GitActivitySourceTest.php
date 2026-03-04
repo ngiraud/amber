@@ -3,35 +3,35 @@
 declare(strict_types=1);
 
 use App\Data\ActivityEventData;
+use App\Data\ActivitySourceConfigs\GitSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
-use App\Models\AppSetting;
 use App\Models\ProjectRepository;
 use App\Services\ActivitySources\GitActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
-use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Process;
 
 pest()->group('activity', 'sources', 'git');
 
 it('returns git as the identifier', function () {
-    expect((new GitActivitySource)->identifier())->toBe(ActivityEventSourceType::Git);
+    expect(app(GitActivitySource::class)->identifier())->toBe(ActivityEventSourceType::Git);
 });
 
 it('is available when git command succeeds', function () {
     Process::fake(fn () => Process::result('git version 2.39.0'));
 
-    expect((new GitActivitySource)->isAvailable())->toBeTrue();
+    expect(app(GitActivitySource::class)->isAvailable())->toBeTrue();
 });
 
 it('is not available when git is not installed', function () {
     Process::fake(['*' => Process::result('', exitCode: 1)]);
 
-    expect((new GitActivitySource)->isAvailable())->toBeFalse();
+    expect(app(GitActivitySource::class)->isAvailable())->toBeFalse();
 });
 
 it('returns empty collection when no repositories are passed', function () {
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), collect());
 
     expect($events)->toHaveCount(0);
 });
@@ -47,7 +47,7 @@ it('returns empty collection when git log fails', function () {
         return Process::result('');
     });
 
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -67,7 +67,7 @@ it('scans commits from a git repository with enriched metadata', function () {
         return Process::result('');
     });
 
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
@@ -99,22 +99,23 @@ it('aggregates numstat across multiple changed files', function () {
         return Process::result('');
     });
 
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events->first()->metadata['added_lines'])->toBe(15)
         ->and($events->first()->metadata['removed_lines'])->toBe(3)
         ->and($events->first()->metadata['changed_files'])->toBe(3);
 });
 
-it('filters commits by author email when configured from config', function () {
-    Config::set('activity.sources.git.author_emails', 'fromconfig@example.com');
+it('filters commits by configured author emails', function () {
+    $settings = app(ActivitySourceSettings::class);
+    $settings->git = GitSourceConfig::fromArray(['enabled' => true, 'author_emails' => ['dev@example.com', 'john@example.com']]);
 
     ProjectRepository::factory()->create(['local_path' => '/some/project']);
 
     $logOutput = implode('---COMMIT---', [
         '',
         'abc123|other@example.com|2024-01-01T12:00:00+00:00|Some commit',
-        'def456|fromconfig@example.com|2024-01-01T12:00:00+00:00|Some commit',
+        'def456|dev@example.com|2024-01-01T12:00:00+00:00|Some commit',
     ]);
 
     Process::fake(function ($process) use ($logOutput) {
@@ -125,35 +126,10 @@ it('filters commits by author email when configured from config', function () {
         return Process::result('');
     });
 
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
-        ->and($events->first()->metadata['author_email'])->toBe('fromconfig@example.com');
-});
-
-it('filters commits by author email when configured from AppSetting', function () {
-    AppSetting::set('git_author_emails', ['fromapp@example.com', 'john@example.com']);
-
-    ProjectRepository::factory()->create(['local_path' => '/some/project']);
-
-    $logOutput = implode('---COMMIT---', [
-        '',
-        'abc123|other@example.com|2024-01-01T12:00:00+00:00|Some commit',
-        'def456|fromapp@example.com|2024-01-01T12:00:00+00:00|Some commit',
-    ]);
-
-    Process::fake(function ($process) use ($logOutput) {
-        if (in_array('log', $process->command)) {
-            return Process::result($logOutput);
-        }
-
-        return Process::result('');
-    });
-
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
-
-    expect($events)->toHaveCount(1)
-        ->and($events->first()->metadata['author_email'])->toBe('fromapp@example.com');
+        ->and($events->first()->metadata['author_email'])->toBe('dev@example.com');
 });
 
 it('detects branch switches from git reflog', function () {
@@ -167,7 +143,7 @@ it('detects branch switches from git reflog', function () {
         return Process::result('');
     });
 
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->type)->toBe(ActivityEventType::GitBranchSwitch)
@@ -190,7 +166,7 @@ it('ignores non-checkout reflog entries', function () {
         return Process::result('');
     });
 
-    $events = (new GitActivitySource)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->type)->toBe(ActivityEventType::GitBranchSwitch);

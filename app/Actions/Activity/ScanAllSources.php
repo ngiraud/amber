@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Actions\Activity;
 
 use App\Actions\Action;
-use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Models\ActivityEvent;
 use App\Models\ProjectRepository;
 use App\Models\Session;
+use App\Services\ActivitySources\Contracts\ActivitySource;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 

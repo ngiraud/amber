@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-use App\Contracts\ActivitySource;
+use App\Data\ActivitySourceConfigs\Contracts\SourceConfig;
 use App\Enums\Concerns\EnhanceEnum;
+use App\Services\ActivitySources\Contracts\ActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Illuminate\Support\Str;
 
 enum ActivityEventSourceType: string
@@ -17,9 +19,14 @@ enum ActivityEventSourceType: string
     case ClaudeCode = 'claude-code';
     case Fswatch = 'fswatch';
 
+    public function config(): SourceConfig
+    {
+        return app(ActivitySourceSettings::class)->configFor($this);
+    }
+
     public function isEnabled(): bool
     {
-        return config()->boolean("activity.sources.{$this->value}.enabled", false);
+        return $this->config()->isEnabled();
     }
 
     /** @return class-string<ActivitySource>|null */
