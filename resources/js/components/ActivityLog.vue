@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { InfiniteScroll, router } from '@inertiajs/vue3';
+import { LucideRotateCcw } from 'lucide-vue-next';
 import { onMounted, onUnmounted, ref, useTemplateRef } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -74,7 +75,15 @@ function refresh(): void {
         <Transition name="banner">
             <div v-if="hasNewEvents" class="sticky top-0 mb-2 flex items-center justify-between rounded bg-zinc-800 px-3 py-1.5">
                 <span class="text-zinc-300">New events available</span>
-                <Button size="sm" class="text-zinc-400 hover:text-zinc-200" @click="refresh">Refresh ↺</Button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    class="h-auto gap-1.5 border-zinc-600 bg-transparent px-2.5 py-1 text-xs text-zinc-300 hover:border-zinc-500 hover:bg-zinc-700 hover:text-zinc-100"
+                    @click="refresh"
+                >
+                    <span>Refresh</span>
+                    <span><LucideRotateCcw class="size-2.5" /></span>
+                </Button>
             </div>
         </Transition>
 

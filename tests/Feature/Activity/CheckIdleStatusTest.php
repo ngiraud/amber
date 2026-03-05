@@ -8,6 +8,7 @@ use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\ProjectRepository;
 use App\Models\Session;
+use App\Settings\ActivitySettings;
 use Illuminate\Support\Facades\Event;
 
 pest()->group('actions', 'activity');
@@ -15,7 +16,7 @@ pest()->group('actions', 'activity');
 describe('CheckIdleStatus', function () {
     beforeEach(function () {
         Event::fake();
-        config()->set('activity.idle_timeout_minutes', 15);
+        app(ActivitySettings::class)->idle_timeout_minutes = 15;
     });
 
     it('does nothing when there is no active session', function () {

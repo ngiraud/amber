@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Activity\ScanAllSources;
+use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 
@@ -14,9 +15,9 @@ class ScanActivitySourcesCommand extends Command
 
     protected $description = 'Scan all activity sources and record detected events';
 
-    public function handle(ScanAllSources $scanAllSources): void
+    public function handle(ScanAllSources $scanAllSources, ActivitySettings $settings): void
     {
-        $interval = config()->integer('activity.scan_interval_minutes');
+        $interval = $settings->scan_interval_minutes;
         $since = CarbonImmutable::now()->subMinutes($interval + 1);
 
         $events = $scanAllSources->handle($since);

@@ -6,6 +6,7 @@ namespace App\Providers;
 
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
+use App\Settings\GeneralSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Throwable;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -35,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->configureCommands();
         $this->configureDates();
         $this->configureEvents();
+        $this->configureLocaleAndTimezone();
         $this->configureModels();
         $this->configurePasswords();
         $this->configureRelations();
@@ -53,6 +56,24 @@ class AppServiceProvider extends ServiceProvider
     protected function configureDates(): void
     {
         Date::use(CarbonImmutable::class);
+    }
+
+    protected function configureLocaleAndTimezone(): void
+    {
+        try {
+            $settings = app(GeneralSettings::class);
+
+            if ($settings->locale !== null) {
+                app()->setLocale($settings->locale->value);
+            }
+
+            if ($settings->timezone !== null) {
+                config(['app.timezone' => $settings->timezone]);
+                date_default_timezone_set($settings->timezone);
+            }
+        } catch (Throwable) {
+            // Settings table may not exist yet (e.g., during migrations)
+        }
     }
 
     protected function configureModels(): void

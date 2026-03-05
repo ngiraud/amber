@@ -9,18 +9,21 @@ use App\Events\UntrackedActivityThresholdReached;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
+use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Cache;
 
 class CheckUntrackedActivity extends Action
 {
+    public function __construct(private readonly ActivitySettings $settings) {}
+
     public function handle(): void
     {
         if (Session::findActive() !== null) {
             return;
         }
 
-        $thresholdMinutes = config('activity.untracked_threshold_minutes');
+        $thresholdMinutes = $this->settings->untracked_threshold_minutes;
 
         $oldestUntrackedAt = ActivityEvent::query()
             ->whereNull('session_id')

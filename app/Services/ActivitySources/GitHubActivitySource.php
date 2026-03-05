@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\ActivitySources;
 
-use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
-use App\Models\AppSetting;
 use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Contracts\ActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Process;
@@ -17,6 +17,8 @@ use Throwable;
 
 class GitHubActivitySource implements ActivitySource
 {
+    public function __construct(private readonly ActivitySourceSettings $settings) {}
+
     public function identifier(): ActivityEventSourceType
     {
         return ActivityEventSourceType::GitHub;
@@ -162,10 +164,8 @@ class GitHubActivitySource implements ActivitySource
 
     protected function resolveUsername(): ?string
     {
-        $username = AppSetting::get('github_username');
-
-        if (! empty($username)) {
-            return $username;
+        if (! empty($this->settings->github->username)) {
+            return $this->settings->github->username;
         }
 
         $result = Process::run(['gh', 'api', 'user', '--jq', '.login']);

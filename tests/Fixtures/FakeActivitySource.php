@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace Tests\Fixtures;
 
-use App\Contracts\ActivitySource;
 use App\Enums\ActivityEventSourceType;
+use App\Services\ActivitySources\Contracts\ActivitySource;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 

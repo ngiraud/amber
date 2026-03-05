@@ -6,15 +6,24 @@ namespace App\Services;
 
 use App\Enums\ActivityEventSourceType;
 use App\Models\ProjectRepository;
+use App\Settings\ActivitySourceSettings;
+use Illuminate\Support\Facades\Process;
 use Native\Desktop\Facades\ChildProcess;
 
 class FileWatcherService
 {
     public const string ALIAS = 'file-watcher';
 
+    public function __construct(private readonly ActivitySourceSettings $settings) {}
+
     public static function make(): self
     {
         return app(self::class);
+    }
+
+    public static function isAvailable(): bool
+    {
+        return Process::run(['fswatch', '--version'])->successful();
     }
 
     public function start(): void
@@ -29,12 +38,9 @@ class FileWatcherService
             return;
         }
 
-        $excluded = config('activity.sources.fswatch.excluded_patterns', []);
-        $debounce = (int) config('activity.sources.fswatch.debounce_seconds', 3);
-
-        $excludeArgs = array_merge(...array_map(fn (string $p) => ['--exclude', $p], $excluded));
+        $excludeArgs = array_merge(...array_map(fn (string $p) => ['--exclude', $p], $this->settings->fswatch->excluded_patterns));
         $args = array_merge(
-            ['fswatch', '-r', '--event', 'Updated', '--latency', (string) $debounce, '--timestamp', '--format-time', '%s'],
+            ['fswatch', '-r', '--event', 'Updated', '--latency', (string) $this->settings->fswatch->debounce_seconds, '--timestamp', '--format-time', '%s'],
             $excludeArgs,
             $paths,
         );

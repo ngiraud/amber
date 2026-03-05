@@ -10,6 +10,7 @@ use App\Models\Client;
 use App\Models\Project;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -91,9 +92,11 @@ class DatabaseSeeder extends Seeder
         $json = file_get_contents(storage_path('sample-data/activity_events.json'));
 
         collect(json_decode($json, true))
-            ->chunk(50)
+            ->chunk(100)
             ->each(function ($chunk) {
                 ActivityEvent::insert($chunk->all());
             });
+
+        DB::table('activity_events')->update(['session_id' => null]);
     }
 }
