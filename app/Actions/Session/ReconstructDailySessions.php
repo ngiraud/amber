@@ -9,6 +9,7 @@ use App\Data\SessionData;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
+use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -16,15 +17,17 @@ use Illuminate\Support\Collection;
 
 class ReconstructDailySessions extends Action
 {
-    public function __construct(private readonly CreateSession $createSession) {}
+    public function __construct(
+        private readonly CreateSession $createSession,
+        private readonly ActivitySettings $settings,
+    ) {}
 
     /**
      * @return Collection<int, Session>
      */
     public function handle(CarbonImmutable $date, ?Project $project = null): Collection
     {
-        $idleThresholdMinutes = config('activity.idle_timeout_minutes');
-        $blockEndPaddingMinutes = config('activity.block_end_padding_minutes');
+        $blockEndPaddingMinutes = $this->settings->block_end_padding_minutes;
 
         $events = ActivityEvent::query()
             ->whereDate('occurred_at', $date)
@@ -58,7 +61,7 @@ class ReconstructDailySessions extends Action
                 continue;
             }
 
-            $blocks = $this->detectBlocks($projectEvents, $idleThresholdMinutes, $blockEndPaddingMinutes);
+            $blocks = $this->detectBlocks($projectEvents);
 
             $projectSessions = $existingSessions->get($projectId) ?? collect();
 
@@ -94,7 +97,7 @@ class ReconstructDailySessions extends Action
      * @param  Collection<int, ActivityEvent>  $events
      * @return array<int, array{CarbonImmutable, CarbonImmutable}>
      */
-    private function detectBlocks(Collection $events, int $idleThresholdMinutes, int $blockEndPaddingMinutes): array
+    private function detectBlocks(Collection $events): array
     {
         $blocks = [];
         $blockStart = null;
@@ -112,8 +115,8 @@ class ReconstructDailySessions extends Action
 
             $gap = (int) $lastTime->diffInMinutes($time);
 
-            if ($gap > $idleThresholdMinutes) {
-                $blocks[] = [$blockStart, $lastTime->addMinutes($blockEndPaddingMinutes)];
+            if ($gap > $this->settings->idle_timeout_minutes) {
+                $blocks[] = [$blockStart, $lastTime->addMinutes($this->settings->block_end_padding_minutes)];
                 $blockStart = $time;
             }
 
@@ -121,7 +124,7 @@ class ReconstructDailySessions extends Action
         }
 
         if ($blockStart !== null) {
-            $blocks[] = [$blockStart, $lastTime->addMinutes($blockEndPaddingMinutes)];
+            $blocks[] = [$blockStart, $lastTime->addMinutes($this->settings->block_end_padding_minutes)];
         }
 
         return $blocks;

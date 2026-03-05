@@ -98,8 +98,8 @@ const { isCurrentUrl } = useCurrentUrl();
         <SidebarFooter>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(settingsRoutes.edit())" tooltip="Settings">
-                        <Link :href="settingsRoutes.edit().url" class="items-center justify-center">
+                    <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(settingsRoutes.index())" tooltip="Settings">
+                        <Link :href="settingsRoutes.index()" class="items-center justify-center">
                             <SettingsIcon />
                         </Link>
                     </SidebarMenuButton>

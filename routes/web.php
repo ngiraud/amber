@@ -9,7 +9,9 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SessionTimerController;
-use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\Settings\ActivitySettingsController;
+use App\Http\Controllers\Settings\ActivitySourceSettingsController;
+use App\Http\Controllers\Settings\GeneralSettingsController;
 use App\Http\Controllers\TimelineController;
 use Illuminate\Support\Facades\Route;
 
@@ -55,5 +57,15 @@ Route::get('/timeline/{date}', [TimelineController::class, 'show'])->name('timel
 Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
 
 // Settings
-Route::get('/settings', [SettingsController::class, 'edit'])->name('settings.edit');
-Route::put('/settings', [SettingsController::class, 'update'])->name('settings.update');
+Route::redirect('/settings', '/settings/general')->name('settings.index');
+Route::prefix('settings')->name('settings.')->group(function () {
+    Route::get('/general', [GeneralSettingsController::class, 'edit'])->name('general');
+    Route::put('/general', [GeneralSettingsController::class, 'update'])->name('general.update');
+
+    Route::get('/activity', [ActivitySettingsController::class, 'edit'])->name('activity');
+    Route::put('/activity', [ActivitySettingsController::class, 'update'])->name('activity.update');
+
+    Route::get('/sources', [ActivitySourceSettingsController::class, 'edit'])->name('sources');
+    Route::put('/sources', [ActivitySourceSettingsController::class, 'update'])->name('sources.update');
+    Route::post('/sources/{source}/test', [ActivitySourceSettingsController::class, 'test'])->name('sources.test');
+});

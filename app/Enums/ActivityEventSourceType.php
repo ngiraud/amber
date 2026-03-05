@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Enums;
 
-use App\Contracts\ActivitySource;
+use App\Data\ActivitySourceConfigs\Contracts\SourceConfig;
 use App\Enums\Concerns\EnhanceEnum;
+use App\Services\ActivitySources\Contracts\ActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Illuminate\Support\Str;
 
 enum ActivityEventSourceType: string
@@ -17,15 +19,26 @@ enum ActivityEventSourceType: string
     case ClaudeCode = 'claude-code';
     case Fswatch = 'fswatch';
 
+    public function config(): SourceConfig
+    {
+        return app(ActivitySourceSettings::class)->configFor($this);
+    }
+
     public function isEnabled(): bool
     {
-        return config()->boolean("activity.sources.{$this->value}.enabled", false);
+        return $this->config()->isEnabled();
     }
 
     /** @return class-string<ActivitySource>|null */
     public function sourceClass(): ?string
     {
         return $this->guessActivitySource();
+    }
+
+    /** Key used as property name on ActivitySourceSettings and as form field prefix. */
+    public function settingsKey(): string
+    {
+        return str_replace('-', '_', $this->value);
     }
 
     public function label(): string
@@ -43,12 +56,23 @@ enum ActivityEventSourceType: string
         };
     }
 
+    public function requirements(): string
+    {
+        return match ($this) {
+            self::Git => 'Requires git — <code>brew install git</code>',
+            self::GitHub => 'Requires GitHub CLI authenticated — <code>brew install gh && gh auth login</code>',
+            self::ClaudeCode => 'Requires Claude Code CLI — <code>npm install -g @anthropic-ai/claude-code</code>',
+            self::Fswatch => 'Requires fswatch — <code>brew install fswatch</code>',
+        };
+    }
+
     public function toArray(): array
     {
         return [
             'value' => $this->value,
             'label' => Str::ucfirst($this->label()),
             'color' => $this->color(),
+            'requirements' => $this->requirements(),
         ];
     }
 

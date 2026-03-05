@@ -8,10 +8,13 @@ use App\Actions\Action;
 use App\Events\IdleTimeoutReached;
 use App\Models\ActivityEvent;
 use App\Models\Session;
+use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
 
 class CheckIdleStatus extends Action
 {
+    public function __construct(private readonly ActivitySettings $settings) {}
+
     public function handle(): void
     {
         $session = Session::findActive();
@@ -31,7 +34,7 @@ class CheckIdleStatus extends Action
 
         $idleMinutes = $lastActivityAt->diffInMinutes(CarbonImmutable::now());
 
-        if ($idleMinutes >= config('activity.idle_timeout_minutes')) {
+        if ($idleMinutes >= $this->settings->idle_timeout_minutes) {
             IdleTimeoutReached::dispatch($session, $lastActivityAt);
         }
     }

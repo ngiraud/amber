@@ -11,6 +11,7 @@ use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
 use App\Models\Session;
 use App\Services\FileWatcherService;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Collection;
 use Native\Desktop\Events\ChildProcess\MessageReceived;
@@ -20,7 +21,10 @@ class HandleFileWatcherMessage
     /** @var Collection<int, ProjectRepository>|null */
     protected ?Collection $projectRepositories = null;
 
-    public function __construct(protected readonly RecordActivityEvent $recordEvent) {}
+    public function __construct(
+        protected readonly RecordActivityEvent $recordEvent,
+        protected readonly ActivitySourceSettings $settings,
+    ) {}
 
     public function handle(MessageReceived $event): void
     {
@@ -106,7 +110,7 @@ class HandleFileWatcherMessage
 
     protected function isAllowedExtension(string $filePath): bool
     {
-        $allowed = config('activity.sources.fswatch.allowed_extensions', []);
+        $allowed = $this->settings->fswatch->allowed_extensions;
 
         if (empty($allowed)) {
             return true;

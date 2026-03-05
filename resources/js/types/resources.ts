@@ -126,12 +126,51 @@ export type TimelineDay = {
     }[];
 };
 
-export type AppSettings = {
-    git_author_emails?: string[];
-    company_name?: string | null;
-    company_address?: string | null;
-    default_hourly_rate?: number | null;
-    default_daily_rate?: number | null;
-    default_daily_reference_hours?: number | null;
-    default_rounding_strategy?: number | null;
+export type GeneralSettings = {
+    company_name: string | null;
+    company_address: string | null;
+    default_hourly_rate: number | null;
+    default_daily_rate: number | null;
+    default_daily_reference_hours: number;
+    default_rounding_strategy: string;
+    timezone: string | null;
+    locale: string | null;
 };
+
+export type ActivitySettings = {
+    idle_timeout_minutes: number;
+    untracked_threshold_minutes: number;
+    scan_interval_minutes: number;
+    block_end_padding_minutes: number;
+};
+
+export type GitSourceConfig = {
+    enabled: boolean;
+    author_emails: string[];
+};
+
+export type GitHubSourceConfig = {
+    enabled: boolean;
+    username: string | null;
+};
+
+export type ClaudeCodeSourceConfig = {
+    enabled: boolean;
+    projects_path: string;
+};
+
+export type FswatchSourceConfig = {
+    enabled: boolean;
+    debounce_seconds: number;
+    excluded_patterns: string[];
+    allowed_extensions: string[];
+};
+
+export type ActivitySourceSettings = {
+    git: GitSourceConfig;
+    github: GitHubSourceConfig;
+    claude_code: ClaudeCodeSourceConfig;
+    fswatch: FswatchSourceConfig;
+};
+
+export type LocaleOption = { value: string; label: string };

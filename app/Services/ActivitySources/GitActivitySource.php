@@ -4,12 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\ActivitySources;
 
-use App\Contracts\ActivitySource;
 use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
-use App\Models\AppSetting;
 use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Contracts\ActivitySource;
+use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Process;
@@ -17,6 +17,8 @@ use Throwable;
 
 class GitActivitySource implements ActivitySource
 {
+    public function __construct(private readonly ActivitySourceSettings $settings) {}
+
     public function identifier(): ActivityEventSourceType
     {
         return ActivityEventSourceType::Git;
@@ -245,12 +247,6 @@ class GitActivitySource implements ActivitySource
      */
     protected function resolveAuthorEmails(): array
     {
-        $authorEmails = AppSetting::get('git_author_emails');
-
-        if (empty($authorEmails)) {
-            $authorEmails = explode(',', config('activity.sources.git.author_emails', ''));
-        }
-
-        return array_filter(array_map('trim', $authorEmails));
+        return array_filter(array_map('trim', $this->settings->git->author_emails));
     }
 }

@@ -30,7 +30,7 @@ const defaultEndedAt = props.session ? (props.session.ended_at?.substring(0, 16)
             <slot />
         </SheetTrigger>
 
-        <SheetContent side="right" class="w-96">
+        <SheetContent side="right">
             <SheetHeader>
                 <SheetTitle>{{ isEditing ? 'Edit Session' : 'Add Session' }}</SheetTitle>
             </SheetHeader>
