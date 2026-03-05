@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import InputField from '@/components/InputField.vue';
 import SettingsLayout from '@/components/settings/SettingsLayout.vue';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,12 @@ function submit(): void {
                                     {{ locale.label }}
                                 </option>
                             </select>
+                        </InputField>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputField label="Theme" :error="form.errors.theme">
+                            <AppearanceTabs />
                         </InputField>
                     </div>
 

@@ -87,8 +87,8 @@ function isFuture(date: string): boolean {
                 class="min-h-16 bg-card p-1.5"
                 :class="{
                     'cursor-pointer transition-colors hover:bg-accent': cell.date !== null && !isFuture(cell.date),
-                    'opacity-30': cell.date !== null && isFuture(cell.date),
-                    'ring-2 ring-primary ring-inset': cell.date === today,
+                    'opacity-90': cell.date !== null && isFuture(cell.date),
+                    'ring-1 ring-primary ring-inset': cell.date === today,
                 }"
                 @click="cell.date && !isFuture(cell.date) && emit('select', cell.date)"
             >
