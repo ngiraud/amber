@@ -27,8 +27,6 @@ class ReconstructDailySessions extends Action
      */
     public function handle(CarbonImmutable $date, ?Project $project = null): Collection
     {
-        $blockEndPaddingMinutes = $this->settings->block_end_padding_minutes;
-
         $events = ActivityEvent::query()
             ->whereDate('occurred_at', $date)
             ->whereNotNull('project_id')

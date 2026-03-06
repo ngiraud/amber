@@ -3,8 +3,8 @@ import { router } from '@inertiajs/vue3';
 import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
+import SessionSheet from '@/components/SessionSheet.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
-import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
@@ -61,9 +61,9 @@ function reconstruct(): void {
                             Reconstruct
                         </Button>
 
-                        <TimeEntrySheet :date="date" :projects="projects">
+                        <SessionSheet :date="date" :projects="projects">
                             <Button size="sm">Add Session</Button>
-                        </TimeEntrySheet>
+                        </SessionSheet>
 
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
@@ -85,9 +85,9 @@ function reconstruct(): void {
                     <RefreshCwIcon class="mr-1.5 size-3.5" />
                     Reconstruct
                 </Button>
-                <TimeEntrySheet :date="date" :projects="projects">
+                <SessionSheet :date="date" :projects="projects">
                     <Button size="sm">Add Session</Button>
-                </TimeEntrySheet>
+                </SessionSheet>
             </div>
         </Empty>
 
