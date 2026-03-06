@@ -3,9 +3,9 @@ import { Link } from '@inertiajs/vue3';
 import { CalendarDaysIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
+import SessionSheet from '@/components/SessionSheet.vue';
 import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
-import TimeEntrySheet from '@/components/TimeEntrySheet.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Empty, EmptyDescription } from '@/components/ui/empty';
@@ -51,9 +51,9 @@ const dateLabel = computed(() => {
                             </Link>
                         </Button>
 
-                        <TimeEntrySheet :date="date" :projects="projects">
+                        <SessionSheet :date="date" :projects="projects">
                             <Button variant="outline" size="sm">Add Session</Button>
-                        </TimeEntrySheet>
+                        </SessionSheet>
 
                         <StartSessionDialog :projects="projects">
                             <Button size="sm">Start Session</Button>
