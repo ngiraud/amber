@@ -3,9 +3,11 @@ import { useForm } from '@inertiajs/vue3';
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import InputField from '@/components/InputField.vue';
 import SettingsLayout from '@/components/settings/SettingsLayout.vue';
+import TimezoneCombobox from '@/components/TimezoneCombobox.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { NativeSelect } from '@/components/ui/native-select';
 import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import * as generalRoutes from '@/routes/settings/general';
@@ -58,25 +60,15 @@ function submit(): void {
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputField label="Timezone" :error="form.errors.timezone">
-                            <select
-                                v-model="form.timezone"
-                                class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                            >
-                                <option value="">— system default —</option>
-                                <option v-for="tz in timezones" :key="tz" :value="tz">{{ tz }}</option>
-                            </select>
+                            <TimezoneCombobox v-model="form.timezone" :timezones="timezones" />
                         </InputField>
 
                         <InputField label="Language" :error="form.errors.locale">
-                            <select
-                                v-model="form.locale"
-                                class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                            >
-                                <option value="">— system default —</option>
+                            <NativeSelect v-model="form.locale" class="w-full">
                                 <option v-for="locale in locales" :key="locale.value" :value="locale.value">
                                     {{ locale.label }}
                                 </option>
-                            </select>
+                            </NativeSelect>
                         </InputField>
                     </div>
 
@@ -118,14 +110,11 @@ function submit(): void {
                         </InputField>
 
                         <InputField label="Default rounding" :error="form.errors.default_rounding_strategy">
-                            <select
-                                v-model.number="form.default_rounding_strategy"
-                                class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                            >
+                            <NativeSelect v-model.number="form.default_rounding_strategy" class="w-full">
                                 <option v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
                                     {{ option.label }}
                                 </option>
-                            </select>
+                            </NativeSelect>
                         </InputField>
                     </div>
                 </CardContent>

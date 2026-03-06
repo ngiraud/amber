@@ -23,7 +23,7 @@ const navItems = [
 
         <div class="flex gap-10">
             <!-- Vertical nav -->
-            <nav class="w-44 shrink-0">
+            <nav class="sticky top-0 w-44 shrink-0 self-start">
                 <ul class="flex flex-col gap-0.5">
                     <li v-for="item in navItems" :key="item.tab">
                         <Link
