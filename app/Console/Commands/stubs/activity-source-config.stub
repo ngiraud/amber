@@ -32,7 +32,7 @@ class {{ NameStudly }}SourceConfig implements SourceConfig
     public static function defaultData(): array
     {
         return [
-            'enabled' => true,
+            'enabled' => false,
             // TODO: add default values
         ];
     }

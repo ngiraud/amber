@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Console\View\Components\Info;
 use Illuminate\Support\Str;
 
 use function Laravel\Prompts\intro;
@@ -27,11 +28,11 @@ class MakeActivitySourceCommand extends Command
         $name = $this->argument('name') ?? text(
             label: 'Source name',
             placeholder: 'Jira',
-            hint: 'StudlyCase — e.g. "Jira" generates JiraSourceConfig, JiraActivitySource, …',
             required: 'Source name is required.',
             validate: fn (string $v) => preg_match('/^[A-Za-z][A-Za-z0-9]*$/', $v)
                 ? null
                 : 'Use letters and numbers only (e.g. Jira, LinearApp).',
+            hint: 'StudlyCase — e.g. "Jira" generates JiraSourceConfig, JiraActivitySource, …',
         );
 
         $studly = Str::studly((string) $name);
@@ -64,7 +65,7 @@ class MakeActivitySourceCommand extends Command
             rows: $rows,
         );
 
-        spin(fn () => $this->call('migrate', ['--force' => true, '--no-interaction' => true]), 'Running migration…');
+        new Info($this->output)->render('Next steps');
 
         note(
             <<<TEXT
@@ -76,6 +77,8 @@ class MakeActivitySourceCommand extends Command
 
             → Fill in color(), requirements(), description() in:
               app/Enums/ActivityEventSourceType.php
+
+            → Run: php artisan migrate
             TEXT,
         );
 
