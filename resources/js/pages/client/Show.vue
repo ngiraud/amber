@@ -89,7 +89,7 @@ const confirmDelete = ref(false);
                     v-for="project in client.projects"
                     :key="project.id"
                     :href="projectRoutes.show(project)"
-                    class="flex flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground transition-colors hover:bg-accent"
+                    class="flex flex-col gap-2 rounded-lg border bg-card p-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                     <div class="flex items-center gap-2.5">
                         <div class="h-3 w-3 shrink-0 rounded-full" :style="{ backgroundColor: project.color }" />
@@ -99,11 +99,11 @@ const confirmDelete = ref(false);
 
                     <div class="flex gap-4 text-xs text-muted-foreground">
                         <span v-if="project.daily_rate_formatted">
-                            <span class="font-medium text-foreground">{{ project.daily_rate_formatted }}</span
+                            <span class="font-medium">{{ project.daily_rate_formatted }}</span
                             >/day
                         </span>
                         <span v-if="project.hourly_rate_formatted">
-                            <span class="font-medium text-foreground">{{ project.hourly_rate_formatted }}</span
+                            <span class="font-medium">{{ project.hourly_rate_formatted }}</span
                             >/hr
                         </span>
                     </div>

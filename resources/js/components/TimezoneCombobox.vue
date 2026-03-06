@@ -53,7 +53,12 @@ function formatCity(tz: string): string {
 <template>
     <Popover v-model:open="open">
         <PopoverTrigger as-child>
-            <Button variant="outline" role="combobox" :aria-expanded="open" class="h-9 w-full justify-between px-3 font-normal">
+            <Button
+                variant="outline"
+                role="combobox"
+                :aria-expanded="open"
+                class="h-9 w-full justify-between px-3 font-normal dark:border-input dark:bg-input/30 dark:hover:bg-input/50 dark:hover:text-foreground"
+            >
                 <span class="truncate text-sm">{{ displayLabel }}</span>
                 <ChevronsUpDown class="ml-2 size-4 shrink-0 opacity-50" />
             </Button>

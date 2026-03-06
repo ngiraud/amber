@@ -38,7 +38,10 @@ function deleteSession(): void {
 </script>
 
 <template>
-    <div v-bind="$attrs" class="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3">
+    <div
+        v-bind="$attrs"
+        class="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3 transition-colors hover:bg-accent hover:text-accent-foreground"
+    >
         <div class="flex min-w-0 items-center gap-3">
             <span v-if="session.project?.color" class="size-2.5 shrink-0 rounded-full" :style="{ backgroundColor: session.project.color }" />
 

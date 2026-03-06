@@ -39,7 +39,7 @@ defineProps<{
                 v-for="client in clients.data"
                 :key="client.id"
                 :href="clientRoutes.show(client)"
-                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent"
+                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
                 <div>
                     <p class="text-sm font-medium">{{ client.name }}</p>
