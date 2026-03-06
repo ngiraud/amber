@@ -22,6 +22,37 @@ class GitSourceConfig implements SourceConfig
         );
     }
 
+    public static function validationRules(): array
+    {
+        return [
+            'enabled' => 'boolean',
+            'author_emails' => 'array',
+            'author_emails.*' => 'email',
+        ];
+    }
+
+    public static function defaultData(): array
+    {
+        return [
+            'enabled' => true,
+            'author_emails' => [],
+        ];
+    }
+
+    public static function fieldDefinitions(): array
+    {
+        return [
+            new FieldDefinition(
+                name: 'author_emails',
+                type: 'email-list',
+                label: 'Author Emails',
+                hint: 'Comma-separated emails used in git commits',
+                placeholder: 'me@example.com, work@example.com',
+                separator: ',',
+            ),
+        ];
+    }
+
     public function toArray(): array
     {
         return [

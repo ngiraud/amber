@@ -144,33 +144,29 @@ export type ActivitySettings = {
     block_end_padding_minutes: number;
 };
 
-export type GitSourceConfig = {
-    enabled: boolean;
-    author_emails: string[];
+export type SourceFieldDefinition = {
+    name: string;
+    type: 'text' | 'number' | 'textarea' | 'email-list' | 'string-list';
+    label: string;
+    hint: string;
+    placeholder?: string;
+    min?: number;
+    max?: number;
+    rows?: number;
+    separator?: string;
 };
 
-export type GitHubSourceConfig = {
-    enabled: boolean;
-    username: string | null;
-};
-
-export type ClaudeCodeSourceConfig = {
-    enabled: boolean;
-    projects_path: string;
-};
-
-export type FswatchSourceConfig = {
-    enabled: boolean;
-    debounce_seconds: number;
-    excluded_patterns: string[];
-    allowed_extensions: string[];
-};
-
-export type ActivitySourceSettings = {
-    git: GitSourceConfig;
-    github: GitHubSourceConfig;
-    claude_code: ClaudeCodeSourceConfig;
-    fswatch: FswatchSourceConfig;
+export type SourceDefinition = {
+    value: string;
+    label: string;
+    color: string;
+    description: string;
+    requirements: string;
+    fields: SourceFieldDefinition[];
+    config: {
+        enabled: boolean;
+        [key: string]: unknown;
+    };
 };
 
 export type LocaleOption = { value: string; label: string };

@@ -1,0 +1,17 @@
+<?php
+
+declare(strict_types=1);
+
+use App\Data\ActivitySourceConfigs\{{ NameStudly }}SourceConfig;
+use Spatie\LaravelSettings\Migrations\SettingsMigration;
+
+return new class extends SettingsMigration
+{
+    public function up(): void
+    {
+        $this->migrator->add(
+            'activity_sources.{{ nameSnake }}',
+            {{ NameStudly }}SourceConfig::defaultData(),
+        );
+    }
+};

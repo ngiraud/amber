@@ -11,6 +11,7 @@ use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
 use App\Data\ActivitySourceConfigs\GitSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Settings\Casts\SourceConfigCast;
+use Illuminate\Support\Arr;
 use Spatie\LaravelSettings\Settings;
 
 class ActivitySourceSettings extends Settings
@@ -30,21 +31,35 @@ class ActivitySourceSettings extends Settings
 
     public static function casts(): array
     {
-        return [
-            'git' => new SourceConfigCast(GitSourceConfig::class),
-            'github' => new SourceConfigCast(GitHubSourceConfig::class),
-            'claude_code' => new SourceConfigCast(ClaudeCodeSourceConfig::class),
-            'fswatch' => new SourceConfigCast(FswatchSourceConfig::class),
-        ];
+        return Arr::mapWithKeys(
+            ActivityEventSourceType::cases(),
+            fn (ActivityEventSourceType $type): array => [$type->value => new SourceConfigCast($type->configClass())],
+        );
     }
 
     public function configFor(ActivityEventSourceType $type): SourceConfig
     {
-        return match ($type) {
-            ActivityEventSourceType::Git => $this->git,
-            ActivityEventSourceType::GitHub => $this->github,
-            ActivityEventSourceType::ClaudeCode => $this->claude_code,
-            ActivityEventSourceType::Fswatch => $this->fswatch,
-        };
+        return $this->{$type->value};
+    }
+
+    /** @param array<string, mixed> $data */
+    public function mergeConfig(ActivityEventSourceType $type, array $data): self
+    {
+        // @phpstan-ignore-next-line
+        $this->{$type->value} = $type->configClass()::fromArray(array_merge(
+            $this->configFor($type)->toArray(),
+            $data,
+        ));
+
+        return $this;
+    }
+
+    /** @param array<string, mixed> $data */
+    public function setConfig(ActivityEventSourceType $type, array $data): self
+    {
+        // @phpstan-ignore-next-line
+        $this->{$type->value} = $type->configClass()::fromArray($data);
+
+        return $this;
     }
 }

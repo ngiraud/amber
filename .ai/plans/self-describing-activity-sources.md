@@ -2,11 +2,19 @@
 
 ## Context
 
-Adding a new activity source currently requires touching ~12 files with lots of copy-paste wiring. The scan/service layer is clean, but the settings/config/UI layer is hard-coded per source. This refactoring makes each source self-contained and adds an artisan scaffolding command.
+Adding a new activity source currently requires touching ~12 files with lots of copy-paste wiring. The scan/service layer is clean, but the settings/config/UI layer is hard-coded
+per source. This refactoring makes each source self-contained and adds an artisan scaffolding command.
 
 **After refactoring, adding a new source = run `php artisan make:activity-source {Name}` + fill in the scan logic and field definitions.**
 
 ---
+
+## Phase 0: First implementation
+
+- I have removed the `settingsKey` from the `ActivityEventSourceType` class, as it was only used for the ClaudeCode enum case. I replaced the value from 'claude-code' to '
+  claude_code' so we don't have any conflicts.
+- I have started implementing this plan. Basically everything php related is done, so from Phase 1 to Phase 3. Ensure everything is ok before moving to Phase 4.
+- If you want to change something, please ask me first.
 
 ## Phase 1: Make SourceConfig Self-Describing
 
@@ -15,6 +23,7 @@ Adding a new activity source currently requires touching ~12 files with lots of 
 **New file:** `app/Data/ActivitySourceConfigs/FieldDefinition.php`
 
 Readonly class describing a form field for the frontend:
+
 - `name`, `type` (text|number|textarea|email-list|string-list), `label`, `hint`
 - Optional: `placeholder`, `min`, `max`, `rows`, `separator` (`,` or `\n`)
 - `toArray(): array` for serialization
@@ -24,6 +33,7 @@ Readonly class describing a form field for the frontend:
 **Modify:** `app/Data/ActivitySourceConfigs/Contracts/SourceConfig.php`
 
 Add 3 static methods:
+
 - `validationRules(): array` — Laravel rules without source prefix (e.g. `['author_emails' => ['array']]`)
 - `defaultData(): array` — defaults for the settings migration
 - `fieldDefinitions(): array` — returns `FieldDefinition[]` for the frontend form
@@ -31,6 +41,7 @@ Add 3 static methods:
 ### 1.3 Implement on each existing SourceConfig
 
 **Modify:**
+
 - `app/Data/ActivitySourceConfigs/GitSourceConfig.php`
 - `app/Data/ActivitySourceConfigs/GitHubSourceConfig.php`
 - `app/Data/ActivitySourceConfigs/ClaudeCodeSourceConfig.php`
@@ -47,12 +58,15 @@ Add `fieldDefinitions()` with the label/hint/placeholder currently hard-coded in
 **Modify:** `app/Enums/ActivityEventSourceType.php`
 
 ### 2.1 Add `configClass(): string` method
+
 Convention-based: `App\Data\ActivitySourceConfigs\{Name}SourceConfig`. Same pattern as `guessActivitySource()`.
 
 ### 2.2 Add `description(): string` method
+
 Match statement returning the description currently hard-coded in `Sources.vue` template (e.g. "Detect commits and branch activity from local repositories").
 
 ### 2.3 Update `toArray()`
+
 Include `key` (settingsKey), `description`, and `fields` (from `configClass()::fieldDefinitions()`).
 
 ---
@@ -64,7 +78,7 @@ Include `key` (settingsKey), `description`, and `fields` (from `configClass()::f
 **Modify:** `app/Settings/ActivitySourceSettings.php`
 
 - `casts()`: iterate `ActivityEventSourceType::cases()` instead of hard-coded array
-- `configFor()`: use `$this->{$type->settingsKey()}` instead of match statement
+- `configFor()`: use `$this->{$type->value}` instead of match statement
 
 > Note: The typed properties (`public GitSourceConfig $git`, etc.) MUST remain — Spatie Settings requires them. The artisan command will inject these automatically.
 
@@ -84,7 +98,8 @@ Replace the 4 `if (isset($data[...]))` blocks with a single loop over enum cases
 
 **Modify:** `app/Http/Controllers/Settings/ActivitySourceSettingsController.php`
 
-Replace `activitySourceSettings` + `sourceInfo` props with a single `sources` array built by iterating enum cases, merging `$type->toArray()` with `config => $settings->configFor($type)->toArray()`.
+Replace `activitySourceSettings` + `sourceInfo` props with a single `sources` array built by iterating enum cases, merging `$type->toArray()` with
+`config => $settings->configFor($type)->toArray()`.
 
 > **Important:** This step must happen atomically with Phase 4 (frontend) since the Inertia prop shape changes.
 
@@ -99,6 +114,7 @@ Replace `activitySourceSettings` + `sourceInfo` props with a single `sources` ar
 Remove: `GitSourceConfig`, `GitHubSourceConfig`, `ClaudeCodeSourceConfig`, `FswatchSourceConfig`, `ActivitySourceSettings`
 
 Add:
+
 ```typescript
 type SourceFieldDefinition = {
     name: string;
@@ -135,10 +151,8 @@ type SourceDefinition = {
 - Generic `save(source, visitOptions)` function
 - Template: `v-for="source in sources"` rendering `SourceCard` with dynamic fields inside
 - Dynamic field rendering: `v-if` on `field.type` for Input/Textarea/number
-
-### 4.3 Update `SourceCard.vue` if needed
-
-Verify it doesn't need changes — it already accepts `title`, `description`, `requirements`, `source-value` as props. Should work as-is.
+    - Fields like Input/Textarea/number and form should be directly rendered in `SourceCard.vue`
+    - SourceFieldDefinition type like 'text' | 'number' | 'textarea' | 'email-list' | 'string-list' should be mapped to `Input[text|number|email]/Textarea/` in `SourceCard.vue`
 
 ---
 
@@ -147,6 +161,7 @@ Verify it doesn't need changes — it already accepts `title`, `description`, `r
 ### 5.1 Create stubs
 
 **New files:**
+
 - `stubs/activity-source-config.stub` — SourceConfig with `validationRules()`, `defaultData()`, `fieldDefinitions()`, `fromArray()`, `toArray()`
 - `stubs/activity-source.stub` — ActivitySource with `identifier()`, `scan()`, `isAvailable()`
 - `stubs/activity-source-settings-migration.stub` — Spatie Settings migration adding the new property
@@ -164,17 +179,22 @@ Verify it doesn't need changes — it already accepts `title`, `description`, `r
 5. **Inject property + import** into `ActivitySourceSettings.php` — regex to add `public {Name}SourceConfig ${snake};` and the `use` import
 6. Print summary of generated/modified files
 
-File manipulation strategy: read file content, use regex patterns anchored to known structures (last enum `case`, last `public` property in Settings, last match arm in each method). Fail gracefully with a clear message if the pattern doesn't match.
+The `{Name}` should be optional and prompt the user if not provided.
+You can inspire yourself from `vendor/laravel/framework/src/Illuminate/Console/GeneratorCommand.php` which is an abstract class allowing you to generate only one file.
+File manipulation strategy: read file content, use regex patterns anchored to known structures (last enum `case`, last `public` property in Settings, last match arm in each
+method). Fail gracefully with a clear message if the pattern doesn't match.
 
 ---
 
 ## Phase 6: Tests
 
 ### 6.1 Update existing settings tests
+
 - Update assertions that reference the old prop shape (`activitySourceSettings` -> `sources`)
 - All existing behavior must continue passing
 
 ### 6.2 Add new tests
+
 - Test `SourceConfig::validationRules()` produces valid rules for each config
 - Test `SourceConfig::defaultData()` round-trips through `fromArray()`
 - Test the dynamic FormRequest builds expected rules
@@ -196,25 +216,25 @@ File manipulation strategy: read file content, use regex patterns anchored to kn
 
 ## Files Summary
 
-| Action | File |
-|--------|------|
-| Create | `app/Data/ActivitySourceConfigs/FieldDefinition.php` |
-| Modify | `app/Data/ActivitySourceConfigs/Contracts/SourceConfig.php` |
-| Modify | `app/Data/ActivitySourceConfigs/GitSourceConfig.php` |
-| Modify | `app/Data/ActivitySourceConfigs/GitHubSourceConfig.php` |
-| Modify | `app/Data/ActivitySourceConfigs/ClaudeCodeSourceConfig.php` |
-| Modify | `app/Data/ActivitySourceConfigs/FswatchSourceConfig.php` |
-| Modify | `app/Enums/ActivityEventSourceType.php` |
-| Modify | `app/Settings/ActivitySourceSettings.php` |
+| Action | File                                                                 |
+|--------|----------------------------------------------------------------------|
+| Create | `app/Data/ActivitySourceConfigs/FieldDefinition.php`                 |
+| Modify | `app/Data/ActivitySourceConfigs/Contracts/SourceConfig.php`          |
+| Modify | `app/Data/ActivitySourceConfigs/GitSourceConfig.php`                 |
+| Modify | `app/Data/ActivitySourceConfigs/GitHubSourceConfig.php`              |
+| Modify | `app/Data/ActivitySourceConfigs/ClaudeCodeSourceConfig.php`          |
+| Modify | `app/Data/ActivitySourceConfigs/FswatchSourceConfig.php`             |
+| Modify | `app/Enums/ActivityEventSourceType.php`                              |
+| Modify | `app/Settings/ActivitySourceSettings.php`                            |
 | Modify | `app/Http/Requests/Settings/UpdateActivitySourceSettingsRequest.php` |
-| Modify | `app/Actions/Settings/UpdateActivitySourceSettings.php` |
+| Modify | `app/Actions/Settings/UpdateActivitySourceSettings.php`              |
 | Modify | `app/Http/Controllers/Settings/ActivitySourceSettingsController.php` |
-| Modify | `resources/js/pages/settings/Sources.vue` |
-| Modify | `resources/js/types/resources.ts` |
-| Create | `app/Console/Commands/MakeActivitySourceCommand.php` |
-| Create | `stubs/activity-source-config.stub` |
-| Create | `stubs/activity-source.stub` |
-| Create | `stubs/activity-source-settings-migration.stub` |
+| Modify | `resources/js/pages/settings/Sources.vue`                            |
+| Modify | `resources/js/types/resources.ts`                                    |
+| Create | `app/Console/Commands/MakeActivitySourceCommand.php`                 |
+| Create | `stubs/activity-source-config.stub`                                  |
+| Create | `stubs/activity-source.stub`                                         |
+| Create | `stubs/activity-source-settings-migration.stub`                      |
 
 ---
 

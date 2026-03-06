@@ -20,17 +20,10 @@ class ActivitySourceSettingsController extends Controller
     public function edit(ActivitySourceSettings $settings): Response
     {
         return Inertia::render('settings/Sources', [
-            'activitySourceSettings' => [
-                'git' => $settings->git->toArray(),
-                'github' => $settings->github->toArray(),
-                'claude_code' => $settings->claude_code->toArray(),
-                'fswatch' => $settings->fswatch->toArray(),
-            ],
-            'sourceInfo' => collect(ActivityEventSourceType::cases())
-                ->mapWithKeys(fn (ActivityEventSourceType $t) => [
-                    $t->value => ['requirements' => $t->requirements()],
-                ])
-                ->all(),
+            'sources' => ActivityEventSourceType::collect()
+                ->map(fn (ActivityEventSourceType $type) => array_merge($type->toArray(), [
+                    'config' => $settings->configFor($type)->toArray(),
+                ])),
         ]);
     }
 
