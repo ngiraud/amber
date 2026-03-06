@@ -40,7 +40,7 @@ defineProps<{
                 v-for="project in projects.data"
                 :key="project.id"
                 :href="projectRoutes.show(project.id)"
-                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent"
+                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
                 <div class="flex items-center gap-3">
                     <span class="size-2.5 shrink-0 rounded-full" :style="{ backgroundColor: project.color }" />

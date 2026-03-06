@@ -98,7 +98,7 @@ const verifyVariant = computed(() => {
 });
 
 const verifyClass = computed(() => {
-    if (testStatus.value === 'ok') return 'border-green-500 bg-green-500 text-white hover:bg-green-600 hover:text-white';
+    if (testStatus.value === 'ok') return '!border-green-500 !bg-green-500 !text-white hover:!bg-green-600';
     return '';
 });
 
