@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Enums;
 
 use App\Data\ActivitySourceConfigs\Contracts\SourceConfig;
+use App\Data\ActivitySourceConfigs\FieldDefinition;
 use App\Enums\Concerns\EnhanceEnum;
 use App\Services\ActivitySources\Contracts\ActivitySource;
 use App\Settings\ActivitySourceSettings;
@@ -16,29 +17,18 @@ enum ActivityEventSourceType: string
 
     case Git = 'git';
     case GitHub = 'github';
-    case ClaudeCode = 'claude-code';
+    case ClaudeCode = 'claude_code';
     case Fswatch = 'fswatch';
-
-    public function config(): SourceConfig
-    {
-        return app(ActivitySourceSettings::class)->configFor($this);
-    }
 
     public function isEnabled(): bool
     {
-        return $this->config()->isEnabled();
+        return app(ActivitySourceSettings::class)->configFor($this)->isEnabled();
     }
 
     /** @return class-string<ActivitySource>|null */
     public function sourceClass(): ?string
     {
         return $this->guessActivitySource();
-    }
-
-    /** Key used as property name on ActivitySourceSettings and as form field prefix. */
-    public function settingsKey(): string
-    {
-        return str_replace('-', '_', $this->value);
     }
 
     public function label(): string
@@ -56,6 +46,16 @@ enum ActivityEventSourceType: string
         };
     }
 
+    public function description(): string
+    {
+        return match ($this) {
+            self::Git => 'Detect commits and branch activity from local repositories',
+            self::GitHub => 'Detect pull requests, reviews, and issue activity',
+            self::ClaudeCode => 'Detect Claude Code sessions and conversation history',
+            self::Fswatch => 'Detect file changes in real-time — restart required on toggle',
+        };
+    }
+
     public function requirements(): string
     {
         return match ($this) {
@@ -66,13 +66,21 @@ enum ActivityEventSourceType: string
         };
     }
 
+    /** @return class-string<SourceConfig> */
+    public function configClass(): string
+    {
+        return $this->guessConfigClass();
+    }
+
     public function toArray(): array
     {
         return [
             'value' => $this->value,
             'label' => Str::ucfirst($this->label()),
             'color' => $this->color(),
+            'description' => $this->description(),
             'requirements' => $this->requirements(),
+            'fields' => array_map(fn (FieldDefinition $f) => $f->toArray(), $this->configClass()::fieldDefinitions()),
         ];
     }
 
@@ -80,6 +88,14 @@ enum ActivityEventSourceType: string
     private function guessActivitySource(): ?string
     {
         $class = sprintf('App\\Services\\ActivitySources\\%sActivitySource', $this->name);
+
+        return class_exists($class) ? $class : null;
+    }
+
+    /** @return class-string<SourceConfig>|null */
+    private function guessConfigClass(): ?string
+    {
+        $class = sprintf('App\\Data\\ActivitySourceConfigs\\%sSourceConfig', $this->name);
 
         return class_exists($class) ? $class : null;
     }
