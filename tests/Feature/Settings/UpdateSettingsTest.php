@@ -139,8 +139,10 @@ describe('source settings', function () {
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
                 ->component('settings/Sources')
-                ->has('activitySourceSettings')
-                ->has('sourceInfo')
+                ->has('sources')
+                ->has('sources.0.value')
+                ->has('sources.0.fields')
+                ->has('sources.0.config')
             );
     });
 
@@ -185,7 +187,7 @@ describe('test source connection', function () {
             ->once()
             ->andReturn(false);
 
-        $this->postJson(route('settings.sources.test', ['source' => 'claude-code']))
+        $this->postJson(route('settings.sources.test', ['source' => 'claude_code']))
             ->assertSuccessful()
             ->assertJson(['available' => false]);
     });

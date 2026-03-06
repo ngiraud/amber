@@ -21,6 +21,35 @@ class ClaudeCodeSourceConfig implements SourceConfig
         );
     }
 
+    public static function validationRules(): array
+    {
+        return [
+            'enabled' => ['boolean'],
+            'projects_path' => ['string', 'max:500'],
+        ];
+    }
+
+    public static function defaultData(): array
+    {
+        return [
+            'enabled' => true,
+            'projects_path' => '~/.claude/projects',
+        ];
+    }
+
+    public static function fieldDefinitions(): array
+    {
+        return [
+            new FieldDefinition(
+                name: 'projects_path',
+                type: 'text',
+                label: 'Projects path',
+                hint: 'Path to your Claude Code projects directory (default: ~/.claude/projects)',
+                placeholder: '~/.claude/projects',
+            ),
+        ];
+    }
+
     public function toArray(): array
     {
         return [
