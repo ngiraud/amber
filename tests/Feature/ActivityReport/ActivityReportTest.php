@@ -3,7 +3,6 @@
 declare(strict_types=1);
 
 use App\Enums\ActivityReportExportFormat;
-use App\Enums\ActivityReportStatus;
 use App\Models\ActivityReport;
 use Illuminate\Support\Facades\Storage;
 

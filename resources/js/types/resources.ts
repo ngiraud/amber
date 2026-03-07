@@ -180,12 +180,7 @@ export type ActivityReportStatus = {
     label: string;
 };
 
-export type ActivityReportStep =
-    | 'collecting_context'
-    | 'building_lines'
-    | 'generating_files'
-    | 'completed'
-    | 'failed';
+export type ActivityReportStep = 'collecting_context' | 'building_lines' | 'generating_files' | 'completed' | 'failed';
 
 export type ActivityReportLine = {
     id: string;

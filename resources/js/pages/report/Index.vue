@@ -16,10 +16,7 @@ defineProps<{
     clients: Client[];
 }>();
 
-const MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function formatPeriod(report: ActivityReport): string {
     return `${MONTHS[report.month - 1]} ${report.year}`;
@@ -84,10 +81,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                     <span v-if="report.status.value !== 5" class="text-xs text-muted-foreground">
                         {{ formatMinutes(report.total_minutes) }} · {{ report.total_days }}j
                     </span>
-                    <Badge
-                        :variant="statusVariant(report.status)"
-                        :class="report.status.value === 5 ? 'animate-pulse' : ''"
-                    >
+                    <Badge :variant="statusVariant(report.status)" :class="report.status.value === 5 ? 'animate-pulse' : ''">
                         {{ report.status.label }}
                     </Badge>
                 </div>

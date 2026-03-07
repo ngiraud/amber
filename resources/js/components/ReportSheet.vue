@@ -69,12 +69,7 @@ const open = ref(false);
                             name="month"
                             class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                         >
-                            <option
-                                v-for="m in MONTHS"
-                                :key="m.value"
-                                :value="m.value"
-                                :selected="m.value === new Date().getMonth() + 1"
-                            >
+                            <option v-for="m in MONTHS" :key="m.value" :value="m.value" :selected="m.value === new Date().getMonth() + 1">
                                 {{ m.label }}
                             </option>
                         </select>
@@ -85,12 +80,7 @@ const open = ref(false);
                             name="year"
                             class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                         >
-                            <option
-                                v-for="y in YEARS"
-                                :key="y"
-                                :value="y"
-                                :selected="y === currentYear"
-                            >
+                            <option v-for="y in YEARS" :key="y" :value="y" :selected="y === currentYear">
                                 {{ y }}
                             </option>
                         </select>
