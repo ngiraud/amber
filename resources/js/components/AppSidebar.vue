@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { ActivityIcon, CalendarDaysIcon, ClockIcon, FolderIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
+import { ActivityIcon, CalendarDaysIcon, ClockIcon, FileTextIcon, FolderIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
 import AppLogo from '@/components/AppLogo.vue';
 import {
     Sidebar,
@@ -18,6 +18,7 @@ import { home } from '@/routes';
 import * as activityRoutes from '@/routes/activity';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
+import * as reportRoutes from '@/routes/reports';
 import * as sessionRoutes from '@/routes/sessions';
 import * as settingsRoutes from '@/routes/settings';
 import * as timelineRoutes from '@/routes/timeline';
@@ -87,6 +88,14 @@ const { isCurrentUrl } = useCurrentUrl();
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(activityRoutes.index())" tooltip="Activity">
                                 <Link :href="activityRoutes.index()" class="items-center justify-center">
                                     <ActivityIcon />
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+
+                        <SidebarMenuItem>
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(reportRoutes.index())" tooltip="Reports">
+                                <Link :href="reportRoutes.index()" class="items-center justify-center">
+                                    <FileTextIcon />
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
