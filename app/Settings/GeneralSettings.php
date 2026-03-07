@@ -6,6 +6,7 @@ namespace App\Settings;
 
 use App\Enums\AvailableLocale;
 use App\Enums\RoundingStrategy;
+use Native\Desktop\Enums\SystemThemesEnum;
 use Spatie\LaravelSettings\Settings;
 
 class GeneralSettings extends Settings
@@ -22,9 +23,11 @@ class GeneralSettings extends Settings
 
     public RoundingStrategy $default_rounding_strategy;
 
-    public ?string $timezone;
+    public string $timezone;
 
-    public ?AvailableLocale $locale;
+    public AvailableLocale $locale;
+
+    public SystemThemesEnum $theme;
 
     public static function group(): string
     {

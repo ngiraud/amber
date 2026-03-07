@@ -8,6 +8,8 @@ use App\Actions\Action;
 use App\Enums\AvailableLocale;
 use App\Enums\RoundingStrategy;
 use App\Settings\GeneralSettings;
+use Native\Desktop\Enums\SystemThemesEnum;
+use Native\Desktop\Facades\System;
 
 class UpdateGeneralSettings extends Action
 {
@@ -32,18 +34,20 @@ class UpdateGeneralSettings extends Action
             $this->settings->default_rounding_strategy = RoundingStrategy::from($data['default_rounding_strategy']);
         }
 
-        $this->settings->timezone = $data['timezone'] ?? null;
-        $this->settings->locale = isset($data['locale']) ? AvailableLocale::from($data['locale']) : null;
+        if (isset($data['timezone'])) {
+            $this->settings->timezone = $data['timezone'];
+        }
+
+        if (isset($data['locale'])) {
+            $this->settings->locale = AvailableLocale::from($data['locale']);
+        }
+
+        if (isset($data['theme'])) {
+            $this->settings->theme = SystemThemesEnum::from($data['theme']);
+        }
 
         $this->settings->save();
 
-        if ($this->settings->locale !== null) {
-            app()->setLocale($this->settings->locale->value);
-        }
-
-        if ($this->settings->timezone !== null) {
-            config(['app.timezone' => $this->settings->timezone]);
-            date_default_timezone_set($this->settings->timezone);
-        }
+        System::theme($this->settings->theme);
     }
 }

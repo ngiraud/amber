@@ -135,6 +135,7 @@ export type GeneralSettings = {
     default_rounding_strategy: string;
     timezone: string | null;
     locale: string | null;
+    theme: string;
 };
 
 export type ActivitySettings = {

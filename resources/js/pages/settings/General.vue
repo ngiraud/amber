@@ -34,6 +34,7 @@ const form = useForm({
     default_rounding_strategy: props.generalSettings.default_rounding_strategy ?? 15,
     timezone: props.generalSettings.timezone ?? '',
     locale: props.generalSettings.locale ?? '',
+    theme: props.generalSettings.theme ?? 'system',
 });
 
 function submit(): void {
@@ -74,7 +75,7 @@ function submit(): void {
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputField label="Theme" :error="form.errors.theme">
-                            <AppearanceTabs />
+                            <AppearanceTabs v-model="form.theme" />
                         </InputField>
                     </div>
 

@@ -32,6 +32,7 @@ declare module '@inertiajs/core' {
             name: string;
             display_timezone: string;
             display_locale: string;
+            theme: string;
             activeSession: Session | null;
             [key: string]: unknown;
         };

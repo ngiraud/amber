@@ -15,6 +15,7 @@ use App\Services\FileWatcherService;
 use App\Settings\ActivitySettings;
 use App\Settings\ActivitySourceSettings;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 
 pest()->group('settings');
@@ -39,8 +40,13 @@ describe('general settings', function () {
             ->once()
             ->with(Mockery::on(fn ($data) => $data['company_name'] === 'Acme Corp'));
 
-        $this->put(route('settings.general.update'), ['company_name' => 'Acme Corp'])
-            ->assertRedirectToRoute('settings.general');
+        $this->put(route('settings.general.update'), [
+            'company_name' => 'Acme Corp',
+            'default_rounding_strategy' => 15,
+            'timezone' => 'Europe/Paris',
+            'locale' => 'fr',
+            'theme' => 'system',
+        ])->assertRedirectToRoute('settings.general');
     });
 
     it('validates default_rounding_strategy is a valid enum value', function () {
@@ -56,8 +62,12 @@ describe('general settings', function () {
     it('accepts a valid timezone', function () {
         UpdateGeneralSettings::fake()->shouldReceive('handle')->once();
 
-        $this->put(route('settings.general.update'), ['timezone' => 'Europe/Paris'])
-            ->assertRedirectToRoute('settings.general');
+        $this->put(route('settings.general.update'), [
+            'default_rounding_strategy' => 15,
+            'timezone' => 'Europe/Paris',
+            'locale' => 'fr',
+            'theme' => 'system',
+        ])->assertRedirectToRoute('settings.general');
     });
 
     it('validates locale must be in allowed list', function () {
@@ -68,6 +78,8 @@ describe('general settings', function () {
 
 describe('UpdateGeneralSettings action', function () {
     it('persists general settings', function () {
+        Http::fake(['*/system/theme' => Http::response(['result' => 'system'])]);
+
         UpdateGeneralSettings::make()->handle([
             'company_name' => 'Acme Corp',
             'default_daily_reference_hours' => 7,
@@ -97,8 +109,12 @@ describe('activity settings', function () {
             ->once()
             ->with(Mockery::on(fn ($data) => $data['idle_timeout_minutes'] === 45));
 
-        $this->put(route('settings.activity.update'), ['idle_timeout_minutes' => 45])
-            ->assertRedirectToRoute('settings.activity');
+        $this->put(route('settings.activity.update'), [
+            'idle_timeout_minutes' => 45,
+            'scan_interval_minutes' => 5,
+            'block_end_padding_minutes' => 0,
+            'manual_session_reminder_minutes' => 0,
+        ])->assertRedirectToRoute('settings.activity');
     });
 
     it('validates idle_timeout_minutes is within bounds', function () {
