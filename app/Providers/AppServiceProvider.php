@@ -63,14 +63,9 @@ class AppServiceProvider extends ServiceProvider
         try {
             $settings = app(GeneralSettings::class);
 
-            if ($settings->locale !== null) {
-                app()->setLocale($settings->locale->value);
-            }
+            app()->setLocale($settings->locale->value);
 
-            if ($settings->timezone !== null) {
-                config(['app.timezone' => $settings->timezone]);
-                date_default_timezone_set($settings->timezone);
-            }
+            config(['app.display_timezone' => $settings->timezone]);
         } catch (Throwable) {
             // Settings table may not exist yet (e.g., during migrations)
         }

@@ -47,15 +47,13 @@ defineExpose({ show });
         <DialogContent class="sm:max-w-md">
             <DialogHeader>
                 <DialogTitle>Reconstruct since a date</DialogTitle>
-                <DialogDescription>
-                    Reconstruct sessions for every day from the selected date to today.
-                </DialogDescription>
+                <DialogDescription> Reconstruct sessions for every day from the selected date to today. </DialogDescription>
             </DialogHeader>
 
             <div class="flex flex-col gap-4 pt-2">
                 <div class="flex flex-col gap-2">
                     <Label for="from-date">
-                        <CalendarIcon class="inline-block size-3.5 mr-1 text-muted-foreground" />
+                        <CalendarIcon class="mr-1 inline-block size-3.5 text-muted-foreground" />
                         Starting from
                     </Label>
                     <Input
@@ -71,7 +69,10 @@ defineExpose({ show });
                 <div class="flex flex-col gap-2">
                     <Label>Mode</Label>
                     <div class="flex flex-col gap-2">
-                        <label class="flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted/50" :class="{ 'border-primary bg-primary/5': mode === 'gaps' }">
+                        <label
+                            class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                            :class="{ 'border-primary bg-primary/5': mode === 'gaps' }"
+                        >
                             <input v-model="mode" type="radio" value="gaps" class="mt-0.5 accent-primary" />
                             <div>
                                 <p class="text-sm font-medium">Fill gaps</p>
@@ -79,7 +80,10 @@ defineExpose({ show });
                             </div>
                         </label>
 
-                        <label class="flex items-start gap-3 rounded-lg border p-3 cursor-pointer transition-colors hover:bg-muted/50" :class="{ 'border-primary bg-primary/5': mode === 'replace' }">
+                        <label
+                            class="flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors hover:bg-muted/50"
+                            :class="{ 'border-primary bg-primary/5': mode === 'replace' }"
+                        >
                             <input v-model="mode" type="radio" value="replace" class="mt-0.5 accent-primary" />
                             <div>
                                 <p class="text-sm font-medium">Rebuild auto sessions</p>
