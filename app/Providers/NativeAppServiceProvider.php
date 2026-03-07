@@ -6,7 +6,10 @@ namespace App\Providers;
 
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
+use App\Settings\GeneralSettings;
 use Native\Desktop\Contracts\ProvidesPhpIni;
+use Native\Desktop\Facades\Menu;
+use Native\Desktop\Facades\System;
 use Native\Desktop\Facades\Window;
 
 class NativeAppServiceProvider implements ProvidesPhpIni
@@ -18,8 +21,22 @@ class NativeAppServiceProvider implements ProvidesPhpIni
     public function boot(): void
     {
         Window::open()
-            ->width(1200)
-            ->height(600);
+            ->webPreferences([
+                'devTools' => false,
+            ])
+            ->showDevTools(false)
+            ->maximized()
+            ->minWidth(1200)
+            ->minHeight(600)
+            ->rememberState();
+
+        System::theme(app(GeneralSettings::class)->theme);
+
+        Menu::create(
+            Menu::app(),
+            Menu::edit(),
+            Menu::window(),
+        );
 
         MenuBarService::make()->initialize();
 

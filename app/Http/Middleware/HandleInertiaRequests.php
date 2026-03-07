@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Http\Resources\SessionResource;
 use App\Models\Session;
+use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -44,6 +45,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'display_timezone' => config('app.display_timezone'),
             'display_locale' => config('app.locale'),
+            'theme' => fn () => app(GeneralSettings::class)->theme->value,
             'activeSession' => fn () => ($s = Session::findActive(['project.client']))
                 ? SessionResource::make($s)
                 : null,

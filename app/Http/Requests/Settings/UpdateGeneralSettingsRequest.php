@@ -8,6 +8,7 @@ use App\Enums\AvailableLocale;
 use App\Enums\RoundingStrategy;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Native\Desktop\Enums\SystemThemesEnum;
 
 class UpdateGeneralSettingsRequest extends FormRequest
 {
@@ -22,9 +23,10 @@ class UpdateGeneralSettingsRequest extends FormRequest
             'default_hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'default_daily_rate' => ['nullable', 'numeric', 'min:0'],
             'default_daily_reference_hours' => ['nullable', 'integer', 'min:1', 'max:24'],
-            'default_rounding_strategy' => ['nullable', Rule::enum(RoundingStrategy::class)],
-            'timezone' => ['nullable', 'string', Rule::in(timezone_identifiers_list())],
-            'locale' => ['nullable', Rule::enum(AvailableLocale::class)],
+            'default_rounding_strategy' => ['required', Rule::enum(RoundingStrategy::class)],
+            'timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
+            'locale' => ['required', Rule::enum(AvailableLocale::class)],
+            'theme' => ['required', Rule::enum(SystemThemesEnum::class)],
         ];
     }
 }
