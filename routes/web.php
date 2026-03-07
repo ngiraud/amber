@@ -47,6 +47,7 @@ Route::scopeBindings()->group(function () {
 Route::post('/sessions/start', [SessionTimerController::class, 'start'])->name('sessions.start');
 Route::patch('/sessions/{session}/stop', [SessionTimerController::class, 'stop'])->name('sessions.stop');
 Route::post('/sessions/reconstruct', [SessionTimerController::class, 'reconstruct'])->name('sessions.reconstruct');
+Route::post('/sessions/reconstruct-from', [SessionTimerController::class, 'reconstructFrom'])->name('sessions.reconstruct-from');
 
 // Sessions — CRUD
 Route::get('/sessions', [SessionController::class, 'index'])->name('sessions.index');

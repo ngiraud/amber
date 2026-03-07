@@ -6,6 +6,8 @@ namespace App\Actions\Session;
 
 use App\Actions\Action;
 use App\Data\SessionData;
+use App\Enums\SessionReconstructMode;
+use App\Enums\SessionSource;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
@@ -25,8 +27,12 @@ class ReconstructDailySessions extends Action
     /**
      * @return Collection<int, Session>
      */
-    public function handle(CarbonImmutable $date, ?Project $project = null): Collection
+    public function handle(CarbonImmutable $date, ?Project $project = null, SessionReconstructMode $mode = SessionReconstructMode::Gaps): Collection
     {
+        if ($mode === SessionReconstructMode::Replace) {
+            $this->clearAutoSessions($date, $project);
+        }
+
         $events = ActivityEvent::query()
             ->whereDate('occurred_at', $date)
             ->whereNotNull('project_id')
@@ -87,6 +93,25 @@ class ReconstructDailySessions extends Action
         }
 
         return $generated;
+    }
+
+    private function clearAutoSessions(CarbonImmutable $date, ?Project $project): void
+    {
+        $sessionIds = Session::query()
+            ->where('source', SessionSource::Auto)
+            ->whereDate('started_at', $date)
+            ->when($project !== null, fn ($q) => $q->where('project_id', $project->id))
+            ->pluck('id');
+
+        if ($sessionIds->isEmpty()) {
+            return;
+        }
+
+        ActivityEvent::query()
+            ->whereIn('session_id', $sessionIds)
+            ->update(['session_id' => null]);
+
+        Session::query()->whereIn('id', $sessionIds)->delete();
     }
 
     /**

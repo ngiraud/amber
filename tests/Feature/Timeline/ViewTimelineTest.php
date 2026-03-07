@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Session\ReconstructDailySessions;
+use App\Enums\SessionReconstructMode;
 use App\Models\Project;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
@@ -97,7 +98,8 @@ describe('reconstruct sessions controller', function () {
     it('delegates to ReconstructDailySessions and redirects back', function () {
         ReconstructDailySessions::fake()
             ->shouldReceive('handle')
-            ->once();
+            ->once()
+            ->andReturn(collect());
 
         $this->post(route('sessions.reconstruct'))
             ->assertRedirect();
@@ -107,7 +109,12 @@ describe('reconstruct sessions controller', function () {
         ReconstructDailySessions::fake()
             ->shouldReceive('handle')
             ->once()
-            ->with(Mockery::on(fn (CarbonImmutable $date) => $date->toDateString() === '2026-02-20'));
+            ->with(
+                Mockery::on(fn (CarbonImmutable $date) => $date->toDateString() === '2026-02-20'),
+                null,
+                SessionReconstructMode::Gaps,
+            )
+            ->andReturn(collect());
 
         $this->post(route('sessions.reconstruct'), ['date' => '2026-02-20'])
             ->assertRedirect();

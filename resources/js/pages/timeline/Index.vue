@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import MonthCalendar from '@/components/MonthCalendar.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import ReconstructFromDateDialog from '@/components/ReconstructFromDateDialog.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as timelineRoutes from '@/routes/timeline';
@@ -37,6 +38,8 @@ function navigate(direction: -1 | 1): void {
 function selectDay(date: string): void {
     router.get(timelineRoutes.show({ date: date }).url);
 }
+
+const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null>(null);
 </script>
 
 <template>
@@ -45,6 +48,11 @@ function selectDay(date: string): void {
             <PageHeader title="Timeline">
                 <template #actions>
                     <div class="flex items-center gap-2">
+                        <Button variant="outline" size="sm" @click="fromDateDialog?.show()">
+                            <RefreshCwIcon class="mr-1.5 size-3.5" />
+                            Reconstruct since a date
+                        </Button>
+
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
                         </Button>
@@ -58,5 +66,7 @@ function selectDay(date: string): void {
         </template>
 
         <MonthCalendar :year="year" :month="month" :days="days" class="mt-2" @select="selectDay" />
+
+        <ReconstructFromDateDialog ref="fromDateDialog" />
     </AppLayout>
 </template>
