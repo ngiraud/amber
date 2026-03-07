@@ -48,19 +48,13 @@ enum ActivityEventType: string
                 'label' => $metadata['message'] ?? null,
                 'detail' => $this->parseDetailsFromMetadata($metadata),
             ],
-            self::GitBranchSwitch => [
-                'label' => $metadata['to_branch'] ?? null,
-                'detail' => null,
-            ],
-            self::GitPrOpened, self::GitPrMerged => [
-                'label' => isset($metadata['number'], $metadata['title'])
-                    ? sprintf('PR #%s: %s', $metadata['number'], $metadata['title'])
-                    : null,
+            self::GitBranchSwitch, self::GitPrOpened, self::GitPrMerged => [
+                'label' => $this->parseDetailsFromMetadata($metadata),
                 'detail' => null,
             ],
             self::ClaudeUserPrompt => [
                 'label' => null,
-                'detail' => mb_substr($metadata['prompt'] ?? '', 0, 80),
+                'detail' => $this->parseDetailsFromMetadata($metadata),
             ],
             default => [
                 'label' => null,

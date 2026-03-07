@@ -185,7 +185,7 @@ describe('test source connection', function () {
             ->once()
             ->andReturn(false);
 
-        $this->postJson(route('settings.sources.test', ['source' => 'claude-code']))
+        $this->postJson(route('settings.sources.test', ['source' => 'claude_code']))
             ->assertSuccessful()
             ->assertJson(['available' => false]);
     });

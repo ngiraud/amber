@@ -180,8 +180,8 @@ function saveFswatch(visitOptions: Record<string, unknown> = {}): void {
                 v-model:enabled="claudeCodeForm.enabled"
                 title="Claude Code"
                 description="Detect Claude Code sessions and conversation history"
-                :requirements="sourceInfo['claude-code']?.requirements ?? ''"
-                source-value="claude-code"
+                :requirements="sourceInfo['claude_code']?.requirements ?? ''"
+                source-value="claude_code"
                 :error="claudeCodeForm.errors['claude_code.enabled']"
                 @update:enabled="saveClaudeCode({ preserveScroll: true })"
             >

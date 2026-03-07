@@ -12,10 +12,8 @@ return new class extends Migration
     {
         Schema::create('activity_report_lines', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->ulid('activity_report_id');
-            $table->foreign('activity_report_id')->references('id')->on('activity_reports')->cascadeOnDelete();
-            $table->ulid('project_id');
-            $table->foreign('project_id')->references('id')->on('projects')->cascadeOnDelete();
+            $table->ulid('activity_report_id')->index();
+            $table->ulid('project_id')->index();
             $table->date('date');
             $table->unsignedInteger('minutes')->default(0);
             $table->decimal('days', 5, 2)->default(0);

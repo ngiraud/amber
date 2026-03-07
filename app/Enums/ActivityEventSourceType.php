@@ -16,7 +16,7 @@ enum ActivityEventSourceType: string
 
     case Git = 'git';
     case GitHub = 'github';
-    case ClaudeCode = 'claude-code';
+    case ClaudeCode = 'claude_code';
     case Fswatch = 'fswatch';
 
     public function config(): SourceConfig

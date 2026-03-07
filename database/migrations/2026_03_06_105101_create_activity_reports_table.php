@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('activity_reports', function (Blueprint $table) {
             $table->ulid('id')->primary();
-            $table->ulid('client_id');
-            $table->foreign('client_id')->references('id')->on('clients')->cascadeOnDelete();
+            $table->ulid('client_id')->index();
             $table->unsignedTinyInteger('month');
             $table->unsignedSmallInteger('year');
             $table->unsignedTinyInteger('status')->default(ActivityReportStatus::Draft->value);

@@ -42,7 +42,7 @@ class ExportActivityReportCsv extends Action implements ExportActivityReport
         $handle = fopen('php://temp', 'r+');
 
         foreach ($rows as $row) {
-            fputcsv($handle, $row);
+            fputcsv(stream: $handle, fields: $row, separator: config('activity.reports.csv.delimiter'), escape: '');
         }
 
         rewind($handle);

@@ -22,7 +22,7 @@ class ActivityReportLineResource extends JsonResource
             'id' => $this->id,
             'activity_report_id' => $this->activity_report_id,
             'project_id' => $this->project_id,
-            'date' => $this->date?->toDateString(),
+            'date' => $this->date->toDateString(),
             'minutes' => $this->minutes,
             'days' => (float) $this->days,
             'description' => $this->description,

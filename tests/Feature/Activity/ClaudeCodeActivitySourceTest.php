@@ -37,7 +37,7 @@ afterEach(function () {
     File::deleteDirectory(claudeTestBase());
 });
 
-it('returns claude-code as the identifier', function () {
+it('returns claude_code as the identifier', function () {
     expect(app(ClaudeCodeActivitySource::class)->identifier())->toBe(ActivityEventSourceType::ClaudeCode);
 });
 
