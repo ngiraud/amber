@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { Form, usePage } from '@inertiajs/vue3';
+import { Form, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import SessionTimer from '@/components/SessionTimer.vue';
 import { Button } from '@/components/ui/button';
+import { useNativeEvent } from '@/composables/useNativeEvent';
 import * as sessionRoutes from '@/routes/sessions';
+
+useNativeEvent('App\\Events\\SessionStarted', () => router.reload({ only: ['activeSession'] }));
+useNativeEvent('App\\Events\\SessionStopped', () => router.reload({ only: ['activeSession'] }));
 
 const page = usePage();
 const activeSession = computed(() => page.props.activeSession);
