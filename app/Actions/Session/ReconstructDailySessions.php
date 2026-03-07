@@ -73,7 +73,7 @@ class ReconstructDailySessions extends Action
                 }
 
                 $session = $this->createSession
-                    ->reconstructed()
+                    ->auto()
                     ->handle($currentProject, new SessionData(startedAt: $blockStart, endedAt: $blockEnd));
 
                 ActivityEvent::query()

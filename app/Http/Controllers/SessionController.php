@@ -48,7 +48,7 @@ class SessionController extends Controller
     {
         $project = Project::findOrFail($request->validated('project_id'));
 
-        $action->handle($project, SessionData::fromArray($request->validated()));
+        $action->manual()->handle($project, SessionData::fromArray($request->validated()));
 
         return back();
     }

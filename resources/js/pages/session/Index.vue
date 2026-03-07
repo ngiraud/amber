@@ -21,7 +21,7 @@ defineProps<{
             <PageHeader title="Sessions">
                 <template #actions>
                     <StartSessionDialog :projects="projects">
-                        <Button size="sm">Start Session</Button>
+                        <Button size="sm">Add Session</Button>
                     </StartSessionDialog>
                 </template>
             </PageHeader>

@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace App\Events;
 
-use App\Models\Project;
+use App\Models\Session;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class UntrackedActivityThresholdReached
+class ManualSessionReminderReached
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(
-        public Project $project,
-        public int $eventCount,
-    ) {}
+    public function __construct(public readonly Session $session) {}
 }

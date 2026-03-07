@@ -1,3 +1,11 @@
+declare global {
+    interface Window {
+        Native?: {
+            on: (event: string, callback: (payload: unknown) => void) => void;
+        };
+    }
+}
+
 // Extend ImportMeta interface for Vite...
 declare module 'vite/client' {
     interface ImportMetaEnv {

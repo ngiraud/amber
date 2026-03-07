@@ -10,11 +10,11 @@ class ActivitySettings extends Settings
 {
     public int $idle_timeout_minutes;
 
-    public int $untracked_threshold_minutes;
-
     public int $scan_interval_minutes;
 
     public int $block_end_padding_minutes;
+
+    public int $manual_session_reminder_minutes;
 
     public static function group(): string
     {

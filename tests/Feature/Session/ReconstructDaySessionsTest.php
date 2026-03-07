@@ -30,7 +30,7 @@ describe('ReconstructDaySessions action', function () {
         $generated = ReconstructDailySessions::make()->handle($today);
 
         expect($generated)->toHaveCount(1)
-            ->and($generated->first()->source)->toBe(SessionSource::Reconstructed)
+            ->and($generated->first()->source)->toBe(SessionSource::Auto)
             ->and($generated->first()->project_id)->toBe($project->id);
     });
 

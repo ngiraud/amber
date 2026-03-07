@@ -3,7 +3,7 @@ import { router } from '@inertiajs/vue3';
 import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
-import SessionSheet from '@/components/SessionSheet.vue';
+import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
@@ -61,9 +61,9 @@ function reconstruct(): void {
                             Reconstruct
                         </Button>
 
-                        <SessionSheet :date="date" :projects="projects">
+                        <StartSessionDialog :projects="projects">
                             <Button size="sm">Add Session</Button>
-                        </SessionSheet>
+                        </StartSessionDialog>
 
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
@@ -78,16 +78,16 @@ function reconstruct(): void {
 
         <Empty v-if="sessions.length === 0" class="mt-4">
             <EmptyTitle>No sessions for this day.</EmptyTitle>
-            <EmptyDescription>Start a session or add a manual one.</EmptyDescription>
+            <EmptyDescription>Add a manual session or reconstruct from activity.</EmptyDescription>
 
             <div class="flex gap-4">
                 <Button variant="outline" size="sm" @click="reconstruct">
                     <RefreshCwIcon class="mr-1.5 size-3.5" />
                     Reconstruct
                 </Button>
-                <SessionSheet :date="date" :projects="projects">
+                <StartSessionDialog :projects="projects">
                     <Button size="sm">Add Session</Button>
-                </SessionSheet>
+                </StartSessionDialog>
             </div>
         </Empty>
 
