@@ -12,7 +12,7 @@ use Illuminate\Support\Collection;
 
 interface ActivitySource
 {
-    /** Unique identifier for this source (e.g., 'git', 'claude-code'). */
+    /** Unique identifier for this source (e.g., 'git', 'claude_code'). */
     public function identifier(): ActivityEventSourceType;
 
     /**
