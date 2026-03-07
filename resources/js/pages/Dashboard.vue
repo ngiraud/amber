@@ -3,7 +3,6 @@ import { Link } from '@inertiajs/vue3';
 import { CalendarDaysIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
-import SessionSheet from '@/components/SessionSheet.vue';
 import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import { Button } from '@/components/ui/button';
@@ -51,12 +50,8 @@ const dateLabel = computed(() => {
                             </Link>
                         </Button>
 
-                        <SessionSheet :date="date" :projects="projects">
-                            <Button variant="outline" size="sm">Add Session</Button>
-                        </SessionSheet>
-
                         <StartSessionDialog :projects="projects">
-                            <Button size="sm">Start Session</Button>
+                            <Button size="sm">Add Session</Button>
                         </StartSessionDialog>
                     </div>
                 </template>

@@ -49,11 +49,4 @@ class CreateSession extends Action
 
         return $this;
     }
-
-    public function reconstructed(): static
-    {
-        $this->source = SessionSource::Reconstructed;
-
-        return $this;
-    }
 }

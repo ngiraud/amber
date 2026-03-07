@@ -20,10 +20,9 @@ describe('store manual session controller', function () {
     it('delegates to CreateSession and redirects back', function () {
         $project = Project::factory()->create();
 
-        CreateSession::fake()
-            ->shouldReceive('handle')
-            ->once()
-            ->andReturn(Session::factory()->make());
+        $fake = CreateSession::fake();
+        $fake->shouldReceive('manual')->once()->andReturnSelf();
+        $fake->shouldReceive('handle')->once()->andReturn(Session::factory()->make());
 
         $this->post(route('sessions.store'), [
             'project_id' => $project->id,
@@ -98,7 +97,7 @@ describe('CreateSession action', function () {
             ->and($session->notes)->toBe('in progress');
     });
 
-    it('sets source to Reconstructed', function () {
+    it('sets source to Auto', function () {
         $project = Project::factory()->create();
 
         $data = new SessionData(
@@ -106,9 +105,9 @@ describe('CreateSession action', function () {
             endedAt: CarbonImmutable::parse('2026-02-26 10:00:00'),
         );
 
-        $session = CreateSession::make()->reconstructed()->handle($project, $data);
+        $session = CreateSession::make()->auto()->handle($project, $data);
 
-        expect($session->source)->toBe(SessionSource::Reconstructed);
+        expect($session->source)->toBe(SessionSource::Auto);
     });
 })->group('actions');
 

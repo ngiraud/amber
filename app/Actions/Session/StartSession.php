@@ -25,7 +25,7 @@ class StartSession extends Action
                 throw new SessionAlreadyActiveException($active);
             }
 
-            $session = $this->createSession->auto()->handle($project, new SessionData(notes: $notes));
+            $session = $this->createSession->manual()->handle($project, new SessionData(notes: $notes));
 
             SessionStarted::dispatch($session);
 

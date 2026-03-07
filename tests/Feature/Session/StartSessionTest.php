@@ -64,7 +64,7 @@ describe('StartSession action', function () {
 
         expect($session)->toBeInstanceOf(Session::class)
             ->and($session->project_id)->toBe($project->id)
-            ->and($session->source)->toBe(SessionSource::Auto)
+            ->and($session->source)->toBe(SessionSource::Manual)
             ->and($session->ended_at)->toBeNull();
 
         $this->assertDatabaseHas('sessions', ['project_id' => $project->id, 'ended_at' => null]);

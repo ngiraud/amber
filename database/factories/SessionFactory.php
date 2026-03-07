@@ -31,6 +31,11 @@ class SessionFactory extends Factory
         ];
     }
 
+    public function auto(): static
+    {
+        return $this->state(fn () => ['source' => SessionSource::Auto]);
+    }
+
     public function completed(): static
     {
         return $this->state(function () {

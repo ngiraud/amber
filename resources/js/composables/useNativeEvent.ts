@@ -1,13 +1,5 @@
 import { onMounted } from 'vue';
 
-declare global {
-    interface Window {
-        Native?: {
-            on: (event: string, callback: (payload: unknown) => void) => void;
-        };
-    }
-}
-
 export function useNativeEvent<T>(eventClass: string, callback: (payload: T) => void): void {
     onMounted(() => {
         window.addEventListener('native:init', () => {
