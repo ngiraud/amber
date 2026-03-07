@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Enums\ActivityReportExportFormat;
 use App\Enums\ActivityReportStatus;
 use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -13,6 +14,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class ActivityReport extends Model
 {
@@ -33,6 +35,32 @@ class ActivityReport extends Model
     public function lines(): HasMany
     {
         return $this->hasMany(ActivityReportLine::class);
+    }
+
+    public function fileExists(ActivityReportExportFormat $format): bool
+    {
+        return Storage::disk(config('activity.reports.disk'))->exists($format->pathFor($this));
+    }
+
+    public function deleteFiles(bool $shouldSave = false): void
+    {
+        $disk = Storage::disk(config('activity.reports.disk'));
+
+        $this->loadMissing('client');
+
+        foreach (ActivityReportExportFormat::cases() as $format) {
+            $path = $format->pathFor($this);
+
+            if ($disk->exists($path)) {
+                $disk->delete($path);
+            }
+        }
+
+        $this->fill(['pdf_path' => null, 'csv_path' => null]);
+
+        if ($shouldSave) {
+            $this->save();
+        }
     }
 
     /** @return Attribute<float|null, int|null> */

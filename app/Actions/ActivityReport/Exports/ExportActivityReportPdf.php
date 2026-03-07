@@ -5,18 +5,18 @@ declare(strict_types=1);
 namespace App\Actions\ActivityReport\Exports;
 
 use App\Actions\Action;
+use App\Actions\ActivityReport\Exports\Contracts\ExportActivityReport;
+use App\Enums\ActivityReportExportFormat;
 use App\Models\ActivityReport;
-use Illuminate\Support\Str;
 use Spatie\LaravelPdf\Facades\Pdf;
 
-class ExportActivityReportPdf extends Action
+class ExportActivityReportPdf extends Action implements ExportActivityReport
 {
     public function handle(ActivityReport $report): string
     {
-        $report->load(['client', 'lines.project']);
+        $report->loadMissing(['client', 'lines.project']);
 
-        $clientSlug = Str::slug($report->client->name);
-        $path = "reports/cra-{$clientSlug}-{$report->year}-{$report->month}.pdf";
+        $path = ActivityReportExportFormat::Pdf->pathFor($report);
 
         Pdf::view('pdf.activity-report', [
             'report' => $report,
@@ -24,7 +24,8 @@ class ExportActivityReportPdf extends Action
             'lines' => $report->lines->sortBy('date'),
         ])
             ->format('a4')
-            ->save(storage_path("app/private/{$path}"));
+            ->disk(config('activity.reports.disk'))
+            ->save($path);
 
         $report->update(['pdf_path' => $path]);
 

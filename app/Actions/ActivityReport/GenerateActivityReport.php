@@ -7,12 +7,13 @@ namespace App\Actions\ActivityReport;
 use App\Actions\Action;
 use App\Data\ActivityReportData;
 use App\Enums\ActivityReportStatus;
-use App\Exceptions\ActivityReportAlreadyFinalizedException;
 use App\Jobs\GenerateActivityReportJob;
 use App\Models\ActivityReport;
 
 class GenerateActivityReport extends Action
 {
+    public function __construct(protected DeleteActivityReport $deleteReport) {}
+
     public function handle(ActivityReportData $data): ActivityReport
     {
         $existing = ActivityReport::query()
@@ -21,12 +22,7 @@ class GenerateActivityReport extends Action
             ->first();
 
         if ($existing !== null) {
-            if (in_array($existing->status, [ActivityReportStatus::Finalized, ActivityReportStatus::Sent], true)) {
-                throw new ActivityReportAlreadyFinalizedException;
-            }
-
-            $existing->lines()->delete();
-            $existing->delete();
+            $this->deleteReport->handle($existing);
         }
 
         $report = ActivityReport::query()->create([

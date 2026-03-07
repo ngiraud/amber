@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use RuntimeException;
 
-class ActivityReportAlreadyFinalizedException extends RuntimeException
+class ActivityReportNotReadyException extends RuntimeException
 {
     public function __construct()
     {
-        parent::__construct('This activity report is already finalized and cannot be modified.');
+        parent::__construct('This activity report is not ready for download.');
     }
 
     public function render(Request $request): RedirectResponse

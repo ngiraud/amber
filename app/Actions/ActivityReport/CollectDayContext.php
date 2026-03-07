@@ -18,7 +18,7 @@ class CollectDayContext extends Action
         $events = ActivityEvent::query()
             ->where('project_id', $project->id)
             ->whereNotNull('session_id')
-            ->whereDate('occurred_at', $date->toDateString())
+            ->whereBetween('occurred_at', [$date->startOfDay(), $date->endOfDay()])
             ->get();
 
         $labels = [];

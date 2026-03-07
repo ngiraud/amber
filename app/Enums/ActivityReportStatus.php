@@ -10,10 +10,11 @@ enum ActivityReportStatus: int
 {
     use EnhanceEnum;
 
-    case Generating = 5;
     case Draft = 10;
-    case Finalized = 20;
-    case Sent = 30;
+    case Generating = 20;
+    case Failed = 25;
+    case Finalized = 30;
+    case Sent = 40;
 
     public function label(): string
     {

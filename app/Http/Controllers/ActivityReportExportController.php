@@ -4,27 +4,27 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\ActivityReport\Exports\ExportActivityReportCsv;
-use App\Actions\ActivityReport\Exports\ExportActivityReportPdf;
 use App\Enums\ActivityReportExportFormat;
+use App\Enums\ActivityReportStatus;
+use App\Exceptions\ActivityReportNotReadyException;
 use App\Models\ActivityReport;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ActivityReportExportController extends Controller
 {
     public function __invoke(
         ActivityReport $report,
-        string $format,
-        ExportActivityReportPdf $exportPdf,
-        ExportActivityReportCsv $exportCsv,
-    ): BinaryFileResponse {
-        $exportFormat = ActivityReportExportFormat::from($format);
+        ActivityReportExportFormat $format,
+    ): StreamedResponse {
+        if ($report->status === ActivityReportStatus::Generating) {
+            throw new ActivityReportNotReadyException;
+        }
 
-        $path = match ($exportFormat) {
-            ActivityReportExportFormat::Pdf => $exportPdf->handle($report),
-            ActivityReportExportFormat::Csv => $exportCsv->handle($report),
-        };
+        if (! $report->fileExists($format)) {
+            throw new ActivityReportNotReadyException;
+        }
 
-        return response()->download(storage_path("app/private/{$path}"));
+        return Storage::disk(config('activity.reports.disk'))->download($format->pathFor($report));
     }
 }

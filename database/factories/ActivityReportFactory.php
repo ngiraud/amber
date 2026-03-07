@@ -51,6 +51,11 @@ class ActivityReportFactory extends Factory
         ]);
     }
 
+    public function failed(): static
+    {
+        return $this->state(fn () => ['status' => ActivityReportStatus::Failed]);
+    }
+
     public function sent(): static
     {
         return $this->state(fn () => [

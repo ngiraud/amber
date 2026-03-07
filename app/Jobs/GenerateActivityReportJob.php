@@ -6,8 +6,7 @@ namespace App\Jobs;
 
 use App\Actions\ActivityReport\BuildLineDescription;
 use App\Actions\ActivityReport\CollectDayContext;
-use App\Actions\ActivityReport\Exports\ExportActivityReportCsv;
-use App\Actions\ActivityReport\Exports\ExportActivityReportPdf;
+use App\Enums\ActivityReportExportFormat;
 use App\Enums\ActivityReportStatus;
 use App\Enums\ActivityReportStep;
 use App\Events\ActivityReportProgress;
@@ -27,36 +26,29 @@ class GenerateActivityReportJob implements ShouldQueue
     public function handle(
         CollectDayContext $collectDayContext,
         BuildLineDescription $buildLineDescription,
-        ExportActivityReportPdf $exportPdf,
-        ExportActivityReportCsv $exportCsv,
     ): void {
-        $report = $this->report;
+        event(new ActivityReportProgress($this->report->id, ActivityReportStep::CollectingContext));
 
-        event(new ActivityReportProgress($report->id, ActivityReportStep::CollectingContext));
+        $this->report->load('client.projects');
+        $projectIds = $this->report->client->projects->pluck('id')->all();
 
-        $report->load('client.projects');
-        $projectIds = $report->client->projects->pluck('id')->all();
+        $dateFromYearAndMonth = CarbonImmutable::create($this->report->year, $this->report->month, 1);
 
         $sessions = Session::query()
             ->whereIn('project_id', $projectIds)
             ->whereNotNull('ended_at')
-            ->whereYear('started_at', $report->year)
-            ->whereMonth('started_at', $report->month)
+            ->whereBetween('started_at', [$dateFromYearAndMonth->startOfMonth(), $dateFromYearAndMonth->endOfMonth()])
             ->get();
 
         $groups = [];
 
         foreach ($sessions as $session) {
-            $date = $session->date
-                ? $session->date->format('Y-m-d')
-                : CarbonImmutable::parse($session->started_at)->format('Y-m-d');
-
-            $key = $session->project_id.'::'.$date;
+            $key = $session->project_id.'::'.$session->date->format('Y-m-d');
 
             if (! isset($groups[$key])) {
                 $groups[$key] = [
                     'project_id' => $session->project_id,
-                    'date' => $date,
+                    'date' => $session->date,
                     'minutes' => 0,
                 ];
             }
@@ -64,9 +56,9 @@ class GenerateActivityReportJob implements ShouldQueue
             $groups[$key]['minutes'] += $session->rounded_minutes ?? $session->duration_minutes ?? 0;
         }
 
-        event(new ActivityReportProgress($report->id, ActivityReportStep::BuildingLines));
+        event(new ActivityReportProgress($this->report->id, ActivityReportStep::BuildingLines));
 
-        $projectsById = $report->client->projects->keyBy('id');
+        $projectsById = $this->report->client->projects->keyBy('id');
         $totalMinutes = 0;
         $totalDays = 0.0;
         $totalAmountHt = 0;
@@ -85,13 +77,12 @@ class GenerateActivityReportJob implements ShouldQueue
                 ? round($minutes / $dailyReferenceMinutes, 2)
                 : 0;
 
-            $date = CarbonImmutable::parse($group['date']);
-            $context = $collectDayContext->handle($project, $date);
+            $context = $collectDayContext->handle($project, $group['date']);
             $description = $buildLineDescription->handle($context);
 
-            $report->lines()->create([
+            $this->report->lines()->create([
                 'project_id' => $group['project_id'],
-                'date' => $group['date'],
+                'date' => $group['date']->format('Y-m-d'),
                 'minutes' => $minutes,
                 'days' => $days,
                 'description' => $description ?: null,
@@ -106,25 +97,26 @@ class GenerateActivityReportJob implements ShouldQueue
             }
         }
 
-        event(new ActivityReportProgress($report->id, ActivityReportStep::GeneratingFiles));
+        event(new ActivityReportProgress($this->report->id, ActivityReportStep::GeneratingFiles));
 
-        $exportPdf->handle($report);
-        $exportCsv->handle($report);
+        foreach (ActivityReportExportFormat::cases() as $format) {
+            $format->generateFor($this->report);
+        }
 
-        $report->update([
-            'status' => ActivityReportStatus::Draft,
+        $this->report->update([
+            'status' => ActivityReportStatus::Finalized,
             'total_minutes' => $totalMinutes,
             'total_days' => $totalDays,
             'total_amount_ht' => $hasAmount ? $totalAmountHt : null,
             'generated_at' => now(),
         ]);
 
-        event(new ActivityReportProgress($report->id, ActivityReportStep::Completed));
+        event(new ActivityReportProgress($this->report->id, ActivityReportStep::Completed));
     }
 
     public function failed(?Throwable $exception): void
     {
-        $this->report->update(['status' => ActivityReportStatus::Draft]);
+        $this->report->update(['status' => ActivityReportStatus::Failed]);
 
         event(new ActivityReportProgress(
             $this->report->id,
