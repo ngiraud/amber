@@ -6,7 +6,7 @@ namespace App\Actions\ActivityReport;
 
 use App\Actions\Action;
 use App\Enums\ActivityReportStatus;
-use App\Exceptions\ActivityReportAlreadyFinalizedException;
+use App\Exceptions\ActivityReportCannotBeModifiedException;
 use App\Jobs\GenerateActivityReportJob;
 use App\Models\ActivityReport;
 
@@ -14,8 +14,8 @@ class RegenerateActivityReport extends Action
 {
     public function handle(ActivityReport $report): ActivityReport
     {
-        if (in_array($report->status, [ActivityReportStatus::Finalized, ActivityReportStatus::Sent], true)) {
-            throw new ActivityReportAlreadyFinalizedException;
+        if (! $report->canBeDeleted()) {
+            throw new ActivityReportCannotBeModifiedException;
         }
 
         $report->deleteFiles();

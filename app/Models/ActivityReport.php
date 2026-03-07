@@ -37,6 +37,11 @@ class ActivityReport extends Model
         return $this->hasMany(ActivityReportLine::class);
     }
 
+    public function canBeDeleted(): bool
+    {
+        return ! in_array($this->status, [ActivityReportStatus::Generating, ActivityReportStatus::Sent], true);
+    }
+
     public function fileExists(ActivityReportExportFormat $format): bool
     {
         return Storage::disk(config('activity.reports.disk'))->exists($format->pathFor($this));

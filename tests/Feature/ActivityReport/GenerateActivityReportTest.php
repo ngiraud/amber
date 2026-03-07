@@ -13,7 +13,7 @@ use App\Data\ActivityReportData;
 use App\Data\DayContext;
 use App\Enums\ActivityReportExportFormat;
 use App\Enums\ActivityReportStatus;
-use App\Exceptions\ActivityReportAlreadyFinalizedException;
+use App\Exceptions\ActivityReportCannotBeModifiedException;
 use App\Jobs\GenerateActivityReportJob;
 use App\Models\ActivityReport;
 use App\Models\Client;
@@ -109,9 +109,24 @@ describe('GenerateActivityReport action', function () {
         $this->assertDatabaseCount('activity_reports', 1);
     });
 
-    it('throws exception for finalized reports', function () {
+    it('replaces an existing finalized report', function () {
         $client = Client::factory()->create();
-        ActivityReport::factory()->finalized()->create([
+        $existing = ActivityReport::factory()->finalized()->create([
+            'client_id' => $client->id,
+            'month' => 3,
+            'year' => 2026,
+        ]);
+
+        $data = new ActivityReportData(clientId: $client->id, month: 3, year: 2026);
+        GenerateActivityReport::make()->handle($data);
+
+        $this->assertDatabaseMissing('activity_reports', ['id' => $existing->id]);
+        $this->assertDatabaseCount('activity_reports', 1);
+    });
+
+    it('throws exception when a generation is already in progress', function () {
+        $client = Client::factory()->create();
+        ActivityReport::factory()->generating()->create([
             'client_id' => $client->id,
             'month' => 3,
             'year' => 2026,
@@ -120,10 +135,10 @@ describe('GenerateActivityReport action', function () {
         $data = new ActivityReportData(clientId: $client->id, month: 3, year: 2026);
 
         expect(fn () => GenerateActivityReport::make()->handle($data))
-            ->toThrow(ActivityReportAlreadyFinalizedException::class);
+            ->toThrow(ActivityReportCannotBeModifiedException::class);
     });
 
-    it('throws exception for sent reports', function () {
+    it('throws exception when report has been sent', function () {
         $client = Client::factory()->create();
         ActivityReport::factory()->sent()->create([
             'client_id' => $client->id,
@@ -134,7 +149,7 @@ describe('GenerateActivityReport action', function () {
         $data = new ActivityReportData(clientId: $client->id, month: 3, year: 2026);
 
         expect(fn () => GenerateActivityReport::make()->handle($data))
-            ->toThrow(ActivityReportAlreadyFinalizedException::class);
+            ->toThrow(ActivityReportCannotBeModifiedException::class);
     });
 })->group('actions');
 
@@ -274,18 +289,27 @@ describe('DeleteActivityReport action', function () {
         Storage::disk($this->disk)->assertMissing($csvPath);
     });
 
-    it('throws exception when report is finalized', function () {
+    it('allows deleting a finalized report', function () {
+        Storage::fake($this->disk);
         $report = ActivityReport::factory()->finalized()->create();
 
+        DeleteActivityReport::make()->handle($report);
+
+        $this->assertDatabaseMissing('activity_reports', ['id' => $report->id]);
+    });
+
+    it('throws exception when report is generating', function () {
+        $report = ActivityReport::factory()->generating()->create();
+
         expect(fn () => DeleteActivityReport::make()->handle($report))
-            ->toThrow(ActivityReportAlreadyFinalizedException::class);
+            ->toThrow(ActivityReportCannotBeModifiedException::class);
     });
 
     it('throws exception when report is sent', function () {
         $report = ActivityReport::factory()->sent()->create();
 
         expect(fn () => DeleteActivityReport::make()->handle($report))
-            ->toThrow(ActivityReportAlreadyFinalizedException::class);
+            ->toThrow(ActivityReportCannotBeModifiedException::class);
     });
 })->group('actions');
 
@@ -317,18 +341,28 @@ describe('RegenerateActivityReport action', function () {
         Queue::assertPushed(GenerateActivityReportJob::class);
     });
 
-    it('throws exception when report is finalized', function () {
+    it('allows regenerating a finalized report', function () {
+        Queue::fake();
+        Storage::fake($this->disk);
         $report = ActivityReport::factory()->finalized()->create();
 
+        RegenerateActivityReport::make()->handle($report);
+
+        expect($report->fresh()->status)->toBe(ActivityReportStatus::Generating);
+    });
+
+    it('throws exception when report is generating', function () {
+        $report = ActivityReport::factory()->generating()->create();
+
         expect(fn () => RegenerateActivityReport::make()->handle($report))
-            ->toThrow(ActivityReportAlreadyFinalizedException::class);
+            ->toThrow(ActivityReportCannotBeModifiedException::class);
     });
 
     it('throws exception when report is sent', function () {
         $report = ActivityReport::factory()->sent()->create();
 
         expect(fn () => RegenerateActivityReport::make()->handle($report))
-            ->toThrow(ActivityReportAlreadyFinalizedException::class);
+            ->toThrow(ActivityReportCannotBeModifiedException::class);
     });
 })->group('actions');
 

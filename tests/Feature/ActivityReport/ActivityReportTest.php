@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Enums\ActivityReportExportFormat;
+use App\Enums\ActivityReportStatus;
 use App\Models\ActivityReport;
 use Illuminate\Support\Facades\Storage;
 
@@ -11,6 +12,23 @@ pest()->group('activity-report', 'models');
 beforeEach(function () {
     $this->disk = config('activity.reports.disk');
     Storage::fake($this->disk);
+});
+
+describe('canBeDeleted', function () {
+    it('returns true for draft, failed, and finalized reports', function (ActivityReport $report) {
+        expect($report->canBeDeleted())->toBeTrue();
+    })->with([
+        'draft' => fn () => ActivityReport::factory()->draft()->create(),
+        'failed' => fn () => ActivityReport::factory()->failed()->create(),
+        'finalized' => fn () => ActivityReport::factory()->finalized()->create(),
+    ]);
+
+    it('returns false for generating and sent reports', function (ActivityReport $report) {
+        expect($report->canBeDeleted())->toBeFalse();
+    })->with([
+        'generating' => fn () => ActivityReport::factory()->generating()->create(),
+        'sent' => fn () => ActivityReport::factory()->sent()->create(),
+    ]);
 });
 
 describe('fileExists', function () {

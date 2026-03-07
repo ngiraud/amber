@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { router, useForm } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 import { DownloadIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as reportRoutes from '@/routes/reports';
@@ -15,10 +15,7 @@ const props = defineProps<{
     report: ActivityReport;
 }>();
 
-const MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December',
-];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 function formatPeriod(report: ActivityReport): string {
     return `${MONTHS[report.month - 1]} ${report.year}`;
@@ -33,9 +30,9 @@ function formatMinutes(minutes: number): string {
 }
 
 function statusVariant(status: ActivityReport['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
-    if (status.value === 5) return 'outline';
-    if (status.value === 10) return 'secondary';
-    if (status.value === 20) return 'default';
+    if (status.label === 'Generating') return 'outline';
+    if (status.label === 'Draft') return 'secondary';
+    if (status.label === 'Failed') return 'destructive';
     return 'default';
 }
 
@@ -46,21 +43,35 @@ const STEPS: { key: ActivityReportStep; label: string }[] = [
     { key: 'completed', label: 'Done' },
 ];
 
-const currentStep = ref<ActivityReportStep | null>(
-    props.report.status.value === 5 ? 'collecting_context' : null,
-);
+const currentStep = ref<ActivityReportStep | null>(props.report.status.label === 'Generating' ? 'collecting_context' : null);
 
-const deleteForm = useForm({});
-const regenerateForm = useForm({});
+const isDeleting = ref(false);
+const isRegenerating = ref(false);
 
 function handleDelete(): void {
-    deleteForm.delete(reportRoutes.destroy(props.report).url, {
-        onSuccess: () => router.visit(reportRoutes.index().url),
+    router.delete(reportRoutes.destroy(props.report.id), {
+        onStart: () => {
+            isDeleting.value = true;
+        },
+        onFinish: () => {
+            isDeleting.value = false;
+        },
     });
 }
 
 function handleRegenerate(): void {
-    regenerateForm.post(reportRoutes.regenerate(props.report).url);
+    router.post(
+        reportRoutes.regenerate(props.report.id),
+        {},
+        {
+            onStart: () => {
+                isRegenerating.value = true;
+            },
+            onFinish: () => {
+                isRegenerating.value = false;
+            },
+        },
+    );
 }
 
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', (payload) => {
@@ -78,10 +89,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         <template #header>
             <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report)">
                 <template #actions>
-                    <Badge
-                        :variant="statusVariant(report.status)"
-                        :class="report.status.value === 5 ? 'animate-pulse' : ''"
-                    >
+                    <Badge :variant="statusVariant(report.status)" :class="report.status.label === 'Generating' ? 'animate-pulse' : ''">
                         {{ report.status.label }}
                     </Badge>
                 </template>
@@ -89,29 +97,29 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         </template>
 
         <!-- Generating state -->
-        <div v-if="report.status.value === 5" class="flex flex-col gap-6">
+        <div v-if="report.status.label === 'Generating'">
             <Card>
-                <CardContent class="pt-6">
-                    <p class="mb-4 text-sm font-medium">Generating report…</p>
-                    <div class="flex flex-col gap-2">
-                        <div
-                            v-for="step in STEPS"
-                            :key="step.key"
-                            class="flex items-center gap-2 text-sm"
+                <CardHeader>
+                    <CardTitle>Generating report…</CardTitle>
+                </CardHeader>
+                <CardContent class="flex flex-col gap-2">
+                    <div
+                        v-for="step in STEPS"
+                        :key="step.key"
+                        class="flex items-center gap-2 text-sm"
+                        :class="{
+                            'font-medium text-foreground': currentStep === step.key,
+                            'text-muted-foreground': currentStep !== step.key,
+                        }"
+                    >
+                        <span
+                            class="size-2 rounded-full"
                             :class="{
-                                'font-medium text-foreground': currentStep === step.key,
-                                'text-muted-foreground': currentStep !== step.key,
+                                'animate-pulse bg-primary': currentStep === step.key,
+                                'bg-muted': currentStep !== step.key,
                             }"
-                        >
-                            <span
-                                class="size-2 rounded-full"
-                                :class="{
-                                    'animate-pulse bg-primary': currentStep === step.key,
-                                    'bg-muted': currentStep !== step.key,
-                                }"
-                            />
-                            {{ step.label }}
-                        </div>
+                        />
+                        {{ step.label }}
                     </div>
                 </CardContent>
             </Card>
@@ -122,21 +130,27 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
             <!-- Totals -->
             <div class="grid grid-cols-3 gap-4">
                 <Card>
-                    <CardContent class="pt-4">
-                        <p class="text-xs text-muted-foreground">Total time</p>
-                        <p class="mt-1 font-mono text-2xl font-bold">{{ formatMinutes(report.total_minutes) }}</p>
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-medium text-muted-foreground">Total time</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(report.total_minutes) }}</p>
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent class="pt-4">
-                        <p class="text-xs text-muted-foreground">Total days</p>
-                        <p class="mt-1 font-mono text-2xl font-bold">{{ report.total_days }}j</p>
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-medium text-muted-foreground">Total days</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="font-mono text-2xl font-semibold">{{ report.total_days }}</p>
                     </CardContent>
                 </Card>
                 <Card v-if="report.total_amount_ht !== null">
-                    <CardContent class="pt-4">
-                        <p class="text-xs text-muted-foreground">Amount (HT)</p>
-                        <p class="mt-1 font-mono text-2xl font-bold">
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-medium text-muted-foreground">Amount (HT)</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="font-mono text-2xl font-semibold">
                             {{ (report.total_amount_ht / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) }}
                         </p>
                     </CardContent>
@@ -158,11 +172,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                             </tr>
                         </thead>
                         <tbody>
-                            <tr
-                                v-for="line in report.lines"
-                                :key="line.id"
-                                class="border-t transition-colors hover:bg-muted/30"
-                            >
+                            <tr v-for="line in report.lines" :key="line.id" class="border-t transition-colors hover:bg-muted/30">
                                 <td class="px-4 py-2 font-mono text-xs text-muted-foreground">{{ line.date }}</td>
                                 <td class="px-4 py-2">
                                     <div class="flex items-center gap-1.5">
@@ -192,24 +202,24 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
             <!-- Actions -->
             <div class="flex items-center gap-2 border-t pt-4">
                 <Button v-if="report.pdf_path" size="sm" variant="outline" as-child>
-                    <a :href="reportRoutes.exportMethod(report, 'pdf').url">
+                    <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
                         <DownloadIcon class="mr-1.5 size-3.5" />
                         PDF
                     </a>
                 </Button>
                 <Button v-if="report.csv_path" size="sm" variant="outline" as-child>
-                    <a :href="reportRoutes.exportMethod(report, 'csv').url">
+                    <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
                         <DownloadIcon class="mr-1.5 size-3.5" />
                         CSV
                     </a>
                 </Button>
 
                 <div class="ml-auto flex items-center gap-2">
-                    <Button size="sm" variant="outline" :disabled="regenerateForm.processing" @click="handleRegenerate">
+                    <Button size="sm" variant="outline" :disabled="isRegenerating" @click="handleRegenerate">
                         <RefreshCwIcon class="mr-1.5 size-3.5" />
                         Regenerate
                     </Button>
-                    <Button size="sm" variant="destructive" :disabled="deleteForm.processing" @click="handleDelete">
+                    <Button size="sm" variant="destructive" :disabled="isDeleting" @click="handleDelete">
                         <Trash2Icon class="mr-1.5 size-3.5" />
                         Delete
                     </Button>
