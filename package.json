@@ -27,6 +27,8 @@
         "vue-tsc": "^2.2.4"
     },
     "dependencies": {
+        "@fontsource-variable/figtree": "^5.2.10",
+        "@fontsource/space-mono": "^5.2.9",
         "@inertiajs/vue3": "^2.3.7",
         "@tailwindcss/vite": "^4.1.11",
         "@tanstack/vue-table": "^8.21.3",
