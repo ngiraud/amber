@@ -139,8 +139,10 @@ describe('source settings', function () {
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
                 ->component('settings/Sources')
-                ->has('activitySourceSettings')
-                ->has('sourceInfo')
+                ->has('sources')
+                ->has('sources.0.value')
+                ->has('sources.0.fields')
+                ->has('sources.0.config')
             );
     });
 

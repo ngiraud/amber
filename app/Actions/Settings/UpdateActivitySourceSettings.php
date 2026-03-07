@@ -5,10 +5,7 @@ declare(strict_types=1);
 namespace App\Actions\Settings;
 
 use App\Actions\Action;
-use App\Data\ActivitySourceConfigs\ClaudeCodeSourceConfig;
 use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
-use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
-use App\Data\ActivitySourceConfigs\GitSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Services\FileWatcherService;
 use App\Settings\ActivitySourceSettings;
@@ -28,32 +25,10 @@ class UpdateActivitySourceSettings extends Action
 
         $previousFswatch = $this->settings->fswatch;
 
-        if (isset($data['git'])) {
-            $this->settings->git = GitSourceConfig::fromArray(array_merge(
-                $this->settings->git->toArray(),
-                $data['git'],
-            ));
-        }
-
-        if (isset($data['github'])) {
-            $this->settings->github = GitHubSourceConfig::fromArray(array_merge(
-                $this->settings->github->toArray(),
-                $data['github'],
-            ));
-        }
-
-        if (isset($data['claude_code'])) {
-            $this->settings->claude_code = ClaudeCodeSourceConfig::fromArray(array_merge(
-                $this->settings->claude_code->toArray(),
-                $data['claude_code'],
-            ));
-        }
-
-        if (isset($data['fswatch'])) {
-            $this->settings->fswatch = FswatchSourceConfig::fromArray(array_merge(
-                $this->settings->fswatch->toArray(),
-                $data['fswatch'],
-            ));
+        foreach (ActivityEventSourceType::cases() as $type) {
+            if (isset($data[$type->value])) {
+                $this->settings->mergeConfig($type, $data[$type->value]);
+            }
         }
 
         $this->settings->save();
@@ -66,9 +41,9 @@ class UpdateActivitySourceSettings extends Action
      */
     protected function captureEnabledStates(): array
     {
-        return collect(ActivityEventSourceType::cases())
+        return ActivityEventSourceType::collect()
             ->mapWithKeys(fn (ActivityEventSourceType $type) => [
-                $type->settingsKey() => $this->settings->configFor($type)->isEnabled(),
+                $type->value => $this->settings->configFor($type)->isEnabled(),
             ])
             ->all();
     }
@@ -83,9 +58,8 @@ class UpdateActivitySourceSettings extends Action
         $errors = [];
 
         foreach (ActivityEventSourceType::cases() as $type) {
-            $key = $type->settingsKey();
-            $beingEnabled = ($data[$key]['enabled'] ?? null) === true;
-            $wasEnabled = $previousEnabled[$key];
+            $beingEnabled = ($data[$type->value]['enabled'] ?? null) === true;
+            $wasEnabled = $previousEnabled[$type->value];
 
             if (! $beingEnabled) {
                 continue;
@@ -99,7 +73,7 @@ class UpdateActivitySourceSettings extends Action
                 continue;
             }
 
-            $errors["{$key}.enabled"] = $type->requirements();
+            $errors["{$type->value}.enabled"] = $type->requirements();
         }
 
         if (! empty($errors)) {

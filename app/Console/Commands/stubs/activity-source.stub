@@ -1,0 +1,36 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Services\ActivitySources;
+
+use App\Data\ActivityEventData;
+use App\Enums\ActivityEventSourceType;
+use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Contracts\ActivitySource;
+use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
+
+class {{ NameStudly }}ActivitySource implements ActivitySource
+{
+    public function identifier(): ActivityEventSourceType
+    {
+        return ActivityEventSourceType::{{ NameStudly }};
+    }
+
+    public function isAvailable(): bool
+    {
+        // TODO: check if the required tool/CLI is installed
+        return false;
+    }
+
+    /**
+     * @param  Collection<int, ProjectRepository>  $repos
+     * @return Collection<int, ActivityEventData>
+     */
+    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    {
+        // TODO: implement scan logic
+        return collect();
+    }
+}
