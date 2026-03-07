@@ -37,6 +37,38 @@ enum ActivityEventType: string
         };
     }
 
+    /**
+     * @param  array<string, mixed>  $metadata
+     * @return array{label: ?string, detail: ?string}
+     */
+    public function toContextParts(array $metadata): array
+    {
+        return match ($this) {
+            self::GitCommit => [
+                'label' => $metadata['message'] ?? null,
+                'detail' => $this->parseDetailsFromMetadata($metadata),
+            ],
+            self::GitBranchSwitch => [
+                'label' => $metadata['to_branch'] ?? null,
+                'detail' => null,
+            ],
+            self::GitPrOpened, self::GitPrMerged => [
+                'label' => isset($metadata['number'], $metadata['title'])
+                    ? sprintf('PR #%s: %s', $metadata['number'], $metadata['title'])
+                    : null,
+                'detail' => null,
+            ],
+            self::ClaudeUserPrompt => [
+                'label' => null,
+                'detail' => mb_substr($metadata['prompt'] ?? '', 0, 80),
+            ],
+            default => [
+                'label' => null,
+                'detail' => null,
+            ],
+        };
+    }
+
     public function parseDetailsFromMetadata(array $metadata): string
     {
         return match ($this) {

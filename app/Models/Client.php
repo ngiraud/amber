@@ -29,6 +29,14 @@ class Client extends Model
         return $this->through('projects')->has('activityEvents');
     }
 
+    /**
+     * @return HasMany<ActivityReport, $this>
+     */
+    public function activityReports(): HasMany
+    {
+        return $this->hasMany(ActivityReport::class);
+    }
+
     protected function casts(): array
     {
         return [

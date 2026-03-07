@@ -174,3 +174,54 @@ export type ActivitySourceSettings = {
 };
 
 export type LocaleOption = { value: string; label: string };
+
+export type ActivityReportStatus = {
+    value: number;
+    label: string;
+};
+
+export type ActivityReportStep =
+    | 'collecting_context'
+    | 'building_lines'
+    | 'generating_files'
+    | 'completed'
+    | 'failed';
+
+export type ActivityReportLine = {
+    id: string;
+    activity_report_id: string;
+    project_id: string;
+    date: string;
+    minutes: number;
+    days: number;
+    description: string | null;
+    created_at: string;
+    updated_at: string;
+    project?: Project;
+};
+
+export type ActivityReport = {
+    id: string;
+    client_id: string;
+    month: number;
+    year: number;
+    status: ActivityReportStatus;
+    total_minutes: number;
+    total_days: number;
+    total_amount_ht: number | null;
+    generated_at: string | null;
+    pdf_path: string | null;
+    csv_path: string | null;
+    notes: string | null;
+    created_at: string;
+    updated_at: string;
+    client?: Client;
+    lines?: ActivityReportLine[];
+    lines_count?: number;
+};
+
+export type ActivityReportProgressPayload = {
+    reportId: string;
+    step: ActivityReportStep;
+    message?: string | null;
+};

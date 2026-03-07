@@ -3,10 +3,13 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\ActivityEventController;
+use App\Http\Controllers\ActivityReportController;
+use App\Http\Controllers\ActivityReportExportController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
+use App\Http\Controllers\RegenerateActivityReportController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SessionTimerController;
 use App\Http\Controllers\Settings\ActivitySettingsController;
@@ -55,6 +58,14 @@ Route::delete('/sessions/{session}', [SessionController::class, 'destroy'])->nam
 // Timeline
 Route::get('/timeline/{date}', [TimelineController::class, 'show'])->name('timeline.show');
 Route::get('/timeline', [TimelineController::class, 'index'])->name('timeline.index');
+
+// Reports
+Route::get('/reports', [ActivityReportController::class, 'index'])->name('reports.index');
+Route::post('/reports', [ActivityReportController::class, 'store'])->name('reports.store');
+Route::get('/reports/{report}', [ActivityReportController::class, 'show'])->name('reports.show');
+Route::delete('/reports/{report}', [ActivityReportController::class, 'destroy'])->name('reports.destroy');
+Route::post('/reports/{report}/regenerate', RegenerateActivityReportController::class)->name('reports.regenerate');
+Route::get('/reports/{report}/{format}', ActivityReportExportController::class)->name('reports.export');
 
 // Settings
 Route::redirect('/settings', '/settings/general')->name('settings.index');
