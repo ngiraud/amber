@@ -9,30 +9,22 @@ use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class ReconstructDailySessionsRequest extends FormRequest
+class ReconstructFromDateRequest extends FormRequest
 {
     /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, array<mixed>>
      */
     public function rules(): array
     {
         return [
-            'date' => ['nullable', 'date', 'before:tomorrow'],
+            'from_date' => ['required', 'date', 'before:tomorrow'],
             'mode' => ['nullable', Rule::enum(SessionReconstructMode::class)],
         ];
     }
 
-    public function getDate(): CarbonImmutable
+    public function getFromDate(): CarbonImmutable
     {
-        $date = $this->validated('date');
-
-        if (is_null($date)) {
-            return CarbonImmutable::today();
-        }
-
-        return CarbonImmutable::parse($date);
+        return CarbonImmutable::parse($this->validated('from_date'));
     }
 
     public function getMode(): SessionReconstructMode

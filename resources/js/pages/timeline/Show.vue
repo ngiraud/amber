@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
+import ReconstructDialog from '@/components/ReconstructDialog.vue';
+import ReconstructFromDateDialog from '@/components/ReconstructFromDateDialog.vue';
 import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
 import { Button } from '@/components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
@@ -20,6 +23,8 @@ const props = defineProps<{
     total_minutes: number;
     projects: Project[];
 }>();
+
+const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null>(null);
 
 const dateLabel = computed(() => {
     const d = new Date(props.date + 'T00:00:00');
@@ -38,16 +43,6 @@ function navigate(direction: -1 | 1): void {
     const date = direction === -1 ? props.previous_date : props.next_date;
     router.get(timelineRoutes.show({ date }).url);
 }
-
-function reconstruct(): void {
-    router.post(
-        sessionRoutes.reconstruct().url,
-        { date: props.date },
-        {
-            preserveScroll: true,
-        },
-    );
-}
 </script>
 
 <template>
@@ -56,10 +51,27 @@ function reconstruct(): void {
             <PageHeader :title="dateLabel">
                 <template #actions>
                     <div class="flex items-center gap-2">
-                        <Button variant="outline" size="sm" @click="reconstruct">
-                            <RefreshCwIcon class="mr-1.5 size-3.5" />
-                            Reconstruct
-                        </Button>
+                        <div class="flex">
+                            <ReconstructDialog :date="date" :has-sessions="sessions.length > 0">
+                                <template #default="{ handleClick }">
+                                    <Button variant="outline" size="sm" class="rounded-r-none" @click="handleClick">
+                                        <RefreshCwIcon class="mr-1.5 size-3.5" />
+                                        Reconstruct
+                                    </Button>
+                                </template>
+                            </ReconstructDialog>
+
+                            <DropdownMenu>
+                                <DropdownMenuTrigger as-child>
+                                    <Button variant="outline" size="sm" class="rounded-l-none border-l-0 px-1.5">
+                                        <ChevronDownIcon class="size-3.5" />
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem @click="fromDateDialog?.show()"> Reconstruct since a date </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
 
                         <StartSessionDialog :projects="projects">
                             <Button size="sm">Add Session</Button>
@@ -81,10 +93,15 @@ function reconstruct(): void {
             <EmptyDescription>Add a manual session or reconstruct from activity.</EmptyDescription>
 
             <div class="flex gap-4">
-                <Button variant="outline" size="sm" @click="reconstruct">
-                    <RefreshCwIcon class="mr-1.5 size-3.5" />
-                    Reconstruct
-                </Button>
+                <ReconstructDialog :date="date" :has-sessions="false">
+                    <template #default="{ handleClick }">
+                        <Button variant="outline" size="sm" @click="handleClick">
+                            <RefreshCwIcon class="mr-1.5 size-3.5" />
+                            Reconstruct
+                        </Button>
+                    </template>
+                </ReconstructDialog>
+
                 <StartSessionDialog :projects="projects">
                     <Button size="sm">Add Session</Button>
                 </StartSessionDialog>
@@ -106,5 +123,7 @@ function reconstruct(): void {
                 </p>
             </div>
         </div>
+
+        <ReconstructFromDateDialog ref="fromDateDialog" />
     </AppLayout>
 </template>
