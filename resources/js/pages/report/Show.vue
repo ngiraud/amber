@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { DownloadIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
+import { DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as reportRoutes from '@/routes/reports';
@@ -92,6 +94,37 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                     <Badge :variant="statusVariant(report.status)" :class="report.status.label === 'Generating' ? 'animate-pulse' : ''">
                         {{ report.status.label }}
                     </Badge>
+                    <DropdownMenu v-if="report.status.label !== 'Generating'">
+                        <DropdownMenuTrigger as-child>
+                            <Button size="sm" variant="outline">
+                                <EllipsisIcon class="size-3.5" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem v-if="report.pdf_path" as-child>
+                                <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
+                                    <DownloadIcon />
+                                    Download PDF
+                                </a>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem v-if="report.csv_path" as-child>
+                                <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
+                                    <DownloadIcon />
+                                    Download CSV
+                                </a>
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator v-if="report.pdf_path || report.csv_path" />
+                            <DropdownMenuItem :disabled="isRegenerating" @click="handleRegenerate">
+                                <RefreshCwIcon />
+                                Regenerate
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem variant="destructive" :disabled="isDeleting" @click="handleDelete">
+                                <Trash2Icon />
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </template>
             </PageHeader>
         </template>
@@ -126,9 +159,9 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         </div>
 
         <!-- Draft / ready state -->
-        <div v-else class="flex flex-col gap-6">
+        <div v-else class="flex min-h-0 flex-1 flex-col gap-6">
             <!-- Totals -->
-            <div class="grid grid-cols-3 gap-4">
+            <div class="grid shrink-0 grid-cols-3 gap-4">
                 <Card>
                     <CardHeader class="pb-2">
                         <CardTitle class="text-sm font-medium text-muted-foreground">Total time</CardTitle>
@@ -157,24 +190,30 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 </Card>
             </div>
 
+            <!-- Notes -->
+            <div v-if="report.notes" class="shrink-0">
+                <h2 class="mb-1 text-sm font-semibold">Notes</h2>
+                <p class="text-sm text-muted-foreground">{{ report.notes }}</p>
+            </div>
+
             <!-- Lines table -->
-            <div v-if="report.lines && report.lines.length > 0">
-                <h2 class="mb-3 text-base font-semibold">Activity lines</h2>
-                <div class="overflow-hidden rounded-lg border">
-                    <table class="w-full text-sm">
-                        <thead class="bg-muted/50">
-                            <tr>
-                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">Date</th>
-                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">Project</th>
-                                <th class="px-4 py-2 text-right font-medium text-muted-foreground">Hours</th>
-                                <th class="px-4 py-2 text-right font-medium text-muted-foreground">Days</th>
-                                <th class="px-4 py-2 text-left font-medium text-muted-foreground">Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="line in report.lines" :key="line.id" class="border-t transition-colors hover:bg-muted/30">
-                                <td class="px-4 py-2 font-mono text-xs text-muted-foreground">{{ line.date }}</td>
-                                <td class="px-4 py-2">
+            <div v-if="report.lines && report.lines.length > 0" class="flex min-h-0 flex-1 flex-col">
+                <h2 class="mb-3 shrink-0 text-base font-semibold">Activity lines</h2>
+                <div class="min-h-0 flex-1 overflow-hidden rounded-lg border [&>[data-slot=table-container]]:h-full">
+                    <Table>
+                        <TableHeader class="sticky top-0 z-10 rounded-lg border bg-muted/50 backdrop-blur-sm">
+                            <TableRow>
+                                <TableHead class="w-[100px]">Date</TableHead>
+                                <TableHead>Project</TableHead>
+                                <TableHead class="text-right">Hours</TableHead>
+                                <TableHead class="text-right">Days</TableHead>
+                                <TableHead>Description</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            <TableRow v-for="line in report.lines" :key="line.id">
+                                <TableCell class="font-mono font-medium">{{ line.date }}</TableCell>
+                                <TableCell>
                                     <div class="flex items-center gap-1.5">
                                         <span
                                             v-if="line.project?.color"
@@ -183,46 +222,13 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                                         />
                                         {{ line.project?.name ?? '—' }}
                                     </div>
-                                </td>
-                                <td class="px-4 py-2 text-right font-mono">{{ (line.minutes / 60).toFixed(2) }}</td>
-                                <td class="px-4 py-2 text-right font-mono">{{ line.days.toFixed(2) }}</td>
-                                <td class="px-4 py-2 text-xs text-muted-foreground">{{ line.description ?? '—' }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Notes -->
-            <div v-if="report.notes">
-                <h2 class="mb-1 text-sm font-semibold">Notes</h2>
-                <p class="text-sm text-muted-foreground">{{ report.notes }}</p>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex items-center gap-2 border-t pt-4">
-                <Button v-if="report.pdf_path" size="sm" variant="outline" as-child>
-                    <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
-                        <DownloadIcon class="mr-1.5 size-3.5" />
-                        PDF
-                    </a>
-                </Button>
-                <Button v-if="report.csv_path" size="sm" variant="outline" as-child>
-                    <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
-                        <DownloadIcon class="mr-1.5 size-3.5" />
-                        CSV
-                    </a>
-                </Button>
-
-                <div class="ml-auto flex items-center gap-2">
-                    <Button size="sm" variant="outline" :disabled="isRegenerating" @click="handleRegenerate">
-                        <RefreshCwIcon class="mr-1.5 size-3.5" />
-                        Regenerate
-                    </Button>
-                    <Button size="sm" variant="destructive" :disabled="isDeleting" @click="handleDelete">
-                        <Trash2Icon class="mr-1.5 size-3.5" />
-                        Delete
-                    </Button>
+                                </TableCell>
+                                <TableCell class="text-right font-mono">{{ (line.minutes / 60).toFixed(2) }}</TableCell>
+                                <TableCell class="text-right font-mono">{{ line.days.toFixed(2) }}</TableCell>
+                                <TableCell class="whitespace-normal">{{ line.description ?? '—' }}</TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
         </div>
