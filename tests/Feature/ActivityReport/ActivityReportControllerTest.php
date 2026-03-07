@@ -11,7 +11,9 @@ pest()->group('activity-report', 'controllers');
 describe('index', function () {
     it('renders the index page with reports and clients', function () {
         $clients = Client::factory()->count(2)->create();
-        ActivityReport::factory()->count(3)->create(['client_id' => $clients->first()->id]);
+        ActivityReport::factory()->create(['client_id' => $clients->first()->id, 'month' => 1, 'year' => 2026]);
+        ActivityReport::factory()->create(['client_id' => $clients->first()->id, 'month' => 2, 'year' => 2026]);
+        ActivityReport::factory()->create(['client_id' => $clients->first()->id, 'month' => 3, 'year' => 2026]);
 
         $this->get(route('reports.index'))
             ->assertSuccessful()

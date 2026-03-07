@@ -25,6 +25,7 @@ class MenuBarService
 
         MenuBar::create()
             ->showDockIcon()
+            ->showOnAllWorkspaces()
             ->icon($this->resolveIcon($active))
             ->label($active !== null ? $this->formatElapsed($active) : '')
             ->tooltip('Activity Tracker')

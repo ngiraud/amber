@@ -23,11 +23,7 @@ function handleClick(): void {
 
 function submit(mode: 'gaps' | 'replace'): void {
     open.value = false;
-    router.post(
-        sessionRoutes.reconstruct().url,
-        { date: props.date, mode },
-        { preserveScroll: true },
-    );
+    router.post(sessionRoutes.reconstruct().url, { date: props.date, mode }, { preserveScroll: true });
 }
 </script>
 
@@ -38,16 +34,11 @@ function submit(mode: 'gaps' | 'replace'): void {
         <DialogContent class="sm:max-w-md" :show-close-button="false">
             <DialogHeader>
                 <DialogTitle>Reconstruct sessions</DialogTitle>
-                <DialogDescription>
-                    There are existing sessions for this day. How would you like to reconstruct?
-                </DialogDescription>
+                <DialogDescription> There are existing sessions for this day. How would you like to reconstruct? </DialogDescription>
             </DialogHeader>
 
             <div class="flex flex-col gap-3 pt-2">
-                <button
-                    class="flex items-start gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
-                    @click="submit('gaps')"
-                >
+                <button class="flex items-start gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50" @click="submit('gaps')">
                     <PlusIcon class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                     <div>
                         <p class="text-sm font-medium">Fill gaps</p>
@@ -55,10 +46,7 @@ function submit(mode: 'gaps' | 'replace'): void {
                     </div>
                 </button>
 
-                <button
-                    class="flex items-start gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
-                    @click="submit('replace')"
-                >
+                <button class="flex items-start gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50" @click="submit('replace')">
                     <RefreshCwIcon class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
                     <div>
                         <p class="text-sm font-medium">Rebuild auto sessions</p>
