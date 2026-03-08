@@ -18,7 +18,7 @@ const emits = defineEmits<{
     <SwitchRoot
         v-slot="slotProps"
         data-slot="switch"
-        :checked="modelValue"
+        :model-value="modelValue"
         :disabled="disabled"
         :class="
             cn(
@@ -26,7 +26,7 @@ const emits = defineEmits<{
                 props.class,
             )
         "
-        @update:checked="emits('update:modelValue', $event)"
+        @update:model-value="emits('update:modelValue', $event)"
     >
         <SwitchThumb
             data-slot="switch-thumb"

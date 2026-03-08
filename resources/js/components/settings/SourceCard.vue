@@ -142,7 +142,7 @@ function setFieldValue(field: SourceFieldDefinition, value: unknown): void {
             <CardTitle class="text-base font-semibold">{{ source.label }}</CardTitle>
             <CardDescription>{{ source.description }}</CardDescription>
             <CardAction class="self-center">
-                <Switch :model-value="form.enabled" @update:model-value="onToggle" />
+                <Switch v-model="form.enabled" @update:model-value="onToggle" />
             </CardAction>
         </CardHeader>
 

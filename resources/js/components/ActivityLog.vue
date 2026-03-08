@@ -71,14 +71,14 @@ function refresh(): void {
 </script>
 
 <template>
-    <div ref="scrollContainer" :class="cn('relative rounded-md bg-zinc-950 p-3 font-mono text-xs dark:bg-zinc-800', scrollClass)">
+    <div ref="scrollContainer" :class="cn('relative rounded-md bg-olive-900 p-3 font-mono text-xs dark:bg-olive-900', scrollClass)">
         <Transition name="banner">
-            <div v-if="hasNewEvents" class="sticky top-0 mb-2 flex items-center justify-between rounded bg-zinc-800 px-3 py-1.5 dark:bg-zinc-700">
-                <span class="text-zinc-300">New events available</span>
+            <div v-if="hasNewEvents" class="sticky top-0 mb-2 flex items-center justify-between rounded bg-olive-800 px-3 py-1.5 dark:bg-olive-800">
+                <span class="text-olive-300">New events available</span>
                 <Button
                     variant="outline"
                     size="sm"
-                    class="h-auto gap-1.5 border-zinc-600 bg-transparent px-2.5 py-1 text-xs text-zinc-300 hover:border-zinc-500 hover:bg-zinc-700 hover:text-zinc-100 dark:border-zinc-500 dark:bg-transparent dark:hover:border-zinc-400 dark:hover:bg-zinc-600"
+                    class="h-auto gap-1.5 border-olive-600 bg-transparent px-2.5 py-1 text-xs text-olive-300 hover:border-olive-500 hover:bg-olive-700 hover:text-olive-100 dark:border-olive-500 dark:bg-transparent dark:hover:border-olive-400 dark:hover:bg-olive-600"
                     @click="refresh"
                 >
                     <span>Refresh</span>
@@ -87,31 +87,29 @@ function refresh(): void {
             </div>
         </Transition>
 
-        <InfiniteScroll :data="propName" :preserve-url="preserveUrl" :buffer="200">
+        <InfiniteScroll :data="propName" :preserve-url="preserveUrl" :buffer="800">
             <template #loading>Loading activity events</template>
 
-            <TransitionGroup name="log-entry" tag="div">
-                <div v-for="event in events.data" :key="event.id" class="flex items-baseline gap-3 py-0.5 leading-relaxed">
-                    <span class="shrink-0 text-zinc-500">[{{ formatDateTimeISO(event.occurred_at) }}]</span>
-                    <span :class="cn('w-20 shrink-0 truncate', event.source_type.color)">{{ event.source_type.label }}</span>
-                    <span :class="cn('w-30 shrink-0 truncate', event.source_type.color)">{{ event.type.label }}</span>
-                    <Tooltip :open="openTooltipId === event.id">
-                        <TooltipTrigger as-child>
-                            <span
-                                class="min-w-0 truncate text-zinc-300"
-                                @mouseenter="onDetailMouseEnter($event, event.id)"
-                                @mouseleave="onDetailMouseLeave"
-                            >
-                                {{ event.detail }}
-                            </span>
-                        </TooltipTrigger>
-                        <TooltipContent align="start">{{ event.detail }}</TooltipContent>
-                    </Tooltip>
-                    <span class="ml-auto shrink-0 text-zinc-500">{{ event.project_name }} ({{ event.repository_name }})</span>
-                </div>
-            </TransitionGroup>
+            <div v-for="event in events.data" :key="event.id" class="flex items-baseline gap-3 py-0.5 leading-relaxed">
+                <span class="shrink-0 text-olive-500">[{{ formatDateTimeISO(event.occurred_at) }}]</span>
+                <span :class="cn('w-20 shrink-0 truncate', event.source_type.color)">{{ event.source_type.label }}</span>
+                <span :class="cn('w-30 shrink-0 truncate', event.source_type.color)">{{ event.type.label }}</span>
+                <Tooltip :open="openTooltipId === event.id">
+                    <TooltipTrigger as-child>
+                        <span
+                            class="min-w-0 truncate text-olive-300"
+                            @mouseenter="onDetailMouseEnter($event, event.id)"
+                            @mouseleave="onDetailMouseLeave"
+                        >
+                            {{ event.detail }}
+                        </span>
+                    </TooltipTrigger>
+                    <TooltipContent align="start">{{ event.detail }}</TooltipContent>
+                </Tooltip>
+                <span class="ml-auto shrink-0 text-olive-500">{{ event.project_name }} ({{ event.repository_name }})</span>
+            </div>
 
-            <p v-if="events?.data?.length === 0" class="py-2 text-zinc-500">No activity recorded yet.</p>
+            <p v-if="events?.data?.length === 0" class="py-2 text-olive-500">No activity recorded yet.</p>
         </InfiniteScroll>
     </div>
 </template>
