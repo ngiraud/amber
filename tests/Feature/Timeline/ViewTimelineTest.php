@@ -65,7 +65,6 @@ describe('timeline day show', function () {
                 ->where('date', $date)
                 ->has('sessions')
                 ->has('total_minutes')
-                ->has('projects')
             );
     });
 

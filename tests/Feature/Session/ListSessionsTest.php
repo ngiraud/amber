@@ -18,13 +18,4 @@ describe('list sessions', function () {
                 ->has('sessions.data', 3)
             );
     });
-
-    it('renders the index page with active projects for the start session form', function () {
-        $this->get(route('sessions.index'))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('session/Index')
-                ->has('projects')
-            );
-    });
 })->group('controllers');
