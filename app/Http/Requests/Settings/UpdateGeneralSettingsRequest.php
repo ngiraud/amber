@@ -27,6 +27,7 @@ class UpdateGeneralSettingsRequest extends FormRequest
             'timezone' => ['required', 'string', Rule::in(timezone_identifiers_list())],
             'locale' => ['required', Rule::enum(AvailableLocale::class)],
             'theme' => ['required', Rule::enum(SystemThemesEnum::class)],
+            'open_at_login' => ['required', 'boolean'],
         ];
     }
 }

@@ -136,6 +136,7 @@ export type GeneralSettings = {
     timezone: string | null;
     locale: string | null;
     theme: string;
+    open_at_login: boolean;
 };
 
 export type ActivitySettings = {

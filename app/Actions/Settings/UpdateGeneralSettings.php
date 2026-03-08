@@ -9,6 +9,7 @@ use App\Enums\AvailableLocale;
 use App\Enums\RoundingStrategy;
 use App\Settings\GeneralSettings;
 use Native\Desktop\Enums\SystemThemesEnum;
+use Native\Desktop\Facades\App;
 use Native\Desktop\Facades\System;
 
 class UpdateGeneralSettings extends Action
@@ -46,8 +47,13 @@ class UpdateGeneralSettings extends Action
             $this->settings->theme = SystemThemesEnum::from($data['theme']);
         }
 
+        if (isset($data['open_at_login'])) {
+            $this->settings->open_at_login = (bool) $data['open_at_login'];
+        }
+
         $this->settings->save();
 
         System::theme($this->settings->theme);
+        App::openAtLogin($this->settings->open_at_login);
     }
 }

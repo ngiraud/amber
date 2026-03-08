@@ -29,6 +29,8 @@ class GeneralSettings extends Settings
 
     public SystemThemesEnum $theme;
 
+    public bool $open_at_login;
+
     public static function group(): string
     {
         return 'general';

@@ -8,6 +8,7 @@ use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use App\Settings\GeneralSettings;
 use Native\Desktop\Contracts\ProvidesPhpIni;
+use Native\Desktop\Facades\App;
 use Native\Desktop\Facades\Menu;
 use Native\Desktop\Facades\System;
 use Native\Desktop\Facades\Window;
@@ -30,7 +31,10 @@ class NativeAppServiceProvider implements ProvidesPhpIni
             ->minHeight(600)
             ->rememberState();
 
-        System::theme(app(GeneralSettings::class)->theme);
+        $settings = app(GeneralSettings::class);
+
+        System::theme($settings->theme);
+        App::openAtLogin($settings->open_at_login);
 
         Menu::create(
             Menu::app(),
