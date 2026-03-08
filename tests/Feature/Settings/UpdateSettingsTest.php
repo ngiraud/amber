@@ -46,6 +46,7 @@ describe('general settings', function () {
             'timezone' => 'Europe/Paris',
             'locale' => 'fr',
             'theme' => 'system',
+            'open_at_login' => false,
         ])->assertRedirectToRoute('settings.general');
     });
 
@@ -67,6 +68,7 @@ describe('general settings', function () {
             'timezone' => 'Europe/Paris',
             'locale' => 'fr',
             'theme' => 'system',
+            'open_at_login' => false,
         ])->assertRedirectToRoute('settings.general');
     });
 
@@ -88,6 +90,22 @@ describe('UpdateGeneralSettings action', function () {
         $settings = app(GeneralSettings::class);
         expect($settings->company_name)->toBe('Acme Corp')
             ->and($settings->default_daily_reference_hours)->toBe(7);
+    });
+
+    it('persists open_at_login and applies it', function () {
+        Http::fake([
+            '*/system/theme' => Http::response(['result' => 'system']),
+            '*/app/open-at-login' => Http::response([]),
+        ]);
+
+        UpdateGeneralSettings::make()->handle([
+            'open_at_login' => true,
+        ]);
+
+        expect(app(GeneralSettings::class)->open_at_login)->toBeTrue();
+        Http::assertSent(fn ($request) => str_contains($request->url(), 'app/open-at-login')
+            && $request->data()['open'] === true
+        );
     });
 })->group('actions');
 
