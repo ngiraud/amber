@@ -225,7 +225,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 <div class="min-h-0 flex-1 overflow-hidden rounded-lg border [&>[data-slot=table-container]]:h-full">
                     <Table>
                         <TableHeader class="sticky top-0 z-10 rounded-lg border bg-muted/50 backdrop-blur-sm">
-                            <TableRow>
+                            <TableRow class="bg-muted/50">
                                 <TableHead class="w-[100px]">Date</TableHead>
                                 <TableHead>Project</TableHead>
                                 <TableHead class="text-right">Hours</TableHead>
