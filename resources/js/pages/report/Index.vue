@@ -67,18 +67,18 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 v-for="report in reports.data"
                 :key="report.id"
                 :href="reportRoutes.show(report)"
-                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent"
+                class="group flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
                 <div class="flex items-center gap-3">
                     <FileTextIcon class="size-4 shrink-0 text-muted-foreground" />
                     <div>
                         <p class="text-sm font-medium">{{ report.client?.name }}</p>
-                        <p class="mt-0.5 text-xs text-muted-foreground">{{ formatPeriod(report) }}</p>
+                        <p class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">{{ formatPeriod(report) }}</p>
                     </div>
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <span v-if="report.status.value !== 5" class="text-xs text-muted-foreground">
+                    <span v-if="report.status.value !== 5" class="text-xs text-muted-foreground group-hover:text-accent-foreground/70">
                         {{ formatMinutes(report.total_minutes) }} · {{ report.total_days }}j
                     </span>
                     <Badge :variant="statusVariant(report.status)" :class="report.status.value === 5 ? 'animate-pulse' : ''">

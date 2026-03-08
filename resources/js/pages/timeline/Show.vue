@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -7,6 +7,7 @@ import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import ReconstructFromDateDialog from '@/components/ReconstructFromDateDialog.vue';
 import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TimeEntryRow from '@/components/TimeEntryRow.vue';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
@@ -49,6 +50,21 @@ function navigate(direction: -1 | 1): void {
     <AppLayout :title="dateLabel">
         <template #header>
             <PageHeader :title="dateLabel">
+                <template #breadcrumb>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as-child>
+                                    <Link :href="timelineRoutes.index().url">Timeline</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>{{ dateLabel }}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </template>
                 <template #actions>
                     <div class="flex items-center gap-2">
                         <div class="flex">

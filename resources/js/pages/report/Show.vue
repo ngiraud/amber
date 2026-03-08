@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -90,6 +91,21 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
     <AppLayout :title="`Report — ${formatPeriod(report)}`">
         <template #header>
             <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report)">
+                <template #breadcrumb>
+                    <Breadcrumb>
+                        <BreadcrumbList>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as-child>
+                                    <Link :href="reportRoutes.index().url">Reports</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
+                            <BreadcrumbItem>
+                                <BreadcrumbPage>{{ (report.client?.name ?? '') + ' — ' + formatPeriod(report) }}</BreadcrumbPage>
+                            </BreadcrumbItem>
+                        </BreadcrumbList>
+                    </Breadcrumb>
+                </template>
                 <template #actions>
                     <Badge :variant="statusVariant(report.status)" :class="report.status.label === 'Generating' ? 'animate-pulse' : ''">
                         {{ report.status.label }}
