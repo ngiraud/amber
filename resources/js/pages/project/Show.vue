@@ -41,7 +41,7 @@ function removeRepo(): void {
 </script>
 
 <template>
-    <AppLayout :title="project.name">
+    <AppLayout :title="project.name" :breadcrumb="['Clients', client.name, project.name]">
         <template #header>
             <PageHeader>
                 <template #breadcrumb>

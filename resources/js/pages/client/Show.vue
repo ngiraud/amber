@@ -26,7 +26,7 @@ const confirmDelete = ref(false);
 </script>
 
 <template>
-    <AppLayout :title="client.name">
+    <AppLayout :title="client.name" :breadcrumb="['Clients', client.name]">
         <template #header>
             <PageHeader :title="client.name">
                 <template #breadcrumb>

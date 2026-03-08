@@ -23,6 +23,7 @@ class NativeAppServiceProvider implements ProvidesPhpIni
     public function boot(): void
     {
         Window::open()
+            ->titleBarHiddenInset()
             ->webPreferences([
                 'devTools' => false,
             ])

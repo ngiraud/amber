@@ -47,7 +47,7 @@ function navigate(direction: -1 | 1): void {
 </script>
 
 <template>
-    <AppLayout :title="dateLabel">
+    <AppLayout :title="dateLabel" :breadcrumb="['Timeline', dateLabel]">
         <template #header>
             <PageHeader :title="dateLabel">
                 <template #breadcrumb>

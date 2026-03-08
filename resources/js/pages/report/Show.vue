@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as reportRoutes from '@/routes/reports';
+import * as clientRoutes from '@/routes/clients';
 import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStep } from '@/types';
 
 const props = defineProps<{
@@ -88,7 +89,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 </script>
 
 <template>
-    <AppLayout :title="`Report — ${formatPeriod(report)}`">
+    <AppLayout :title="`Report — ${formatPeriod(report)}`" :breadcrumb="['Reports', report.client?.name ?? '', formatPeriod(report)].filter(Boolean)">
         <template #header>
             <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report)">
                 <template #breadcrumb>
@@ -100,8 +101,14 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
+                            <BreadcrumbItem v-if="report.client?.name">
+                                <BreadcrumbLink as-child>
+                                    <Link :href="clientRoutes.show(report.client)">{{ report.client.name }}</Link>
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbSeparator />
                             <BreadcrumbItem>
-                                <BreadcrumbPage>{{ (report.client?.name ?? '') + ' — ' + formatPeriod(report) }}</BreadcrumbPage>
+                                <BreadcrumbPage>{{ formatPeriod(report) }}</BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>
