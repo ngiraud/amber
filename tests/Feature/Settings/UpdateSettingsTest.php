@@ -79,9 +79,14 @@ describe('general settings', function () {
 })->group('controllers');
 
 describe('UpdateGeneralSettings action', function () {
-    it('persists general settings', function () {
-        Http::fake(['*/system/theme' => Http::response(['result' => 'system'])]);
+    beforeEach(function () {
+        Http::fake([
+            '*/system/theme' => Http::response(['result' => 'system']),
+            '*/app/open-at-login' => Http::response([]),
+        ]);
+    });
 
+    it('persists general settings', function () {
         UpdateGeneralSettings::make()->handle([
             'company_name' => 'Acme Corp',
             'default_daily_reference_hours' => 7,
@@ -93,11 +98,6 @@ describe('UpdateGeneralSettings action', function () {
     });
 
     it('persists open_at_login and applies it', function () {
-        Http::fake([
-            '*/system/theme' => Http::response(['result' => 'system']),
-            '*/app/open-at-login' => Http::response([]),
-        ]);
-
         UpdateGeneralSettings::make()->handle([
             'open_at_login' => true,
         ]);
