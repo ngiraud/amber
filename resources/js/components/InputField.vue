@@ -18,14 +18,14 @@ defineProps<{
                 {{ label }}
                 <span v-if="required" class="ml-0.5 text-destructive">*</span>
             </Label>
-            <p v-if="description" class="text-muted-foreground text-xs">{{ description }}</p>
+            <p v-if="description" class="text-xs text-muted-foreground">{{ description }}</p>
         </div>
 
         <slot />
 
         <template v-if="direction !== 'horizontal'">
-            <p v-if="hint && !error" class="text-muted-foreground text-xs">{{ hint }}</p>
-            <p v-if="error" class="text-destructive text-sm">{{ error }}</p>
+            <p v-if="hint && !error" class="text-xs text-muted-foreground">{{ hint }}</p>
+            <p v-if="error" class="text-sm text-destructive">{{ error }}</p>
         </template>
     </div>
 </template>

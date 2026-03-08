@@ -27,7 +27,7 @@ describe('start session controller', function () {
             ->andReturn(Session::factory()->make());
 
         $this->post(route('sessions.start'), ['project_id' => $project->id])
-            ->assertRedirectToRoute('sessions.index');
+            ->assertRedirectBack();
     });
 
     it('validates that project_id is required', function () {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { computed } from 'vue';
 import { ArrowLeftIcon } from 'lucide-vue-next';
+import { computed } from 'vue';
 import ActivityLog from '@/components/ActivityLog.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionTimer from '@/components/SessionTimer.vue';

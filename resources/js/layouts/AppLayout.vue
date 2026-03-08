@@ -2,14 +2,23 @@
 import { Head } from '@inertiajs/vue3';
 import AppSidebar from '@/components/AppSidebar.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
+import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TitleBar from '@/components/TitleBar.vue';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
+import { useNativeEvent } from '@/composables/useNativeEvent';
+import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 
 defineProps<{
     title?: string;
     breadcrumb?: string[];
 }>();
+
+const { shouldOpen } = useOpenSessionDialog();
+
+useNativeEvent('App\\Events\\Native\\OpenStartSessionFromMenu', () => {
+    shouldOpen.value = true;
+});
 </script>
 
 <template>
@@ -31,6 +40,7 @@ defineProps<{
         </SidebarProvider>
     </div>
 
+    <StartSessionDialog />
     <Toaster richColors />
     <FlashMessage />
 </template>

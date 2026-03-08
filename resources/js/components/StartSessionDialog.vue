@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,15 +8,32 @@ import { Label } from '@/components/ui/label';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
+import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import * as sessionRoutes from '@/routes/sessions';
-import type { Project } from '@/types';
 
-defineProps<{
-    projects: Project[];
-}>();
+const page = usePage();
+const activeSession = computed(() => page.props.activeSession);
+const isDisabled = computed(() => !!activeSession.value);
+const projects = computed(() => page.props.projects ?? []);
 
 const open = ref(false);
 const mode = ref<'timer' | 'past'>('timer');
+
+watch(open, (val) => {
+    if (val && projects.value.length === 0) {
+        router.reload({ only: ['projects'] });
+    }
+});
+
+const { shouldOpen } = useOpenSessionDialog();
+watch(shouldOpen, (val) => {
+    if (val) {
+        if (!isDisabled.value) {
+            open.value = true;
+        }
+        shouldOpen.value = false;
+    }
+});
 
 const timerForm = useForm({
     project_id: '',
@@ -53,8 +70,8 @@ function submitPast(): void {
 
 <template>
     <Sheet v-model:open="open">
-        <SheetTrigger as-child>
-            <slot />
+        <SheetTrigger v-if="$slots.default" as-child>
+            <slot :disabled="isDisabled" />
         </SheetTrigger>
 
         <SheetContent side="right" class="w-96">

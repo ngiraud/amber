@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Providers;
 
 use App\Models\Session;
+use App\Services\ApplicationMenuService;
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use App\Settings\GeneralSettings;
 use Native\Desktop\Contracts\ProvidesPhpIni;
 use Native\Desktop\Facades\App;
-use Native\Desktop\Facades\Menu;
 use Native\Desktop\Facades\System;
 use Native\Desktop\Facades\Window;
 
@@ -39,11 +39,7 @@ class NativeAppServiceProvider implements ProvidesPhpIni
         App::openAtLogin($settings->open_at_login);
         App::badgeCount(Session::hasActive() ? 1 : 0);
 
-        Menu::create(
-            Menu::app(),
-            Menu::edit(),
-            Menu::window(),
-        );
+        ApplicationMenuService::make()->build();
 
         MenuBarService::make()->initialize();
 

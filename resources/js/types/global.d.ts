@@ -19,7 +19,7 @@ declare module 'vite/client' {
     }
 }
 
-import type { Session } from './resources';
+import type { Project, Session } from './resources';
 
 declare module '@inertiajs/core' {
     interface InertiaFlashData {
@@ -34,6 +34,7 @@ declare module '@inertiajs/core' {
             display_locale: string;
             theme: string;
             activeSession: Session | null;
+            projects?: Project[];
             [key: string]: unknown;
         };
     }

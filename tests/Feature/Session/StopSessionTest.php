@@ -20,7 +20,7 @@ describe('stop session controller', function () {
             ->andReturn($session);
 
         $this->patch(route('sessions.stop', $session))
-            ->assertRedirectToRoute('sessions.index');
+            ->assertRedirectBack();
     });
 })->group('controllers');
 

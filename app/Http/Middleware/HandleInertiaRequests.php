@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
+use App\Models\Project;
 use App\Models\Session;
 use App\Settings\GeneralSettings;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -49,6 +52,7 @@ class HandleInertiaRequests extends Middleware
             'activeSession' => fn () => ($s = Session::findActive(['project.client']))
                 ? SessionResource::make($s)
                 : null,
+            'projects' => Inertia::optional(fn () => ProjectResource::collection(Project::active()->with('client')->get())),
         ];
     }
 }

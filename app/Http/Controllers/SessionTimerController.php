@@ -24,14 +24,14 @@ class SessionTimerController extends Controller
 
         $action->handle($project, $request->validated('notes'));
 
-        return redirect()->route('sessions.index');
+        return redirect()->back();
     }
 
     public function stop(Session $session, StopSession $action): RedirectResponse
     {
         $action->handle($session);
 
-        return redirect()->route('sessions.index');
+        return redirect()->back();
     }
 
     public function reconstruct(ReconstructDailySessionsRequest $request, ReconstructDailySessions $action): RedirectResponse
