@@ -29,8 +29,8 @@ const ROUNDING_OPTIONS = [
 const form = useForm({
     company_name: props.generalSettings.company_name ?? '',
     company_address: props.generalSettings.company_address ?? '',
-    default_hourly_rate: props.generalSettings.default_hourly_rate ?? null,
-    default_daily_rate: props.generalSettings.default_daily_rate ?? null,
+    default_hourly_rate: props.generalSettings.default_hourly_rate ?? undefined,
+    default_daily_rate: props.generalSettings.default_daily_rate ?? undefined,
     default_daily_reference_hours: props.generalSettings.default_daily_reference_hours ?? 7,
     default_rounding_strategy: props.generalSettings.default_rounding_strategy ?? 15,
     timezone: props.generalSettings.timezone ?? '',
