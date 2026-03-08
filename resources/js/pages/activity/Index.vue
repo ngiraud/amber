@@ -2,12 +2,6 @@
 import ActivityLog from '@/components/ActivityLog.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { ActivityEvent, Paginator } from '@/types';
-
-defineProps<{
-    events: Paginator<ActivityEvent>;
-    hasNewEvents: boolean;
-}>();
 </script>
 
 <template>
@@ -16,6 +10,6 @@ defineProps<{
             <PageHeader title="Activity" />
         </template>
 
-        <ActivityLog :events="events" :has-new-events="hasNewEvents" />
+        <ActivityLog />
     </AppLayout>
 </template>
