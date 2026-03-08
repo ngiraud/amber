@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Models\Session;
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use App\Settings\GeneralSettings;
@@ -35,6 +36,7 @@ class NativeAppServiceProvider implements ProvidesPhpIni
 
         System::theme($settings->theme);
         App::openAtLogin($settings->open_at_login);
+        App::badgeCount(Session::findActive() !== null ? 1 : 0);
 
         Menu::create(
             Menu::app(),
