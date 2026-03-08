@@ -1,3 +1,5 @@
+import type { Appearance } from './ui';
+
 export type Paginator<T> = {
     data: T[];
     current_page: number;
@@ -132,10 +134,10 @@ export type GeneralSettings = {
     default_hourly_rate: number | null;
     default_daily_rate: number | null;
     default_daily_reference_hours: number;
-    default_rounding_strategy: string;
+    default_rounding_strategy: number;
     timezone: string | null;
     locale: string | null;
-    theme: string;
+    theme: Appearance;
     open_at_login: boolean;
 };
 
