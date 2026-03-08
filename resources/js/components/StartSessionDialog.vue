@@ -12,25 +12,27 @@ import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import * as sessionRoutes from '@/routes/sessions';
 
 const page = usePage();
-const activeSession = computed(() => page.props.activeSession);
-const isDisabled = computed(() => !!activeSession.value);
+const activeSession = computed(() => !!page.props.activeSession);
 const projects = computed(() => page.props.projects ?? []);
 
 const open = ref(false);
 const mode = ref<'timer' | 'past'>('timer');
 
 watch(open, (val) => {
-    if (val && projects.value.length === 0) {
-        router.reload({ only: ['projects'] });
+    if (val) {
+        if (activeSession.value) {
+            mode.value = 'past';
+        }
+        if (projects.value.length === 0) {
+            router.reload({ only: ['projects'] });
+        }
     }
 });
 
 const { shouldOpen } = useOpenSessionDialog();
 watch(shouldOpen, (val) => {
     if (val) {
-        if (!isDisabled.value) {
-            open.value = true;
-        }
+        open.value = true;
         shouldOpen.value = false;
     }
 });
@@ -71,7 +73,7 @@ function submitPast(): void {
 <template>
     <Sheet v-model:open="open">
         <SheetTrigger v-if="$slots.default" as-child>
-            <slot :disabled="isDisabled" />
+            <slot />
         </SheetTrigger>
 
         <SheetContent side="right" class="w-96">
@@ -81,7 +83,7 @@ function submitPast(): void {
 
             <Tabs v-model="mode" class="mt-6 px-4">
                 <TabsList class="w-full">
-                    <TabsTrigger value="timer" class="flex-1">Start now</TabsTrigger>
+                    <TabsTrigger value="timer" class="flex-1" :disabled="activeSession">Start now</TabsTrigger>
                     <TabsTrigger value="past" class="flex-1">Past session</TabsTrigger>
                 </TabsList>
 
