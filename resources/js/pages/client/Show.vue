@@ -13,13 +13,11 @@ import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
-import type { ActivityEvent, Client, Paginator } from '@/types';
+import type { Client } from '@/types';
 
 defineProps<{
     client: Client;
     clients: Client[];
-    events: Paginator<ActivityEvent>;
-    hasNewEvents: boolean;
 }>();
 
 const confirmDelete = ref(false);
@@ -115,7 +113,7 @@ const confirmDelete = ref(false);
             <h2 class="shrink-0 text-base font-semibold">Recent Activity</h2>
 
             <div class="mt-3 min-h-0 flex-1">
-                <ActivityLog :events="events" :has-new-events="hasNewEvents" scroll-class="h-full overflow-y-auto" />
+                <ActivityLog />
             </div>
         </div>
     </AppLayout>

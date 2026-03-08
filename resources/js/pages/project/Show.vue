@@ -14,14 +14,12 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
 import repositories from '@/routes/projects/repositories';
-import type { ActivityEvent, Client, Paginator, Project, ProjectRepository } from '@/types';
+import type { Client, Project, ProjectRepository } from '@/types';
 
 const props = defineProps<{
     client: Client;
     project: Project;
     clients: Client[];
-    events?: Paginator<ActivityEvent>;
-    hasNewEvents: boolean;
 }>();
 
 const repoToDelete = ref<ProjectRepository | null>(null);
@@ -159,7 +157,7 @@ function removeRepo(): void {
             <h2 class="shrink-0 text-base font-semibold">Recent Activity</h2>
 
             <div class="mt-3 min-h-0 flex-1">
-                <ActivityLog :events="events" :has-new-events="hasNewEvents" scroll-class="h-full overflow-y-auto" />
+                <ActivityLog />
             </div>
         </div>
     </AppLayout>

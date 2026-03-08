@@ -10,13 +10,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useDateFormat } from '@/composables/useDateFormat';
 import AppLayout from '@/layouts/AppLayout.vue';
-import type { ActivityEvent, Paginator, Session } from '@/types';
+import type { Session } from '@/types';
 
 const props = defineProps<{
     session: Session;
     backUrl: string;
-    events: Paginator<ActivityEvent>;
-    hasNewEvents?: boolean;
 }>();
 
 const { formatDate, formatDateTime } = useDateFormat();
@@ -104,7 +102,7 @@ const sessionBreadcrumb = computed(() => {
             <h2 class="shrink-0 text-base font-semibold">Activity Events</h2>
 
             <div class="mt-3 min-h-0 flex-1">
-                <ActivityLog :events="events" :has-new-events="hasNewEvents ?? false" scroll-class="h-full overflow-y-auto" />
+                <ActivityLog />
             </div>
         </div>
     </AppLayout>
