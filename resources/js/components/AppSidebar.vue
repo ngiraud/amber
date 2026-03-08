@@ -1,14 +1,12 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { ActivityIcon, CalendarDaysIcon, ClockIcon, FileTextIcon, FolderIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
-import AppLogo from '@/components/AppLogo.vue';
 import {
     Sidebar,
     SidebarContent,
     SidebarFooter,
     SidebarGroup,
     SidebarGroupContent,
-    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -27,20 +25,8 @@ const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
 </script>
 
 <template>
-    <Sidebar variant="inset" collapsible="icon">
-        <SidebarHeader>
-            <SidebarMenu>
-                <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child>
-                        <Link :href="home()">
-                            <AppLogo />
-                        </Link>
-                    </SidebarMenuButton>
-                </SidebarMenuItem>
-            </SidebarMenu>
-        </SidebarHeader>
-
-        <SidebarContent class="mt-8">
+    <Sidebar variant="inset" collapsible="icon" class="pt-11">
+        <SidebarContent>
             <SidebarGroup>
                 <SidebarGroupContent>
                     <SidebarMenu>
@@ -107,7 +93,7 @@ const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
         <SidebarFooter>
             <SidebarMenu>
                 <SidebarMenuItem>
-                    <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(settingsRoutes.index())" tooltip="Settings">
+                    <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(settingsRoutes.index())" tooltip="Settings">
                         <Link :href="settingsRoutes.index()" class="items-center justify-center">
                             <SettingsIcon />
                         </Link>

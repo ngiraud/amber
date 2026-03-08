@@ -84,7 +84,7 @@ function isFuture(date: string): boolean {
             <div
                 v-for="(cell, i) in calendarDays"
                 :key="i"
-                class="min-h-16 bg-card p-1.5"
+                class="group min-h-16 bg-card p-1.5"
                 :class="{
                     'cursor-pointer transition-colors hover:bg-accent': cell.date !== null && !isFuture(cell.date),
                     'opacity-40': cell.date !== null && isFuture(cell.date),
@@ -94,7 +94,7 @@ function isFuture(date: string): boolean {
             >
                 <template v-if="cell.date !== null">
                     <p
-                        class="text-xs leading-none font-medium"
+                        class="text-xs leading-none font-medium group-hover:text-accent-foreground"
                         :class="{
                             'text-muted-foreground/50': isWeekend(cell.date),
                             'font-bold text-primary': cell.date === today,
@@ -104,7 +104,7 @@ function isFuture(date: string): boolean {
                     </p>
 
                     <template v-if="daysMap.has(cell.date) && daysMap.get(cell.date)!.total_minutes > 0">
-                        <p class="mt-1 font-mono text-xs text-muted-foreground">
+                        <p class="mt-1 font-mono text-xs text-muted-foreground group-hover:text-accent-foreground/80">
                             {{ formatMinutes(daysMap.get(cell.date)!.total_minutes) }}
                         </p>
 

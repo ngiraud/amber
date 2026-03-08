@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import { ArrowLeftIcon } from 'lucide-vue-next';
 import ActivityLog from '@/components/ActivityLog.vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -18,7 +19,7 @@ const props = defineProps<{
     hasNewEvents?: boolean;
 }>();
 
-const { formatDateTime } = useDateFormat();
+const { formatDate, formatDateTime } = useDateFormat();
 
 function formatMinutes(minutes: number | null): string {
     if (!minutes) return '—';
@@ -28,10 +29,18 @@ function formatMinutes(minutes: number | null): string {
     if (m === 0) return `${h}h`;
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
+
+const sessionBreadcrumb = computed(() => {
+    const project = props.session.project;
+    const context = project ? `${project.client?.name ?? ''} — ${project.name}` : '';
+    const date = formatDate(props.session.started_at);
+    const isActive = props.session.ended_at === null ? ' · Active' : '';
+    return ['Sessions', context, `${date}${isActive}`].filter(Boolean);
+});
 </script>
 
 <template>
-    <AppLayout title="Session">
+    <AppLayout title="Session" :breadcrumb="sessionBreadcrumb">
         <template #header>
             <PageHeader :title="session.project?.client?.name + ' — ' + session.project?.name">
                 <template #actions>
