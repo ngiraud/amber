@@ -40,7 +40,7 @@ function deleteSession(): void {
 <template>
     <div
         v-bind="$attrs"
-        class="flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3 transition-colors hover:bg-accent hover:text-accent-foreground"
+        class="group flex items-center justify-between gap-4 rounded-lg border bg-card px-4 py-3 transition-colors hover:bg-accent hover:text-accent-foreground"
     >
         <div class="flex min-w-0 items-center gap-3">
             <span v-if="session.project?.color" class="size-2.5 shrink-0 rounded-full" :style="{ backgroundColor: session.project.color }" />
@@ -49,17 +49,19 @@ function deleteSession(): void {
                 <p class="truncate text-sm font-medium">
                     {{ session.project?.name ?? 'Unknown project' }}
                 </p>
-                <p v-if="showDate" class="truncate text-xs text-muted-foreground">
+                <p v-if="showDate" class="truncate text-xs text-muted-foreground group-hover:text-accent-foreground/70">
                     {{ formatDate(session.started_at) }}
                 </p>
-                <p v-else-if="session.description" class="truncate text-xs text-muted-foreground">
+                <p v-else-if="session.description" class="truncate text-xs text-muted-foreground group-hover:text-accent-foreground/70">
                     {{ session.description }}
                 </p>
             </div>
         </div>
 
         <div class="flex shrink-0 items-center gap-3">
-            <span class="font-mono text-sm text-muted-foreground"> {{ formatTime(session.started_at) }} → {{ formatTime(session.ended_at) }} </span>
+            <span class="font-mono text-sm text-muted-foreground group-hover:text-accent-foreground/70">
+                {{ formatTime(session.started_at) }} → {{ formatTime(session.ended_at) }}
+            </span>
 
             <span class="font-mono text-sm font-medium tabular-nums">
                 {{ formatMinutes(session.rounded_minutes) }}

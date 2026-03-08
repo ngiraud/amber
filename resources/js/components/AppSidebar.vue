@@ -23,7 +23,7 @@ import * as sessionRoutes from '@/routes/sessions';
 import * as settingsRoutes from '@/routes/settings';
 import * as timelineRoutes from '@/routes/timeline';
 
-const { isCurrentUrl } = useCurrentUrl();
+const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
 </script>
 
 <template>
@@ -53,7 +53,7 @@ const { isCurrentUrl } = useCurrentUrl();
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(timelineRoutes.index())" tooltip="Timeline">
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(timelineRoutes.index())" tooltip="Timeline">
                                 <Link :href="timelineRoutes.index().url" class="items-center justify-center">
                                     <CalendarDaysIcon />
                                 </Link>
@@ -61,7 +61,7 @@ const { isCurrentUrl } = useCurrentUrl();
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(clientRoutes.index())" tooltip="Clients">
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(clientRoutes.index())" tooltip="Clients">
                                 <Link :href="clientRoutes.index()" class="items-center justify-center">
                                     <UsersIcon />
                                 </Link>
@@ -69,7 +69,7 @@ const { isCurrentUrl } = useCurrentUrl();
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(projectRoutes.index())" tooltip="Projects">
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(projectRoutes.index())" tooltip="Projects">
                                 <Link :href="projectRoutes.index()" class="items-center justify-center">
                                     <FolderIcon />
                                 </Link>
@@ -77,7 +77,7 @@ const { isCurrentUrl } = useCurrentUrl();
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(sessionRoutes.index())" tooltip="Sessions">
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(sessionRoutes.index())" tooltip="Sessions">
                                 <Link :href="sessionRoutes.index()" class="items-center justify-center">
                                     <ClockIcon />
                                 </Link>
@@ -93,7 +93,7 @@ const { isCurrentUrl } = useCurrentUrl();
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(reportRoutes.index())" tooltip="Reports">
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(reportRoutes.index())" tooltip="Reports">
                                 <Link :href="reportRoutes.index()" class="items-center justify-center">
                                     <FileTextIcon />
                                 </Link>

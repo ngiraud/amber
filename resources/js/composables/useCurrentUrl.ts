@@ -7,6 +7,7 @@ import { toUrl } from '@/lib/utils';
 export type UseCurrentUrlReturn = {
     currentUrl: DeepReadonly<ComputedRef<string>>;
     isCurrentUrl: (urlToCheck: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) => boolean;
+    isCurrentUrlOrChild: (urlToCheck: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) => boolean;
     whenCurrentUrl: <T, F = null>(urlToCheck: NonNullable<InertiaLinkProps['href']>, ifTrue: T, ifFalse?: F) => T | F;
 };
 
@@ -31,6 +32,25 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
         }
     }
 
+    function isCurrentUrlOrChild(urlToCheck: NonNullable<InertiaLinkProps['href']>, currentUrl?: string) {
+        const urlToCompare = currentUrl ?? currentUrlReactive.value;
+        const urlString = toUrl(urlToCheck);
+
+        let pathname: string | null;
+
+        if (!urlString.startsWith('http')) {
+            pathname = urlString;
+        } else {
+            try {
+                pathname = new URL(urlString).pathname;
+            } catch {
+                return false;
+            }
+        }
+
+        return urlToCompare === pathname || urlToCompare.startsWith(pathname + '/');
+    }
+
     function whenCurrentUrl(urlToCheck: NonNullable<InertiaLinkProps['href']>, ifTrue: any, ifFalse: any = null) {
         return isCurrentUrl(urlToCheck) ? ifTrue : ifFalse;
     }
@@ -38,6 +58,7 @@ export function useCurrentUrl(): UseCurrentUrlReturn {
     return {
         currentUrl: readonly(currentUrlReactive),
         isCurrentUrl,
+        isCurrentUrlOrChild,
         whenCurrentUrl,
     };
 }

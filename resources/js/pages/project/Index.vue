@@ -40,13 +40,13 @@ defineProps<{
                 v-for="project in projects.data"
                 :key="project.id"
                 :href="projectRoutes.show(project.id)"
-                class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                class="group flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
                 <div class="flex items-center gap-3">
                     <span class="size-2.5 shrink-0 rounded-full" :style="{ backgroundColor: project.color }" />
                     <div>
                         <p class="text-sm font-medium">{{ project.name }}</p>
-                        <p v-if="project.client" class="mt-0.5 text-xs text-muted-foreground">
+                        <p v-if="project.client" class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">
                             {{ project.client.name }}
                         </p>
                     </div>
