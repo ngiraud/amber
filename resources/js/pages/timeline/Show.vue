@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import ReconstructFromDateDialog from '@/components/ReconstructFromDateDialog.vue';
-import StartSessionDialog from '@/components/StartSessionDialog.vue';
-import TimeEntryRow from '@/components/TimeEntryRow.vue';
+import SessionRow from '@/components/SessionRow.vue';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
+import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
-import type { Project, Session } from '@/types';
+import type { Session } from '@/types';
 
 const props = defineProps<{
     date: string;
@@ -22,8 +22,11 @@ const props = defineProps<{
     next_date: string;
     sessions: Session[];
     total_minutes: number;
-    projects: Project[];
 }>();
+
+const page = usePage();
+const activeSession = computed(() => page.props.activeSession);
+const { shouldOpen } = useOpenSessionDialog();
 
 const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null>(null);
 
@@ -89,9 +92,7 @@ function navigate(direction: -1 | 1): void {
                             </DropdownMenu>
                         </div>
 
-                        <StartSessionDialog :projects="projects">
-                            <Button size="sm">Add Session</Button>
-                        </StartSessionDialog>
+                        <Button size="sm" :disabled="!!activeSession" @click="shouldOpen = true">Add Session</Button>
 
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
@@ -118,14 +119,14 @@ function navigate(direction: -1 | 1): void {
                     </template>
                 </ReconstructDialog>
 
-                <StartSessionDialog :projects="projects">
-                    <Button size="sm">Add Session</Button>
+                <StartSessionDialog v-slot="{ disabled }">
+                    <Button size="sm" :disabled="disabled">Add Session</Button>
                 </StartSessionDialog>
             </div>
         </Empty>
 
         <div v-else class="flex flex-col gap-1.5">
-            <TimeEntryRow
+            <SessionRow
                 v-for="session in sessions"
                 :key="session.id"
                 :session="session"

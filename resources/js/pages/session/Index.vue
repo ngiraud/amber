@@ -1,18 +1,22 @@
 <script setup lang="ts">
-import { InfiniteScroll, router } from '@inertiajs/vue3';
+import { InfiniteScroll, router, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
-import StartSessionDialog from '@/components/StartSessionDialog.vue';
-import TimeEntryRow from '@/components/TimeEntryRow.vue';
+import SessionRow from '@/components/SessionRow.vue';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
+import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
-import type { Paginator, Project, Session } from '@/types';
+import type { Paginator, Session } from '@/types';
 
 defineProps<{
     sessions: Paginator<Session>;
-    projects: Project[];
 }>();
+
+const page = usePage();
+const activeSession = computed(() => page.props.activeSession);
+const { shouldOpen } = useOpenSessionDialog();
 </script>
 
 <template>
@@ -20,9 +24,7 @@ defineProps<{
         <template #header>
             <PageHeader title="Sessions">
                 <template #actions>
-                    <StartSessionDialog :projects="projects">
-                        <Button size="sm">Add Session</Button>
-                    </StartSessionDialog>
+                    <Button size="sm" :disabled="!!activeSession" @click="shouldOpen = true">Add Session</Button>
                 </template>
             </PageHeader>
         </template>
@@ -37,7 +39,7 @@ defineProps<{
             </template>
 
             <div class="flex flex-col gap-1.5">
-                <TimeEntryRow
+                <SessionRow
                     v-for="session in sessions.data"
                     :key="session.id"
                     :session="session"

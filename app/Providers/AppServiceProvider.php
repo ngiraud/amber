@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Services\ApplicationMenuService;
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use App\Settings\GeneralSettings;
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(ApplicationMenuService::class);
         $this->app->singleton(MenuBarService::class);
         $this->app->singleton(FileWatcherService::class);
     }

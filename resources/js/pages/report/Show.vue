@@ -11,8 +11,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
-import * as reportRoutes from '@/routes/reports';
 import * as clientRoutes from '@/routes/clients';
+import * as reportRoutes from '@/routes/reports';
 import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStep } from '@/types';
 
 const props = defineProps<{

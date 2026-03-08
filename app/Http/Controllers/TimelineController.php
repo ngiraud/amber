@@ -7,7 +7,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\Timeline\ShowTimelineDayRequest;
 use App\Http\Requests\Timeline\ViewTimelineRequest;
 use App\Http\Resources\SessionResource;
-use App\Models\Project;
 use App\Models\Session;
 use App\ViewModels\TimelineIndexViewModel;
 use Inertia\Inertia;
@@ -34,7 +33,6 @@ class TimelineController extends Controller
             'date' => $day->toDateString(),
             'previous_date' => $day->subDay()->toDateString(),
             'next_date' => $day->addDay()->toDateString(),
-            'projects' => fn () => Project::active()->with('client')->get(),
             'sessions' => SessionResource::collection($sessions),
             'total_minutes' => $sessions->sum('rounded_minutes'),
         ]);

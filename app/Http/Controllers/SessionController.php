@@ -10,7 +10,6 @@ use App\Actions\Session\UpdateSession;
 use App\Data\SessionData;
 use App\Http\Requests\Session\StoreSessionRequest;
 use App\Http\Requests\Session\UpdateSessionRequest;
-use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Project;
 use App\Models\Session;
@@ -28,9 +27,6 @@ class SessionController extends Controller
                 SessionResource::collection(
                     Session::with('project.client')->latest('started_at')->cursorPaginate()
                 )
-            ),
-            'projects' => fn () => ProjectResource::collection(
-                Project::active()->with('client')->get()
             ),
         ]);
     }

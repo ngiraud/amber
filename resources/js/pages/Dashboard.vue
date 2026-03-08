@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import { Link } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { CalendarDaysIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
-import StartSessionDialog from '@/components/StartSessionDialog.vue';
-import TimeEntryRow from '@/components/TimeEntryRow.vue';
+import SessionRow from '@/components/SessionRow.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Empty, EmptyDescription } from '@/components/ui/empty';
+import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
-import type { Project, Session } from '@/types';
+import type { Session } from '@/types';
 
 const props = defineProps<{
     date: string;
@@ -19,8 +19,11 @@ const props = defineProps<{
     total_minutes: number;
     week_minutes: number;
     month_minutes: number;
-    projects: Project[];
 }>();
+
+const page = usePage();
+const activeSession = computed(() => page.props.activeSession);
+const { shouldOpen } = useOpenSessionDialog();
 
 function formatMinutes(minutes: number): string {
     const h = Math.floor(minutes / 60);
@@ -50,9 +53,7 @@ const dateLabel = computed(() => {
                             </Link>
                         </Button>
 
-                        <StartSessionDialog :projects="projects">
-                            <Button size="sm">Add Session</Button>
-                        </StartSessionDialog>
+                        <Button size="sm" :disabled="!!activeSession" @click="shouldOpen = true">Add Session</Button>
                     </div>
                 </template>
             </PageHeader>
@@ -93,9 +94,14 @@ const dateLabel = computed(() => {
         </Empty>
 
         <div v-else class="flex flex-col gap-1.5">
-            <Link v-for="session in sessions" :key="session.id" :href="sessionRoutes.show({ session: session }).url">
-                <TimeEntryRow :session="session" />
-            </Link>
+            <SessionRow
+                v-for="session in sessions"
+                :key="session.id"
+                :session="session"
+                :show-date="true"
+                @click="router.visit(sessionRoutes.show(session).url)"
+                class="cursor-pointer"
+            />
         </div>
     </AppLayout>
 </template>
