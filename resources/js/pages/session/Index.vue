@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { InfiniteScroll, router, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { InfiniteScroll, router } from '@inertiajs/vue3';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
 import { Button } from '@/components/ui/button';
@@ -14,8 +13,6 @@ defineProps<{
     sessions: Paginator<Session>;
 }>();
 
-const page = usePage();
-const activeSession = computed(() => page.props.activeSession);
 const { shouldOpen } = useOpenSessionDialog();
 </script>
 
@@ -24,7 +21,7 @@ const { shouldOpen } = useOpenSessionDialog();
         <template #header>
             <PageHeader title="Sessions">
                 <template #actions>
-                    <Button size="sm" :disabled="!!activeSession" @click="shouldOpen = true">Add Session</Button>
+                    <Button size="sm" @click="shouldOpen = true">Add Session</Button>
                 </template>
             </PageHeader>
         </template>

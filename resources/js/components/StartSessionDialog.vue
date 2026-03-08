@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Page } from '@inertiajs/core';
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import InputField from '@/components/InputField.vue';
@@ -20,12 +21,16 @@ const mode = ref<'timer' | 'past'>('timer');
 
 watch(open, (val) => {
     if (val) {
-        if (activeSession.value) {
-            mode.value = 'past';
-        }
-        if (projects.value.length === 0) {
-            router.reload({ only: ['projects'] });
-        }
+        mode.value = 'timer';
+
+        router.reload({
+            only: ['projects', 'activeSession'],
+            onSuccess: (page: Page) => {
+                if (page.props.activeSession) {
+                    mode.value = 'past';
+                }
+            },
+        });
     }
 });
 

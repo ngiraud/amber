@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { CalendarDaysIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -21,8 +21,6 @@ const props = defineProps<{
     month_minutes: number;
 }>();
 
-const page = usePage();
-const activeSession = computed(() => page.props.activeSession);
 const { shouldOpen } = useOpenSessionDialog();
 
 function formatMinutes(minutes: number): string {
@@ -53,7 +51,7 @@ const dateLabel = computed(() => {
                             </Link>
                         </Button>
 
-                        <Button size="sm" :disabled="!!activeSession" @click="shouldOpen = true">Add Session</Button>
+                        <Button size="sm" @click="shouldOpen = true">Add Session</Button>
                     </div>
                 </template>
             </PageHeader>

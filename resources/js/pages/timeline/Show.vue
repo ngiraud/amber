@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Link, router, usePage } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -24,8 +24,6 @@ const props = defineProps<{
     total_minutes: number;
 }>();
 
-const page = usePage();
-const activeSession = computed(() => page.props.activeSession);
 const { shouldOpen } = useOpenSessionDialog();
 
 const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null>(null);
@@ -92,7 +90,7 @@ function navigate(direction: -1 | 1): void {
                             </DropdownMenu>
                         </div>
 
-                        <Button size="sm" :disabled="!!activeSession" @click="shouldOpen = true">Add Session</Button>
+                        <Button size="sm" @click="shouldOpen = true">Add Session</Button>
 
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
@@ -119,9 +117,7 @@ function navigate(direction: -1 | 1): void {
                     </template>
                 </ReconstructDialog>
 
-                <StartSessionDialog v-slot="{ disabled }">
-                    <Button size="sm" :disabled="disabled">Add Session</Button>
-                </StartSessionDialog>
+                <Button size="sm" @click="shouldOpen = true">Add Session</Button>
             </div>
         </Empty>
 
