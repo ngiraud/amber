@@ -133,3 +133,23 @@
         @apply font-sans;
     }
 }
+
+@layer utilities {
+    .log-entry-enter-active {
+        @apply transition-opacity duration-300 ease-in-out;
+    }
+
+    .log-entry-enter-from {
+        @apply opacity-0;
+    }
+
+    .banner-enter-active,
+    .banner-leave-active {
+        @apply transition-opacity duration-200 ease-in-out;
+    }
+
+    .banner-enter-from,
+    .banner-leave-to {
+        @apply opacity-0;
+    }
+}
