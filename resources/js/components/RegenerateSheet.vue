@@ -29,9 +29,9 @@ const useAiSummary = ref(props.aiSettings.enabled);
 
             <Form
                 class="flex flex-col gap-5 overflow-y-auto px-4 py-2"
-                :action="reportRoutes.regenerate.form(report)"
+                :action="reportRoutes.regenerate(report)"
                 #default="{ errors, processing }"
-                @success="() => (open = false)"
+                @success="open = false"
             >
                 <!-- AI toggle field -->
                 <div

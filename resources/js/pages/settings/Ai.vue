@@ -31,10 +31,6 @@ const form = useForm({
 
 const selectedProvider = computed(() => props.providers.find((p) => p.value === form.provider) ?? null);
 
-function save(options: { preserveScroll?: boolean } = {}): void {
-    form.submit(aiRoutes.update(), options);
-}
-
 // ── Test connection ──────────────────────────────────────────────────────────
 
 type TestStatus = 'idle' | 'loading' | 'ok' | 'fail';
@@ -75,7 +71,7 @@ async function handleTest(): Promise<void> {
 
 <template>
     <SettingsLayout active-tab="ai">
-        <Form :action="aiRoutes.update()">
+        <Form @submit.prevent="form.submit(aiRoutes.update())">
             <Card class="gap-0 overflow-hidden py-0">
                 <!-- Header: title + description + toggle -->
                 <CardHeader class="border-b py-4">
@@ -102,12 +98,21 @@ async function handleTest(): Promise<void> {
                     </InputField>
 
                     <InputField
-                        v-if="selectedProvider === null || selectedProvider.requiresApiKey"
                         label="API Key"
                         :error="form.errors.api_key"
-                        hint="Encrypted locally. Only sent to your chosen provider."
+                        :hint="
+                            selectedProvider?.requiresApiKey
+                                ? 'Encrypted locally. Only sent to your chosen provider.'
+                                : 'API key not required for this provider'
+                        "
                     >
-                        <Input v-model="form.api_key" type="password" placeholder="sk-…" autocomplete="off" />
+                        <Input
+                            v-show="selectedProvider?.requiresApiKey"
+                            v-model="form.api_key"
+                            type="password"
+                            placeholder="sk-…"
+                            :disabled="!selectedProvider?.requiresApiKey"
+                        />
                     </InputField>
 
                     <InputField label="Summary language" :error="form.errors.summary_language">

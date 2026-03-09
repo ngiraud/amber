@@ -3,20 +3,22 @@ import { Link, router } from '@inertiajs/vue3';
 import { DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
+import RegenerateSheet from '@/components/RegenerateSheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStep } from '@/types';
+import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStep, AiSettings } from '@/types';
 
 const props = defineProps<{
     report: ActivityReport;
+    aiSettings: AiSettings;
 }>();
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -40,6 +42,10 @@ function statusVariant(status: ActivityReport['status']): 'default' | 'secondary
     return 'default';
 }
 
+function showStatusBadge(status: ActivityReport['status']): boolean {
+    return status.label !== 'Finalized';
+}
+
 const STEPS: { key: ActivityReportStep; label: string }[] = [
     { key: 'collecting_context', label: 'Collecting context' },
     { key: 'building_lines', label: 'Building lines' },
@@ -51,7 +57,7 @@ const STEPS: { key: ActivityReportStep; label: string }[] = [
 const currentStep = ref<ActivityReportStep | null>(props.report.status.label === 'Generating' ? 'collecting_context' : null);
 
 const isDeleting = ref(false);
-const isRegenerating = ref(false);
+const regenerateSheetOpen = ref(false);
 
 function handleDelete(): void {
     router.delete(reportRoutes.destroy(props.report.id), {
@@ -64,21 +70,6 @@ function handleDelete(): void {
     });
 }
 
-function handleRegenerate(): void {
-    router.post(
-        reportRoutes.regenerate(props.report.id),
-        {},
-        {
-            onStart: () => {
-                isRegenerating.value = true;
-            },
-            onFinish: () => {
-                isRegenerating.value = false;
-            },
-        },
-    );
-}
-
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', (payload) => {
     if (payload.reportId !== props.report.id) return;
     if (payload.step === 'completed' || payload.step === 'failed') {
@@ -86,6 +77,8 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
     } else {
         currentStep.value = payload.step;
     }
+
+    regenerateSheetOpen.value = false;
 });
 </script>
 
@@ -115,40 +108,45 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                     </Breadcrumb>
                 </template>
                 <template #actions>
-                    <Badge :variant="statusVariant(report.status)" :class="report.status.label === 'Generating' ? 'animate-pulse' : ''">
+                    <Badge
+                        v-if="showStatusBadge(report.status)"
+                        :variant="statusVariant(report.status)"
+                        :class="report.status.label === 'Generating' ? 'animate-pulse' : ''"
+                    >
                         {{ report.status.label }}
                     </Badge>
-                    <DropdownMenu v-if="report.status.label !== 'Generating'">
-                        <DropdownMenuTrigger as-child>
-                            <Button size="sm" variant="outline">
-                                <EllipsisIcon class="size-3.5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem v-if="report.pdf_path" as-child>
-                                <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
-                                    <DownloadIcon />
-                                    Download PDF
-                                </a>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem v-if="report.csv_path" as-child>
-                                <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
-                                    <DownloadIcon />
-                                    Download CSV
-                                </a>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator v-if="report.pdf_path || report.csv_path" />
-                            <DropdownMenuItem :disabled="isRegenerating" @click="handleRegenerate">
-                                <RefreshCwIcon />
-                                Regenerate
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" :disabled="isDeleting" @click="handleDelete">
-                                <Trash2Icon />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div v-if="report.status.label !== 'Generating'" class="flex items-center gap-2">
+                        <Button v-if="report.pdf_path" size="sm" as-child>
+                            <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
+                                <DownloadIcon class="mr-2 size-3.5" />
+                                PDF
+                            </a>
+                        </Button>
+                        <Button v-if="report.csv_path" size="sm" as-child>
+                            <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
+                                <DownloadIcon class="mr-2 size-3.5" />
+                                CSV
+                            </a>
+                        </Button>
+                        <RegenerateSheet v-model:open="regenerateSheetOpen" :report="report" :ai-settings="aiSettings" />
+                        <Button size="sm" variant="outline" @click="regenerateSheetOpen = true">
+                            <RefreshCwIcon class="mr-2 size-3.5" />
+                            Regenerate
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <Button size="sm" variant="outline">
+                                    <EllipsisIcon class="size-3.5" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem variant="destructive" :disabled="isDeleting" @click="handleDelete">
+                                    <Trash2Icon class="mr-2 size-3.5" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </template>
             </PageHeader>
         </template>

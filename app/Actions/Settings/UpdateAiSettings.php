@@ -23,7 +23,13 @@ class UpdateAiSettings extends Action
             $this->settings->provider = AiProvider::from($data['provider']);
         }
 
-        $this->settings->api_key = $data['api_key'] ?: null;
+        if (isset($data['api_key'])) {
+            $this->settings->api_key = $data['api_key'] ?: null;
+        }
+
+        if (! $this->settings->provider->requiresApiKey()) {
+            $this->settings->api_key = null;
+        }
 
         if (isset($data['summary_language'])) {
             $this->settings->summary_language = $data['summary_language'];
