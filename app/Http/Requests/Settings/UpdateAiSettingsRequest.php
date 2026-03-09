@@ -23,7 +23,7 @@ class UpdateAiSettingsRequest extends FormRequest
                 Rule::requiredIf(fn () => $this->enum('provider', AiProvider::class)?->requiresApiKey() ?? false),
                 'nullable',
                 'string',
-                'max:500'
+                'max:500',
             ],
             'summary_language' => ['required', 'nullable', 'string', Rule::enum(AvailableLocale::class)],
         ];
