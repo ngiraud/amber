@@ -12,13 +12,14 @@ use App\Http\Resources\ActivityReportResource;
 use App\Http\Resources\ClientResource;
 use App\Models\ActivityReport;
 use App\Models\Client;
+use App\Settings\AiSettings;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ActivityReportController extends Controller
 {
-    public function index(): Response
+    public function index(AiSettings $aiSettings): Response
     {
         return Inertia::render('report/Index', [
             'reports' => ActivityReportResource::collection(
@@ -29,6 +30,7 @@ class ActivityReportController extends Controller
                     ->paginate()
             ),
             'clients' => ClientResource::collection(Client::query()->orderBy('name')->get()),
+            'aiSettings' => $aiSettings->toArray(),
         ]);
     }
 
@@ -39,12 +41,13 @@ class ActivityReportController extends Controller
         return redirect()->route('reports.show', $report);
     }
 
-    public function show(ActivityReport $report): Response
+    public function show(ActivityReport $report, AiSettings $aiSettings): Response
     {
         return Inertia::render('report/Show', [
             'report' => fn () => ActivityReportResource::make(
                 $report->load(['client', 'lines.project'])
             ),
+            'aiSettings' => $aiSettings->toArray(),
         ]);
     }
 

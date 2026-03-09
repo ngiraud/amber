@@ -33,7 +33,7 @@ class GenerateActivityReport extends Action
             'notes' => $data->notes,
         ]);
 
-        GenerateActivityReportJob::dispatch($report);
+        GenerateActivityReportJob::dispatch($report, $data->useAiSummary);
 
         return $report;
     }

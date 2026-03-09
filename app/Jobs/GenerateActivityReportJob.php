@@ -6,6 +6,7 @@ namespace App\Jobs;
 
 use App\Actions\ActivityReport\BuildLineDescription;
 use App\Actions\ActivityReport\CollectDayContext;
+use App\Actions\ActivityReport\SummarizeReportLines;
 use App\Enums\ActivityReportExportFormat;
 use App\Enums\ActivityReportStatus;
 use App\Enums\ActivityReportStep;
@@ -21,11 +22,15 @@ class GenerateActivityReportJob implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public readonly ActivityReport $report) {}
+    public function __construct(
+        public readonly ActivityReport $report,
+        public readonly bool $useAiSummary = false,
+    ) {}
 
     public function handle(
         CollectDayContext $collectDayContext,
         BuildLineDescription $buildLineDescription,
+        SummarizeReportLines $summarizeReportLines,
     ): void {
         event(new ActivityReportProgress($this->report->id, ActivityReportStep::CollectingContext));
 
@@ -95,6 +100,11 @@ class GenerateActivityReportJob implements ShouldQueue
                 $totalAmountHt += (int) round($days * $project->daily_rate * 100);
                 $hasAmount = true;
             }
+        }
+
+        if ($this->useAiSummary) {
+            event(new ActivityReportProgress($this->report->id, ActivityReportStep::Summarizing));
+            $summarizeReportLines->handle($this->report);
         }
 
         event(new ActivityReportProgress($this->report->id, ActivityReportStep::GeneratingFiles));

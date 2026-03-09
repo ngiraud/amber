@@ -129,6 +129,7 @@ This application is a Laravel application and its main Laravel ecosystems packag
 
 - php - 8.4.17
 - inertiajs/inertia-laravel (INERTIA_LARAVEL) - v2
+- laravel/ai (AI) - v0
 - laravel/framework (LARAVEL) - v12
 - laravel/prompts (PROMPTS) - v0
 - laravel/wayfinder (WAYFINDER) - v0

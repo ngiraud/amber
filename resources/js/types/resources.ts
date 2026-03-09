@@ -180,7 +180,7 @@ export type ActivityReportStatus = {
     label: string;
 };
 
-export type ActivityReportStep = 'collecting_context' | 'building_lines' | 'generating_files' | 'completed' | 'failed';
+export type ActivityReportStep = 'collecting_context' | 'building_lines' | 'summarizing' | 'generating_files' | 'completed' | 'failed';
 
 export type ActivityReportLine = {
     id: string;
@@ -190,9 +190,25 @@ export type ActivityReportLine = {
     minutes: number;
     days: number;
     description: string | null;
+    summary: string | null;
+    display_description: string | null;
     created_at: string;
     updated_at: string;
     project?: Project;
+};
+
+export type AiProviderOption = {
+    value: string;
+    label: string;
+    model: string;
+    requiresApiKey: boolean;
+};
+
+export type AiSettings = {
+    enabled: boolean;
+    provider: string | null;
+    api_key: string | null;
+    summary_language: string;
 };
 
 export type ActivityReport = {

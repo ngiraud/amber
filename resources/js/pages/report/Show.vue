@@ -43,6 +43,7 @@ function statusVariant(status: ActivityReport['status']): 'default' | 'secondary
 const STEPS: { key: ActivityReportStep; label: string }[] = [
     { key: 'collecting_context', label: 'Collecting context' },
     { key: 'building_lines', label: 'Building lines' },
+    { key: 'summarizing', label: 'Summarizing with AI' },
     { key: 'generating_files', label: 'Generating files' },
     { key: 'completed', label: 'Done' },
 ];
@@ -248,7 +249,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                                 </TableCell>
                                 <TableCell class="text-right font-mono">{{ (line.minutes / 60).toFixed(2) }}</TableCell>
                                 <TableCell class="text-right font-mono">{{ line.days.toFixed(2) }}</TableCell>
-                                <TableCell class="whitespace-normal">{{ line.description ?? '—' }}</TableCell>
+                                <TableCell class="whitespace-normal">{{ line.display_description ?? '—' }}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

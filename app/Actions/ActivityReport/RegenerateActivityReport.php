@@ -12,7 +12,7 @@ use App\Models\ActivityReport;
 
 class RegenerateActivityReport extends Action
 {
-    public function handle(ActivityReport $report): ActivityReport
+    public function handle(ActivityReport $report, ?string $notes = null, bool $useAiSummary = false): ActivityReport
     {
         if (! $report->canBeDeleted()) {
             throw new ActivityReportCannotBeModifiedException;
@@ -21,15 +21,21 @@ class RegenerateActivityReport extends Action
         $report->deleteFiles();
         $report->lines()->delete();
 
-        $report->update([
+        $updateData = [
             'status' => ActivityReportStatus::Generating,
             'total_minutes' => 0,
             'total_days' => 0,
             'total_amount_ht' => null,
             'generated_at' => null,
-        ]);
+        ];
 
-        GenerateActivityReportJob::dispatch($report);
+        if ($notes !== null) {
+            $updateData['notes'] = $notes;
+        }
+
+        $report->update($updateData);
+
+        GenerateActivityReportJob::dispatch($report, $useAiSummary);
 
         return $report;
     }
