@@ -1,5 +1,6 @@
 /.phpunit.cache
 /bootstrap/ssr
+/nativephp
 /node_modules
 /public/build
 /public/hot
