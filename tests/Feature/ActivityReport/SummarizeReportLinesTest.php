@@ -26,20 +26,22 @@ describe('SummarizeReportLines', function () {
         $report = ActivityReport::factory()->finalized()->create();
         ActivityReportLine::factory()->create(['activity_report_id' => $report->id, 'description' => 'Fixed bug']);
 
-        $agent = Mockery::mock(ReportSummarizer::class);
-        $agent->shouldNotReceive('prompt');
+        ReportSummarizer::fake();
 
-        (new SummarizeReportLines(app(AiSettings::class), $agent))->handle($report);
+        SummarizeReportLines::make()->handle($report);
+
+        ReportSummarizer::assertNeverPrompted();
     });
 
     it('does nothing when no lines have descriptions', function () {
         $report = ActivityReport::factory()->finalized()->create();
         ActivityReportLine::factory()->create(['activity_report_id' => $report->id, 'description' => null]);
 
-        $agent = Mockery::mock(ReportSummarizer::class);
-        $agent->shouldNotReceive('prompt');
+        ReportSummarizer::fake();
 
-        (new SummarizeReportLines(app(AiSettings::class), $agent))->handle($report);
+        SummarizeReportLines::make()->handle($report);
+
+        ReportSummarizer::assertNeverPrompted();
     });
 
     it('persists summaries returned by the agent', function () {
@@ -49,12 +51,9 @@ describe('SummarizeReportLines', function () {
             'description' => 'Implemented feature X',
         ]);
 
-        $agent = Mockery::mock(ReportSummarizer::class);
-        $agent->shouldReceive('prompt')
-            ->once()
-            ->andReturn(['summaries' => [['id' => $line->id, 'summary' => 'Delivered feature X.']]]);
+        ReportSummarizer::fake(fn () => ['summaries' => [['id' => $line->id, 'summary' => 'Delivered feature X.']]]);
 
-        (new SummarizeReportLines(app(AiSettings::class), $agent))->handle($report);
+        SummarizeReportLines::make()->handle($report);
 
         expect($line->fresh()->summary)->toBe('Delivered feature X.');
     });
@@ -66,10 +65,12 @@ describe('SummarizeReportLines', function () {
             'description' => 'Refactored module',
         ]);
 
-        $agent = Mockery::mock(ReportSummarizer::class);
-        $agent->shouldReceive('prompt')->once()->andThrow(new RuntimeException('API error'));
+        ReportSummarizer::fake(function () {
+            throw new RuntimeException('API error');
+        });
 
-        // Should not throw
-        (new SummarizeReportLines(app(AiSettings::class), $agent))->handle($report);
+        SummarizeReportLines::make()->handle($report);
+
+        ReportSummarizer::assertPrompted(fn () => true);
     });
 });

@@ -9,6 +9,7 @@ use App\Actions\ActivityReport\Exports\ExportActivityReportCsv;
 use App\Actions\ActivityReport\Exports\ExportActivityReportPdf;
 use App\Actions\ActivityReport\GenerateActivityReport;
 use App\Actions\ActivityReport\RegenerateActivityReport;
+use App\Actions\ActivityReport\SummarizeReportLines;
 use App\Data\ActivityReportData;
 use App\Data\DayContext;
 use App\Enums\ActivityReportExportFormat;
@@ -251,6 +252,62 @@ describe('GenerateActivityReportJob', function () {
             ->and($report->fresh()->total_minutes)->toBe(150);
     });
 
+    it('calls SummarizeReportLines when useAiSummary is true', function () {
+        Event::fake();
+
+        $client = Client::factory()->create();
+        $project = Project::factory()->create(['client_id' => $client->id]);
+        $report = ActivityReport::factory()->generating()->create([
+            'client_id' => $client->id,
+            'month' => 3,
+            'year' => 2026,
+        ]);
+
+        Session::factory()->create([
+            'project_id' => $project->id,
+            'date' => '2026-03-15',
+            'started_at' => '2026-03-15 09:00:00',
+            'ended_at' => '2026-03-15 10:00:00',
+            'duration_minutes' => 60,
+        ]);
+
+        CollectDayContext::fake()->shouldReceive('handle')->andReturn(new DayContext([], [], 0));
+        BuildLineDescription::fake()->shouldReceive('handle')->andReturn('');
+        ExportActivityReportPdf::fake()->shouldReceive('handle')->andReturn('path/to/report.pdf');
+        ExportActivityReportCsv::fake()->shouldReceive('handle')->andReturn('path/to/report.csv');
+        SummarizeReportLines::fake()->shouldReceive('handle')->once();
+
+        dispatch_sync(new GenerateActivityReportJob($report, useAiSummary: true));
+    });
+
+    it('does not call SummarizeReportLines when useAiSummary is false', function () {
+        Event::fake();
+
+        $client = Client::factory()->create();
+        $project = Project::factory()->create(['client_id' => $client->id]);
+        $report = ActivityReport::factory()->generating()->create([
+            'client_id' => $client->id,
+            'month' => 3,
+            'year' => 2026,
+        ]);
+
+        Session::factory()->create([
+            'project_id' => $project->id,
+            'date' => '2026-03-15',
+            'started_at' => '2026-03-15 09:00:00',
+            'ended_at' => '2026-03-15 10:00:00',
+            'duration_minutes' => 60,
+        ]);
+
+        CollectDayContext::fake()->shouldReceive('handle')->andReturn(new DayContext([], [], 0));
+        BuildLineDescription::fake()->shouldReceive('handle')->andReturn('');
+        ExportActivityReportPdf::fake()->shouldReceive('handle')->andReturn('path/to/report.pdf');
+        ExportActivityReportCsv::fake()->shouldReceive('handle')->andReturn('path/to/report.csv');
+        SummarizeReportLines::fake()->shouldNotReceive('handle');
+
+        dispatch_sync(new GenerateActivityReportJob($report, useAiSummary: false));
+    });
+
     it('marks the report as failed when an exception is thrown', function () {
         Event::fake();
 
@@ -341,6 +398,38 @@ describe('RegenerateActivityReport action', function () {
         Queue::assertPushed(GenerateActivityReportJob::class);
     });
 
+    it('updates notes when provided', function () {
+        Queue::fake();
+
+        $report = ActivityReport::factory()->draft()->create(['notes' => 'old notes']);
+
+        RegenerateActivityReport::make()->handle($report, notes: 'new notes');
+
+        expect($report->fresh()->notes)->toBe('new notes');
+    });
+
+    it('does not overwrite notes when null is passed', function () {
+        Queue::fake();
+
+        $report = ActivityReport::factory()->draft()->create(['notes' => 'existing notes']);
+
+        RegenerateActivityReport::make()->handle($report, notes: null);
+
+        expect($report->fresh()->notes)->toBe('existing notes');
+    });
+
+    it('dispatches job with useAiSummary flag', function () {
+        Queue::fake();
+
+        $report = ActivityReport::factory()->draft()->create();
+
+        RegenerateActivityReport::make()->handle($report, useAiSummary: true);
+
+        Queue::assertPushed(GenerateActivityReportJob::class, function (GenerateActivityReportJob $job) {
+            return $job->useAiSummary === true;
+        });
+    });
+
     it('allows regenerating a finalized report', function () {
         Queue::fake();
         Storage::fake($this->disk);
@@ -377,6 +466,25 @@ describe('regenerate activity report', function () {
 
         $this->post(route('reports.regenerate', $report))
             ->assertRedirectToRoute('reports.show', $report);
+    });
+
+    it('passes notes and use_ai_summary to the action', function () {
+        $report = ActivityReport::factory()->draft()->create();
+
+        RegenerateActivityReport::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->with(
+                Mockery::on(fn ($arg) => $arg->id === $report->id),
+                'my notes',
+                true,
+            )
+            ->andReturn($report);
+
+        $this->post(route('reports.regenerate', $report), [
+            'notes' => 'my notes',
+            'use_ai_summary' => true,
+        ])->assertRedirectToRoute('reports.show', $report);
     });
 })->group('controllers');
 
