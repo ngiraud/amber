@@ -14,11 +14,13 @@ import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStep, AiSettings } from '@/types';
+import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
 
 const props = defineProps<{
     report: ActivityReport;
     aiSettings: AiSettings;
+    reportSteps: ActivityReportStep[];
+    reportStatuses: ActivityReportStatus[];
 }>();
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -35,26 +37,7 @@ function formatMinutes(minutes: number): string {
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 
-function statusVariant(status: ActivityReport['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
-    if (status.label === 'Generating') return 'outline';
-    if (status.label === 'Draft') return 'secondary';
-    if (status.label === 'Failed') return 'destructive';
-    return 'default';
-}
-
-function showStatusBadge(status: ActivityReport['status']): boolean {
-    return status.label !== 'Finalized';
-}
-
-const STEPS: { key: ActivityReportStep; label: string }[] = [
-    { key: 'collecting_context', label: 'Collecting context' },
-    { key: 'building_lines', label: 'Building lines' },
-    { key: 'summarizing', label: 'Summarizing with AI' },
-    { key: 'generating_files', label: 'Generating files' },
-    { key: 'completed', label: 'Done' },
-];
-
-const currentStep = ref<ActivityReportStep | null>(props.report.status.label === 'Generating' ? 'collecting_context' : null);
+const currentStep = ref<string | null>(props.report.status.label === 'Generating' ? props.reportSteps[0].value : null);
 
 const isDeleting = ref(false);
 const regenerateSheetOpen = ref(false);
@@ -109,8 +92,8 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 </template>
                 <template #actions>
                     <Badge
-                        v-if="showStatusBadge(report.status)"
-                        :variant="statusVariant(report.status)"
+                        v-if="report.status.shouldDisplayBadge"
+                        :variant="report.status.variant"
                         :class="report.status.label === 'Generating' ? 'animate-pulse' : ''"
                     >
                         {{ report.status.label }}
@@ -159,19 +142,19 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2">
                     <div
-                        v-for="step in STEPS"
-                        :key="step.key"
+                        v-for="step in props.reportSteps"
+                        :key="step.value"
                         class="flex items-center gap-2 text-sm"
                         :class="{
-                            'font-medium text-foreground': currentStep === step.key,
-                            'text-muted-foreground': currentStep !== step.key,
+                            'font-medium text-foreground': currentStep === step.value,
+                            'text-muted-foreground': currentStep !== step.value,
                         }"
                     >
                         <span
                             class="size-2 rounded-full"
                             :class="{
-                                'animate-pulse bg-primary': currentStep === step.key,
-                                'bg-muted': currentStep !== step.key,
+                                'animate-pulse bg-primary': currentStep === step.value,
+                                'bg-muted': currentStep !== step.value,
                             }"
                         />
                         {{ step.label }}

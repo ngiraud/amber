@@ -7,6 +7,8 @@ namespace App\Http\Controllers;
 use App\Actions\ActivityReport\DeleteActivityReport;
 use App\Actions\ActivityReport\GenerateActivityReport;
 use App\Data\ActivityReportData;
+use App\Enums\ActivityReportStatus;
+use App\Enums\ActivityReportStep;
 use App\Http\Requests\ActivityReport\StoreActivityReportRequest;
 use App\Http\Resources\ActivityReportResource;
 use App\Http\Resources\ClientResource;
@@ -48,6 +50,8 @@ class ActivityReportController extends Controller
                 $report->load(['client', 'lines.project'])
             ),
             'aiSettings' => $aiSettings->toArray(),
+            'reportSteps' => fn () => ActivityReportStep::options()->where('shouldDisplayStep', true),
+            'reportStatuses' => fn () => ActivityReportStatus::options(),
         ]);
     }
 
