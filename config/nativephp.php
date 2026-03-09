@@ -83,11 +83,13 @@ return [
      * You may use glob / wildcard patterns here.
      */
     'cleanup_exclude_files' => [
-        'build',
-        'temp',
-        'content',
+        '.ai',
+        '.claude',
+        '.github',
+        '.idea',
         'node_modules',
-        '*/tests',
+        'storage/sample-data/*',
+        'tests',
     ],
 
     /**
@@ -165,11 +167,11 @@ return [
      * Define your own scripts to run before and after the build process.
      */
     'prebuild' => [
-        // 'npm run build',
+        'npm run build',
     ],
 
     'postbuild' => [
-        // 'rm -rf public/build',
+        //        'rm -rf public/build',
     ],
 
     /**

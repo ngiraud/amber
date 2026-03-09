@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
@@ -44,7 +43,6 @@ class AppServiceProvider extends ServiceProvider
         $this->configurePasswords();
         $this->configureRelations();
         $this->configureResources();
-        $this->configureUrl();
         $this->configureVite();
     }
 
@@ -95,13 +93,6 @@ class AppServiceProvider extends ServiceProvider
     protected function configureResources(): void
     {
         JsonResource::withoutWrapping();
-    }
-
-    protected function configureUrl(): void
-    {
-        if (! $this->app->environment('local')) {
-            URL::forceScheme('https');
-        }
     }
 
     protected function configureVite(): void

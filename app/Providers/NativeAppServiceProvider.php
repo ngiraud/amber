@@ -25,9 +25,9 @@ class NativeAppServiceProvider implements ProvidesPhpIni
         Window::open()
             ->titleBarHiddenInset()
             ->webPreferences([
-                'devTools' => false,
+                'devTools' => true,
             ])
-            ->showDevTools(false)
+            ->showDevTools(true)
             ->maximized()
             ->minWidth(1200)
             ->minHeight(600)
