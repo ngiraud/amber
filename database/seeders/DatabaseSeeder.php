@@ -8,7 +8,6 @@ use App\Enums\RoundingStrategy;
 use App\Models\ActivityEvent;
 use App\Models\Client;
 use App\Models\Project;
-use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -19,11 +18,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        User::factory()->create([
-            'name' => 'Nico',
-            'email' => 'contact@ngiraud.me',
-        ]);
-
         $acme = Client::factory()->create(['name' => 'Acme Corp']);
         $startup = Client::factory()->create(['name' => 'Startup Inc']);
 
