@@ -11,6 +11,7 @@ class ActivityReportData
         public readonly int $month,
         public readonly int $year,
         public readonly ?string $notes = null,
+        public readonly bool $useAiSummary = false,
     ) {}
 
     /**
@@ -23,6 +24,7 @@ class ActivityReportData
             month: (int) $data['month'],
             year: (int) $data['year'],
             notes: $data['notes'] ?? null,
+            useAiSummary: (bool) ($data['use_ai_summary'] ?? false),
         );
     }
 }

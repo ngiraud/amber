@@ -5,13 +5,14 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import * as settingsRoutes from '@/routes/settings';
 
 defineProps<{
-    activeTab: 'general' | 'activity' | 'sources';
+    activeTab: 'general' | 'activity' | 'sources' | 'ai';
 }>();
 
 const navItems = [
     { label: 'General', href: settingsRoutes.general().url, tab: 'general' },
     { label: 'Activity', href: settingsRoutes.activity().url, tab: 'activity' },
     { label: 'Sources', href: settingsRoutes.sources().url, tab: 'sources' },
+    { label: 'AI', href: settingsRoutes.ai().url, tab: 'ai' },
 ] as const;
 </script>
 

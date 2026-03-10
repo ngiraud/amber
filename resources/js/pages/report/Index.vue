@@ -9,11 +9,12 @@ import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportProgressPayload, Client, Paginator } from '@/types';
+import type { ActivityReport, ActivityReportProgressPayload, AiSettings, Client, Paginator } from '@/types';
 
 defineProps<{
     reports: Paginator<ActivityReport>;
     clients: Client[];
+    aiSettings: AiSettings;
 }>();
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -47,7 +48,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         <template #header>
             <PageHeader title="Reports">
                 <template #actions>
-                    <ReportSheet :clients="clients">
+                    <ReportSheet :clients="clients" :ai-settings="aiSettings">
                         <Button size="sm">New report</Button>
                     </ReportSheet>
                 </template>
@@ -57,7 +58,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         <Empty v-if="reports.data.length === 0" class="mt-6">
             <EmptyTitle>No reports yet</EmptyTitle>
             <EmptyDescription>Generate your first CRA by clicking the button above.</EmptyDescription>
-            <ReportSheet :clients="clients">
+            <ReportSheet :clients="clients" :ai-settings="aiSettings">
                 <Button size="sm">New report</Button>
             </ReportSheet>
         </Empty>

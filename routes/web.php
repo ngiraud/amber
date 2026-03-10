@@ -14,6 +14,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SessionTimerController;
 use App\Http\Controllers\Settings\ActivitySettingsController;
 use App\Http\Controllers\Settings\ActivitySourceSettingsController;
+use App\Http\Controllers\Settings\AiSettingsController;
 use App\Http\Controllers\Settings\GeneralSettingsController;
 use App\Http\Controllers\TimelineController;
 use Illuminate\Support\Facades\Route;
@@ -80,4 +81,8 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/sources', [ActivitySourceSettingsController::class, 'edit'])->name('sources');
     Route::put('/sources', [ActivitySourceSettingsController::class, 'update'])->name('sources.update');
     Route::post('/sources/{source}/test', [ActivitySourceSettingsController::class, 'test'])->name('sources.test');
+
+    Route::get('/ai', [AiSettingsController::class, 'edit'])->name('ai');
+    Route::put('/ai', [AiSettingsController::class, 'update'])->name('ai.update');
+    Route::post('/ai/test', [AiSettingsController::class, 'test'])->name('ai.test');
 });

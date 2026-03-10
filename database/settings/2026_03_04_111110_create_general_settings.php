@@ -18,7 +18,8 @@ return new class extends SettingsMigration
         $this->migrator->add('general.default_daily_reference_hours', 7);
         $this->migrator->add('general.default_rounding_strategy', RoundingStrategy::Quarter->value);
         $this->migrator->add('general.timezone', 'Europe/Paris');
-        $this->migrator->add('general.locale', AvailableLocale::French->value);
+        $this->migrator->add('general.locale', AvailableLocale::English->value);
         $this->migrator->add('general.theme', SystemThemesEnum::SYSTEM->value);
+        $this->migrator->add('general.open_at_login', false);
     }
 };

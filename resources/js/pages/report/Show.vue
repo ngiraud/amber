@@ -3,20 +3,24 @@ import { Link, router } from '@inertiajs/vue3';
 import { DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
+import RegenerateSheet from '@/components/RegenerateSheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStep } from '@/types';
+import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
 
 const props = defineProps<{
     report: ActivityReport;
+    aiSettings: AiSettings;
+    reportSteps: ActivityReportStep[];
+    reportStatuses: ActivityReportStatus[];
 }>();
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -33,24 +37,10 @@ function formatMinutes(minutes: number): string {
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 
-function statusVariant(status: ActivityReport['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
-    if (status.label === 'Generating') return 'outline';
-    if (status.label === 'Draft') return 'secondary';
-    if (status.label === 'Failed') return 'destructive';
-    return 'default';
-}
-
-const STEPS: { key: ActivityReportStep; label: string }[] = [
-    { key: 'collecting_context', label: 'Collecting context' },
-    { key: 'building_lines', label: 'Building lines' },
-    { key: 'generating_files', label: 'Generating files' },
-    { key: 'completed', label: 'Done' },
-];
-
-const currentStep = ref<ActivityReportStep | null>(props.report.status.label === 'Generating' ? 'collecting_context' : null);
+const currentStep = ref<string | null>(props.report.status.label === 'Generating' ? props.reportSteps[0].value : null);
 
 const isDeleting = ref(false);
-const isRegenerating = ref(false);
+const regenerateSheetOpen = ref(false);
 
 function handleDelete(): void {
     router.delete(reportRoutes.destroy(props.report.id), {
@@ -63,28 +53,20 @@ function handleDelete(): void {
     });
 }
 
-function handleRegenerate(): void {
-    router.post(
-        reportRoutes.regenerate(props.report.id),
-        {},
-        {
-            onStart: () => {
-                isRegenerating.value = true;
-            },
-            onFinish: () => {
-                isRegenerating.value = false;
-            },
-        },
-    );
-}
-
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', (payload) => {
     if (payload.reportId !== props.report.id) return;
+
     if (payload.step === 'completed' || payload.step === 'failed') {
-        router.reload({ only: ['report'] });
+        router.reload({ only: ['report', 'flash', 'error'] });
     } else {
         currentStep.value = payload.step;
+
+        if (payload.step === 'summarizing' && payload.message) {
+            router.flash('error', payload.message);
+        }
     }
+
+    regenerateSheetOpen.value = false;
 });
 </script>
 
@@ -114,40 +96,45 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                     </Breadcrumb>
                 </template>
                 <template #actions>
-                    <Badge :variant="statusVariant(report.status)" :class="report.status.label === 'Generating' ? 'animate-pulse' : ''">
+                    <Badge
+                        v-if="report.status.shouldDisplayBadge"
+                        :variant="report.status.variant"
+                        :class="report.status.label === 'Generating' ? 'animate-pulse' : ''"
+                    >
                         {{ report.status.label }}
                     </Badge>
-                    <DropdownMenu v-if="report.status.label !== 'Generating'">
-                        <DropdownMenuTrigger as-child>
-                            <Button size="sm" variant="outline">
-                                <EllipsisIcon class="size-3.5" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem v-if="report.pdf_path" as-child>
-                                <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
-                                    <DownloadIcon />
-                                    Download PDF
-                                </a>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem v-if="report.csv_path" as-child>
-                                <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
-                                    <DownloadIcon />
-                                    Download CSV
-                                </a>
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator v-if="report.pdf_path || report.csv_path" />
-                            <DropdownMenuItem :disabled="isRegenerating" @click="handleRegenerate">
-                                <RefreshCwIcon />
-                                Regenerate
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem variant="destructive" :disabled="isDeleting" @click="handleDelete">
-                                <Trash2Icon />
-                                Delete
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div v-if="report.status.label !== 'Generating'" class="flex items-center gap-2">
+                        <Button v-if="report.pdf_path" size="sm" as-child>
+                            <a :href="reportRoutes.exportMethod({ report: report.id, format: 'pdf' }).url">
+                                <DownloadIcon class="mr-2 size-3.5" />
+                                PDF
+                            </a>
+                        </Button>
+                        <Button v-if="report.csv_path" size="sm" as-child>
+                            <a :href="reportRoutes.exportMethod({ report: report.id, format: 'csv' }).url">
+                                <DownloadIcon class="mr-2 size-3.5" />
+                                CSV
+                            </a>
+                        </Button>
+                        <RegenerateSheet v-model:open="regenerateSheetOpen" :report="report" :ai-settings="aiSettings" />
+                        <Button size="sm" variant="outline" @click="regenerateSheetOpen = true">
+                            <RefreshCwIcon class="mr-2 size-3.5" />
+                            Regenerate
+                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger as-child>
+                                <Button size="sm" variant="outline">
+                                    <EllipsisIcon class="size-3.5" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem variant="destructive" :disabled="isDeleting" @click="handleDelete">
+                                    <Trash2Icon class="mr-2 size-3.5" />
+                                    Delete
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </template>
             </PageHeader>
         </template>
@@ -160,19 +147,19 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2">
                     <div
-                        v-for="step in STEPS"
-                        :key="step.key"
+                        v-for="step in props.reportSteps"
+                        :key="step.value"
                         class="flex items-center gap-2 text-sm"
                         :class="{
-                            'font-medium text-foreground': currentStep === step.key,
-                            'text-muted-foreground': currentStep !== step.key,
+                            'font-medium text-foreground': currentStep === step.value,
+                            'text-muted-foreground': currentStep !== step.value,
                         }"
                     >
                         <span
                             class="size-2 rounded-full"
                             :class="{
-                                'animate-pulse bg-primary': currentStep === step.key,
-                                'bg-muted': currentStep !== step.key,
+                                'animate-pulse bg-primary': currentStep === step.value,
+                                'bg-muted': currentStep !== step.value,
                             }"
                         />
                         {{ step.label }}
@@ -248,7 +235,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                                 </TableCell>
                                 <TableCell class="text-right font-mono">{{ (line.minutes / 60).toFixed(2) }}</TableCell>
                                 <TableCell class="text-right font-mono">{{ line.days.toFixed(2) }}</TableCell>
-                                <TableCell class="whitespace-normal">{{ line.description ?? '—' }}</TableCell>
+                                <TableCell class="whitespace-normal">{{ line.display_description ?? '—' }}</TableCell>
                             </TableRow>
                         </TableBody>
                     </Table>

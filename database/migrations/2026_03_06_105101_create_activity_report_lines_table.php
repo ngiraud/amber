@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('minutes')->default(0);
             $table->decimal('days', 5, 2)->default(0);
             $table->text('description')->nullable();
+            $table->text('summary')->nullable();
             $table->timestamps();
 
             $table->unique(['activity_report_id', 'project_id', 'date']);

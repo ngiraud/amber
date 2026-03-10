@@ -26,6 +26,8 @@ class ActivityReportLineResource extends JsonResource
             'minutes' => $this->minutes,
             'days' => (float) $this->days,
             'description' => $this->description,
+            'summary' => $this->summary,
+            'display_description' => $this->summary ?? $this->description,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
 

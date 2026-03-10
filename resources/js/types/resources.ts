@@ -175,12 +175,18 @@ export type SourceDefinition = {
 
 export type LocaleOption = { value: string; label: string };
 
-export type ActivityReportStatus = {
+export interface ActivityReportStatus {
     value: number;
     label: string;
-};
+    variant: 'default' | 'secondary' | 'outline' | 'destructive';
+    shouldDisplayBadge: boolean;
+}
 
-export type ActivityReportStep = 'collecting_context' | 'building_lines' | 'generating_files' | 'completed' | 'failed';
+export interface ActivityReportStep {
+    value: string;
+    label: string;
+    shouldDisplayStep: boolean;
+}
 
 export type ActivityReportLine = {
     id: string;
@@ -190,9 +196,25 @@ export type ActivityReportLine = {
     minutes: number;
     days: number;
     description: string | null;
+    summary: string | null;
+    display_description: string | null;
     created_at: string;
     updated_at: string;
     project?: Project;
+};
+
+export type AiProviderOption = {
+    value: string;
+    label: string;
+    model: string;
+    requiresApiKey: boolean;
+};
+
+export type AiSettings = {
+    enabled: boolean;
+    provider: string | null;
+    api_key: string | null;
+    summary_language: string;
 };
 
 export type ActivityReport = {
@@ -217,6 +239,6 @@ export type ActivityReport = {
 
 export type ActivityReportProgressPayload = {
     reportId: string;
-    step: ActivityReportStep;
+    step: string;
     message?: string | null;
 };
