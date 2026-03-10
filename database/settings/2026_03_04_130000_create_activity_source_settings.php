@@ -2,36 +2,44 @@
 
 declare(strict_types=1);
 
-use Illuminate\Support\Facades\DB;
 use Spatie\LaravelSettings\Migrations\SettingsMigration;
 
 return new class extends SettingsMigration
 {
     public function up(): void
     {
-        /** @param  string  $name */
-        $read = fn (string $name): mixed => json_decode(
-            DB::table('settings')->where('group', 'activity')->where('name', $name)->value('payload') ?? 'null',
-            true
-        );
-
         $this->migrator->add('activity_sources.git', [
-            'enabled' => true,
+            'enabled' => false,
             'author_emails' => [],
         ]);
 
         $this->migrator->add('activity_sources.github', [
-            'enabled' => true,
+            'enabled' => false,
             'username' => '',
         ]);
 
         $this->migrator->add('activity_sources.claude_code', [
-            'enabled' => true,
+            'enabled' => false,
             'projects_path' => '~/.claude/projects',
         ]);
 
+        $this->migrator->add('activity_sources.gemini', [
+            'enabled' => false,
+            'projects_path' => '~/.gemini/tmp',
+        ]);
+
+        $this->migrator->add('activity_sources.mistral_vibe', [
+            'enabled' => false,
+            'projects_path' => '~/.vibe/logs/session',
+        ]);
+
+        $this->migrator->add('activity_sources.opencode', [
+            'enabled' => false,
+            'projects_path' => '~/.local/share/opencode',
+        ]);
+
         $this->migrator->add('activity_sources.fswatch', [
-            'enabled' => true,
+            'enabled' => false,
             'debounce_seconds' => 3,
             'excluded_patterns' => [
                 '\.git/',

@@ -36,7 +36,13 @@ defineExpose({ show });
                 <input type="hidden" name="mode" :value="mode" />
 
                 <InputField label="Starting from" :error="errors.from_date" required>
-                    <Input v-model="fromDate" name="from_date" type="date" class="dark:[color-scheme:dark]" :max="new Date().toISOString().slice(0, 10)" />
+                    <Input
+                        v-model="fromDate"
+                        name="from_date"
+                        type="date"
+                        class="dark:[color-scheme:dark]"
+                        :max="new Date().toISOString().slice(0, 10)"
+                    />
                 </InputField>
 
                 <div class="flex flex-col gap-2">

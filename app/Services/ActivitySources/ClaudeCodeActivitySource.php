@@ -199,7 +199,7 @@ class ClaudeCodeActivitySource implements ActivitySource
         $path = $this->settings->claude_code->projects_path;
 
         if (str_starts_with($path, '~')) {
-            $home = $_SERVER['HOME'] ?? posix_getpwuid(posix_getuid())['dir'];
+            $home = $_SERVER['HOME'] ?? getenv('HOME');
             $path = $home.mb_substr($path, 1);
         }
 

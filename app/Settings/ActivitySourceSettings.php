@@ -7,8 +7,11 @@ namespace App\Settings;
 use App\Data\ActivitySourceConfigs\ClaudeCodeSourceConfig;
 use App\Data\ActivitySourceConfigs\Contracts\SourceConfig;
 use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
+use App\Data\ActivitySourceConfigs\GeminiSourceConfig;
 use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
 use App\Data\ActivitySourceConfigs\GitSourceConfig;
+use App\Data\ActivitySourceConfigs\MistralVibeSourceConfig;
+use App\Data\ActivitySourceConfigs\OpencodeSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Settings\Casts\SourceConfigCast;
 use Illuminate\Support\Arr;
@@ -21,6 +24,12 @@ class ActivitySourceSettings extends Settings
     public GitHubSourceConfig $github;
 
     public ClaudeCodeSourceConfig $claude_code;
+
+    public GeminiSourceConfig $gemini;
+
+    public MistralVibeSourceConfig $mistral_vibe;
+
+    public OpencodeSourceConfig $opencode;
 
     public FswatchSourceConfig $fswatch;
 
