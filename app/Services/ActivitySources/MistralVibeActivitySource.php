@@ -100,9 +100,33 @@ class MistralVibeActivitySource implements ActivitySource
             projectRepository: $repo,
             metadata: [
                 'session_id' => $sessionId,
+                'git_branch' => $meta['git_branch'] ?? null,
+                'git_commit' => $meta['git_commit'] ?? null,
                 'source_file' => $dir.'/meta.json',
             ],
         ));
+
+        // Session end event
+        $endTime = $meta['end_time'] ?? null;
+        if ($endTime !== null) {
+            try {
+                $endedAt = CarbonImmutable::parse($endTime)->utc();
+                if ($endedAt->greaterThan($since)) {
+                    $events->push(new ActivityEventData(
+                        sourceType: $this->identifier(),
+                        type: ActivityEventType::VibeSessionEnd,
+                        occurredAt: $endedAt,
+                        projectRepository: $repo,
+                        metadata: [
+                            'session_id' => $sessionId,
+                            'source_file' => $dir.'/meta.json',
+                        ],
+                    ));
+                }
+            } catch (Throwable) {
+                // ignore invalid end_time
+            }
+        }
 
         $messagesFile = $dir.'/messages.jsonl';
         $lines = file($messagesFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
@@ -133,7 +157,7 @@ class MistralVibeActivitySource implements ActivitySource
                 foreach ($msg['tool_calls'] as $toolCall) {
                     $tool = $toolCall['function'] ?? [];
                     $name = $tool['name'] ?? '';
-                    if (in_array($name, ['search_replace', 'write_file'], true)) {
+                    if (in_array($name, ['search_replace'], true)) {
                         $args = json_decode($tool['arguments'] ?? '{}', true);
                         $filePath = $args['file_path'] ?? $args['path'] ?? null;
                         if ($filePath) {

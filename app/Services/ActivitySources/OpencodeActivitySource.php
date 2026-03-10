@@ -48,7 +48,6 @@ class OpencodeActivitySource implements ActivitySource
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-            // Get sessions modified since $since
             // Opencode timestamps are in milliseconds
             $sinceMs = $since->timestamp * 1000;
 
@@ -91,53 +90,66 @@ class OpencodeActivitySource implements ActivitySource
                     ));
                 }
 
-                // Get messages for this session
-                $msgStmt = $pdo->prepare('SELECT * FROM message WHERE session_id = :session_id AND time_created > :since');
-                $msgStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs]);
-                $messages = $msgStmt->fetchAll();
+                // User prompts — text parts linked to user messages
+                $promptStmt = $pdo->prepare('
+                    SELECT p.time_created, p.data
+                    FROM part p
+                    JOIN message m ON p.message_id = m.id
+                    WHERE p.session_id = :session_id
+                      AND json_extract(p.data, \'$.type\') = \'text\'
+                      AND json_extract(m.data, \'$.role\') = \'user\'
+                      AND p.time_created > :since
+                ');
+                $promptStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs]);
 
-                foreach ($messages as $message) {
-                    $data = json_decode($message['data'], true);
-                    if (! is_array($data)) {
+                foreach ($promptStmt->fetchAll() as $part) {
+                    $data = json_decode($part['data'], true);
+                    $text = $data['text'] ?? null;
+
+                    if (! $text) {
                         continue;
                     }
 
-                    $occurredAt = CarbonImmutable::createFromTimestampMs($message['time_created'])->utc();
+                    $events->push(new ActivityEventData(
+                        sourceType: $this->identifier(),
+                        type: ActivityEventType::OpencodeUserPrompt,
+                        occurredAt: CarbonImmutable::createFromTimestampMs($part['time_created'])->utc(),
+                        projectRepository: $matchedRepo,
+                        metadata: [
+                            'session_id' => $sessionId,
+                            'prompt' => mb_substr($text, 0, 500),
+                        ],
+                    ));
+                }
 
-                    // User prompt
-                    if (($data['role'] ?? null) === 'user') {
-                        $prompt = $data['content'] ?? null;
-                        if ($prompt) {
-                            $events->push(new ActivityEventData(
-                                sourceType: $this->identifier(),
-                                type: ActivityEventType::OpencodeUserPrompt,
-                                occurredAt: $occurredAt,
-                                projectRepository: $matchedRepo,
-                                metadata: [
-                                    'session_id' => $sessionId,
-                                    'prompt' => mb_substr((string) $prompt, 0, 500),
-                                ],
-                            ));
-                        }
-                    }
+                // File touches — patch parts contain git hash and modified file paths
+                $patchStmt = $pdo->prepare('
+                    SELECT time_created, data
+                    FROM part
+                    WHERE session_id = :session_id
+                      AND json_extract(data, \'$.type\') = \'patch\'
+                      AND time_created > :since
+                ');
+                $patchStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs]);
 
-                    // File changes (diffs in Opencode are often in the message data)
-                    $diffs = $data['summary']['diffs'] ?? [];
-                    if (! empty($diffs)) {
-                        foreach ($diffs as $diff) {
-                            $events->push(new ActivityEventData(
-                                sourceType: $this->identifier(),
-                                type: ActivityEventType::OpencodeFileTouch,
-                                occurredAt: $occurredAt,
-                                projectRepository: $matchedRepo,
-                                metadata: [
-                                    'file_path' => $diff['file'] ?? null,
-                                    'status' => $diff['status'] ?? null,
-                                    'additions' => $diff['additions'] ?? 0,
-                                    'deletions' => $diff['deletions'] ?? 0,
-                                ],
-                            ));
-                        }
+                foreach ($patchStmt->fetchAll() as $part) {
+                    $data = json_decode($part['data'], true);
+                    $files = $data['files'] ?? [];
+                    $hash = $data['hash'] ?? null;
+                    $occurredAt = CarbonImmutable::createFromTimestampMs($part['time_created'])->utc();
+
+                    foreach ($files as $filePath) {
+                        $events->push(new ActivityEventData(
+                            sourceType: $this->identifier(),
+                            type: ActivityEventType::OpencodeFileTouch,
+                            occurredAt: $occurredAt,
+                            projectRepository: $matchedRepo,
+                            metadata: [
+                                'session_id' => $sessionId,
+                                'file_path' => $filePath,
+                                'patch_hash' => $hash,
+                            ],
+                        ));
                     }
                 }
             }
