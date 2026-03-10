@@ -102,11 +102,7 @@ watch(open, (isOpen) => {
 
                     <InputField label="Rounding" :error="errors.rounding">
                         <NativeSelect name="rounding" :model-value="project?.rounding.value ?? 15">
-                            <NativeSelectOption
-                                v-for="option in ROUNDING_OPTIONS"
-                                :key="option.value"
-                                :value="option.value"
-                            >
+                            <NativeSelectOption v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
                                 {{ option.label }}
                             </NativeSelectOption>
                         </NativeSelect>

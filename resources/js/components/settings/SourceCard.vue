@@ -23,6 +23,8 @@ const props = defineProps<{
 
 const form = useForm({ enabled: Boolean(props.source.config.enabled) });
 
+const showForm = ref(Boolean(props.source.config.enabled));
+
 // Field values as a plain reactive record — honest about being dynamic
 const fieldValues = reactive<Record<string, unknown>>(initFieldValues());
 
@@ -69,12 +71,16 @@ function buildPayload(): Record<string, unknown> {
     return { [props.source.value]: result };
 }
 
-function save(visitOptions: { preserveScroll?: boolean } = {}): void {
+function save(visitOptions: { preserveScroll?: boolean; onSuccess?: () => void } = {}): void {
+    const { onSuccess, ...rest } = visitOptions;
+
     form.transform(() => buildPayload()).submit(sourcesRoutes.update(), {
-        ...visitOptions,
+        ...rest,
+        onSuccess,
         onError: (serverErrors: Record<string, string>) => {
             if (serverErrors[`${props.source.value}.enabled`]) {
                 form.enabled = Boolean(props.source.config.enabled);
+                showForm.value = Boolean(props.source.config.enabled);
             }
         },
     });
@@ -84,7 +90,19 @@ function save(visitOptions: { preserveScroll?: boolean } = {}): void {
 
 function onToggle(val: boolean): void {
     form.enabled = val;
-    save({ preserveScroll: true });
+
+    if (!val) {
+        showForm.value = false;
+    }
+
+    save({
+        preserveScroll: true,
+        onSuccess: () => {
+            if (val) {
+                showForm.value = true;
+            }
+        },
+    });
 }
 
 // ── Test ────────────────────────────────────────────────────────────────────
@@ -141,8 +159,9 @@ function setFieldValue(field: SourceFieldDefinition, value: unknown): void {
         <CardHeader class="border-b py-4">
             <CardTitle class="text-base font-semibold">{{ source.label }}</CardTitle>
             <CardDescription>{{ source.description }}</CardDescription>
-            <CardAction class="self-center">
-                <Switch v-model="form.enabled" @update:model-value="onToggle" />
+            <CardAction class="flex items-center gap-2 self-center">
+                <Loader2 v-if="form.processing" class="size-4 animate-spin text-muted-foreground" />
+                <Switch v-model="form.enabled" :disabled="form.processing" @update:model-value="onToggle" />
             </CardAction>
         </CardHeader>
 
@@ -153,8 +172,8 @@ function setFieldValue(field: SourceFieldDefinition, value: unknown): void {
             v-html="errors[`${source.value}.enabled`]"
         ></div>
 
-        <!-- Config content: only when enabled -->
-        <CardContent v-if="form.enabled" class="py-5">
+        <!-- Config content: visible once enabled save succeeds (or was already enabled) -->
+        <CardContent v-if="showForm" class="py-5">
             <form class="flex flex-col gap-4" @submit.prevent="save()">
                 <template v-for="field in source.fields" :key="field.name">
                     <InputField :label="field.label" :error="errors[field.name]" :hint="field.hint">

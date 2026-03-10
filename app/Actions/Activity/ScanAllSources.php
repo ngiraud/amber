@@ -19,7 +19,7 @@ class ScanAllSources extends Action
     /**
      * @return Collection<int, ActivityEvent>
      */
-    public function handle(CarbonImmutable $since): Collection
+    public function handle(CarbonImmutable $since, ?ActivityEventSourceType $sourceType = null): Collection
     {
         $repos = ProjectRepository::query()
             ->forActiveProjects()
@@ -29,7 +29,7 @@ class ScanAllSources extends Action
 
         $recordEventAction = app(RecordActivityEvent::class);
 
-        return $this->discoverSources()
+        return $this->discoverSources($sourceType)
             ->flatMap(fn (ActivitySource $source) => $source->scan($since, $repos))
             ->unique(fn (ActivityEventData $data) => implode('|', [
                 $data->sourceType->value,
@@ -44,9 +44,12 @@ class ScanAllSources extends Action
     /**
      * @return Collection<int, ActivitySource>
      */
-    public function discoverSources(): Collection
+    public function discoverSources(?ActivityEventSourceType $sourceType = null): Collection
     {
-        return ActivityEventSourceType::collect()
+        /** @var Collection<int, ActivityEventSourceType> $types */
+        $types = $sourceType ? collect([$sourceType]) : ActivityEventSourceType::collect();
+
+        return $types
             ->filter(fn (ActivityEventSourceType $type) => $type->isEnabled())
             ->map(fn (ActivityEventSourceType $type) => $type->sourceClass())
             ->filter()

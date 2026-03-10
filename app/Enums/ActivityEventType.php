@@ -21,6 +21,18 @@ enum ActivityEventType: string
     case ClaudeSessionEnd = 'claude-session-end';
     case ClaudeFileTouch = 'claude-file-touch';
     case ClaudeUserPrompt = 'claude-user-prompt';
+    case GeminiSessionStart = 'gemini-session-start';
+    case GeminiSessionEnd = 'gemini-session-end';
+    case GeminiFileTouch = 'gemini-file-touch';
+    case GeminiUserPrompt = 'gemini-user-prompt';
+    case VibeSessionStart = 'vibe-session-start';
+    case VibeSessionEnd = 'vibe-session-end';
+    case VibeFileTouch = 'vibe-file-touch';
+    case VibeUserPrompt = 'vibe-user-prompt';
+    case OpencodeSessionStart = 'opencode-session-start';
+    case OpencodeSessionEnd = 'opencode-session-end';
+    case OpencodeFileTouch = 'opencode-file-touch';
+    case OpencodeUserPrompt = 'opencode-user-prompt';
 
     public function label(): string
     {
@@ -30,10 +42,10 @@ enum ActivityEventType: string
             self::GitPrOpened => 'PR opened',
             self::GitPrMerged => 'PR merged',
             self::FileChange => 'File change',
-            self::ClaudeSessionStart => 'Session start',
-            self::ClaudeSessionEnd => 'Session end',
-            self::ClaudeFileTouch => 'File touch',
-            self::ClaudeUserPrompt => 'User prompt',
+            self::ClaudeSessionStart, self::GeminiSessionStart, self::VibeSessionStart, self::OpencodeSessionStart => 'Session start',
+            self::ClaudeSessionEnd, self::GeminiSessionEnd, self::VibeSessionEnd, self::OpencodeSessionEnd => 'Session end',
+            self::ClaudeFileTouch, self::GeminiFileTouch, self::VibeFileTouch, self::OpencodeFileTouch => 'File touch',
+            self::ClaudeUserPrompt, self::GeminiUserPrompt, self::VibeUserPrompt, self::OpencodeUserPrompt => 'User prompt',
         };
     }
 
@@ -52,7 +64,7 @@ enum ActivityEventType: string
                 'label' => $this->parseDetailsFromMetadata($metadata),
                 'detail' => null,
             ],
-            self::ClaudeUserPrompt => [
+            self::ClaudeUserPrompt, self::GeminiUserPrompt, self::VibeUserPrompt, self::OpencodeUserPrompt => [
                 'label' => null,
                 'detail' => $this->parseDetailsFromMetadata($metadata),
             ],
@@ -86,8 +98,15 @@ enum ActivityEventType: string
                 $metadata['number'] ?? '',
                 $metadata['title'] ?? '',
             ),
-            ActivityEventType::FileChange, ActivityEventType::ClaudeFileTouch => $metadata['file_path'] ?? '',
-            ActivityEventType::ClaudeUserPrompt => mb_substr($metadata['prompt'] ?? '', 0, 80),
+            ActivityEventType::FileChange,
+            ActivityEventType::ClaudeFileTouch,
+            ActivityEventType::GeminiFileTouch,
+            ActivityEventType::VibeFileTouch,
+            ActivityEventType::OpencodeFileTouch => $metadata['file_path'] ?? '',
+            ActivityEventType::ClaudeUserPrompt,
+            ActivityEventType::GeminiUserPrompt,
+            ActivityEventType::VibeUserPrompt,
+            ActivityEventType::OpencodeUserPrompt => mb_substr($metadata['prompt'] ?? '', 0, 80),
             default => '',
         };
     }
