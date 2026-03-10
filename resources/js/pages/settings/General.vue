@@ -7,17 +7,17 @@ import TimezoneCombobox from '@/components/TimezoneCombobox.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import * as generalRoutes from '@/routes/settings/general';
-import type { GeneralSettings, LocaleOption } from '@/types';
+import type { GeneralSettings } from '@/types';
 
 const props = defineProps<{
     generalSettings: GeneralSettings;
     timezones: string[];
-    locales: LocaleOption[];
+    // locales: LocaleOption[];
 }>();
 
 const ROUNDING_OPTIONS = [
@@ -34,7 +34,7 @@ const form = useForm({
     default_daily_reference_hours: props.generalSettings.default_daily_reference_hours ?? 7,
     default_rounding_strategy: props.generalSettings.default_rounding_strategy ?? 15,
     timezone: props.generalSettings.timezone ?? '',
-    locale: props.generalSettings.locale ?? '',
+    // locale: props.generalSettings.locale ?? '',
     theme: props.generalSettings.theme ?? 'system',
     open_at_login: props.generalSettings.open_at_login ?? false,
 });
@@ -62,21 +62,11 @@ function submit(): void {
                     <div class="flex flex-col gap-4">
                         <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Preferences</h2>
 
-                        <div class="grid grid-cols-2 gap-4">
-                            <InputField label="Timezone" :error="form.errors.timezone">
-                                <TimezoneCombobox v-model="form.timezone" :timezones="timezones" />
-                            </InputField>
+                        <InputField label="Timezone" :error="form.errors.timezone">
+                            <TimezoneCombobox v-model="form.timezone" :timezones="timezones" />
+                        </InputField>
 
-                            <InputField label="Language" :error="form.errors.locale">
-                                <NativeSelect v-model="form.locale" class="w-full">
-                                    <option v-for="locale in locales" :key="locale.value" :value="locale.value">
-                                        {{ locale.label }}
-                                    </option>
-                                </NativeSelect>
-                            </InputField>
-                        </div>
-
-                        <InputField label="Theme" :error="form.errors.theme">
+                        <InputField label="Theme" :error="form.errors.theme" direction="horizontal">
                             <AppearanceTabs v-model="form.theme" />
                         </InputField>
 
@@ -121,9 +111,9 @@ function submit(): void {
 
                             <InputField label="Default rounding" :error="form.errors.default_rounding_strategy">
                                 <NativeSelect v-model.number="form.default_rounding_strategy" class="w-full">
-                                    <option v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
+                                    <NativeSelectOption v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
                                         {{ option.label }}
-                                    </option>
+                                    </NativeSelectOption>
                                 </NativeSelect>
                             </InputField>
                         </div>
