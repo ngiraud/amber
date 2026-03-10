@@ -159,9 +159,9 @@ function setFieldValue(field: SourceFieldDefinition, value: unknown): void {
         <CardHeader class="border-b py-4">
             <CardTitle class="text-base font-semibold">{{ source.label }}</CardTitle>
             <CardDescription>{{ source.description }}</CardDescription>
-            <CardAction class="self-center">
+            <CardAction class="flex items-center gap-2 self-center">
                 <Loader2 v-if="form.processing" class="size-4 animate-spin text-muted-foreground" />
-                <Switch v-else v-model="form.enabled" @update:model-value="onToggle" />
+                <Switch v-model="form.enabled" :disabled="form.processing" @update:model-value="onToggle" />
             </CardAction>
         </CardHeader>
 
