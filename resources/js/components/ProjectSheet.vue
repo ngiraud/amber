@@ -5,6 +5,7 @@ import ColorPicker from '@/components/ColorPicker.vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import * as projectRoutes from '@/routes/projects';
 import type { Client, Project } from '@/types';
@@ -54,15 +55,12 @@ watch(open, (isOpen) => {
                 @success="() => (open = false)"
             >
                 <InputField label="Client" :error="errors.client_id" required>
-                    <select
-                        name="client_id"
-                        class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                    >
-                        <option value="" disabled :selected="!selectedClientId">Select a client…</option>
-                        <option v-for="c in clients" :key="c.id" :value="c.id" :selected="c.id === selectedClientId">
+                    <NativeSelect name="client_id" :model-value="selectedClientId">
+                        <NativeSelectOption value="" disabled>Select a client…</NativeSelectOption>
+                        <NativeSelectOption v-for="c in clients" :key="c.id" :value="c.id">
                             {{ c.name }}
-                        </option>
-                    </select>
+                        </NativeSelectOption>
+                    </NativeSelect>
                 </InputField>
 
                 <InputField label="Name" :error="errors.name" required>
@@ -103,19 +101,15 @@ watch(open, (isOpen) => {
                     </InputField>
 
                     <InputField label="Rounding" :error="errors.rounding">
-                        <select
-                            name="rounding"
-                            class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                        >
-                            <option
+                        <NativeSelect name="rounding" :model-value="project?.rounding.value ?? 15">
+                            <NativeSelectOption
                                 v-for="option in ROUNDING_OPTIONS"
                                 :key="option.value"
                                 :value="option.value"
-                                :selected="option.value === (project?.rounding.value ?? 15)"
                             >
                                 {{ option.label }}
-                            </option>
-                        </select>
+                            </NativeSelectOption>
+                        </NativeSelect>
                     </InputField>
                 </div>
 

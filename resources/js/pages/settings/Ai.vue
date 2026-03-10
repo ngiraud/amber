@@ -7,7 +7,7 @@ import SettingsLayout from '@/components/settings/SettingsLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { NativeSelect } from '@/components/ui/native-select';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Switch } from '@/components/ui/switch';
 import * as aiRoutes from '@/routes/settings/ai';
 import type { AiProviderOption, AiSettings } from '@/types';
@@ -90,10 +90,10 @@ async function handleTest(): Promise<void> {
                         :hint="selectedProvider?.model ? `Cheapest model: ${selectedProvider.model}` : undefined"
                     >
                         <NativeSelect v-model="form.provider" class="w-full">
-                            <option value="" disabled>Select a provider…</option>
-                            <option v-for="provider in providers" :key="provider.value" :value="provider.value">
+                            <NativeSelectOption value="" disabled>Select a provider…</NativeSelectOption>
+                            <NativeSelectOption v-for="provider in providers" :key="provider.value" :value="provider.value">
                                 {{ provider.label }}
-                            </option>
+                            </NativeSelectOption>
                         </NativeSelect>
                     </InputField>
 
@@ -117,9 +117,9 @@ async function handleTest(): Promise<void> {
 
                     <InputField label="Summary language" :error="form.errors.summary_language">
                         <NativeSelect v-model="form.summary_language" class="w-full">
-                            <option v-for="lang in LANGUAGE_OPTIONS" :key="lang.value" :value="lang.value">
+                            <NativeSelectOption v-for="lang in LANGUAGE_OPTIONS" :key="lang.value" :value="lang.value">
                                 {{ lang.label }}
-                            </option>
+                            </NativeSelectOption>
                         </NativeSelect>
                     </InputField>
                 </CardContent>

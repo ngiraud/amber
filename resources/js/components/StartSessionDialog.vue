@@ -6,6 +6,7 @@ import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
@@ -96,17 +97,12 @@ function submitPast(): void {
                 <TabsContent value="timer" class="mt-5 flex flex-col gap-5">
                     <div class="flex flex-col gap-2">
                         <Label for="timer-project_id">Project</Label>
-                        <select
-                            id="timer-project_id"
-                            v-model="timerForm.project_id"
-                            class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                            required
-                        >
-                            <option value="" disabled>Select a project…</option>
-                            <option v-for="project in projects" :key="project.id" :value="project.id">
+                        <NativeSelect id="timer-project_id" v-model="timerForm.project_id" required>
+                            <NativeSelectOption value="" disabled>Select a project…</NativeSelectOption>
+                            <NativeSelectOption v-for="project in projects" :key="project.id" :value="project.id">
                                 {{ project.client?.name }} — {{ project.name }}
-                            </option>
-                        </select>
+                            </NativeSelectOption>
+                        </NativeSelect>
                         <p v-if="timerForm.errors.project_id" class="text-sm text-destructive">{{ timerForm.errors.project_id }}</p>
                     </div>
 
@@ -126,17 +122,12 @@ function submitPast(): void {
                 <TabsContent value="past" class="mt-5 flex flex-col gap-5">
                     <div class="flex flex-col gap-2">
                         <Label for="past-project_id">Project</Label>
-                        <select
-                            id="past-project_id"
-                            v-model="pastForm.project_id"
-                            class="h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
-                            required
-                        >
-                            <option value="" disabled>Select a project…</option>
-                            <option v-for="project in projects" :key="project.id" :value="project.id">
+                        <NativeSelect id="past-project_id" v-model="pastForm.project_id" required>
+                            <NativeSelectOption value="" disabled>Select a project…</NativeSelectOption>
+                            <NativeSelectOption v-for="project in projects" :key="project.id" :value="project.id">
                                 {{ project.client?.name }} — {{ project.name }}
-                            </option>
-                        </select>
+                            </NativeSelectOption>
+                        </NativeSelect>
                         <p v-if="pastForm.errors.project_id" class="text-sm text-destructive">{{ pastForm.errors.project_id }}</p>
                     </div>
 
