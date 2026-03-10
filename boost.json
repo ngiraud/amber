@@ -2,7 +2,8 @@
     "agents": [
         "claude_code",
         "mistral_vibe",
-        "gemini"
+        "gemini",
+        "opencode"
     ],
     "guidelines": true,
     "herd_mcp": true,
