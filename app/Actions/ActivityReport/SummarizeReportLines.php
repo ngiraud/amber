@@ -6,9 +6,11 @@ namespace App\Actions\ActivityReport;
 
 use App\Actions\Action;
 use App\Ai\Agents\ReportSummarizer;
+use App\Exceptions\AiSummarizationException;
 use App\Models\ActivityReport;
 use App\Settings\AiSettings;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Laravel\Ai\Exceptions\AiException;
 use Throwable;
 
 class SummarizeReportLines extends Action
@@ -24,7 +26,7 @@ class SummarizeReportLines extends Action
             return;
         }
 
-        $lines = $report->lines()->whereNotNull('description')->get();
+        $lines = $report->lines->whereNotNull('description');
 
         if ($lines->isEmpty()) {
             return;
@@ -43,18 +45,25 @@ class SummarizeReportLines extends Action
                 $prompt,
                 provider: $this->settings->provider?->value,
             );
+        } catch (AiException $e) {
+            throw AiSummarizationException::fromAiException($e);
+        } catch (Throwable $e) {
+            throw AiSummarizationException::fromUnexpected($e);
+        }
 
-            /** @var array<int, array{id: string, summary: string}> $summaries */
-            $summaries = $response['summaries'] ?? [];
+        /** @var array<int, array{id: string, summary: string}> $summaries */
+        $summaries = $response['summaries'] ?? [];
 
+        $lineIds = $lines->pluck('id')->all();
+
+        DB::transaction(function () use ($summaries, $lines, $lineIds) {
             foreach ($summaries as $item) {
+                if (! in_array($item['id'], $lineIds)) {
+                    continue;
+                }
+
                 $lines->firstWhere('id', $item['id'])?->update(['summary' => $item['summary']]);
             }
-        } catch (Throwable $e) {
-            Log::warning('AI summarization failed, using raw descriptions.', [
-                'report_id' => $report->id,
-                'error' => $e->getMessage(),
-            ]);
-        }
+        });
     }
 }

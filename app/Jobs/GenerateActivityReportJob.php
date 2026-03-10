@@ -11,6 +11,7 @@ use App\Enums\ActivityReportExportFormat;
 use App\Enums\ActivityReportStatus;
 use App\Enums\ActivityReportStep;
 use App\Events\ActivityReportProgress;
+use App\Exceptions\AiSummarizationException;
 use App\Models\ActivityReport;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
@@ -104,7 +105,12 @@ class GenerateActivityReportJob implements ShouldQueue
 
         if ($this->useAiSummary) {
             event(new ActivityReportProgress($this->report->id, ActivityReportStep::Summarizing));
-            $summarizeReportLines->handle($this->report);
+
+            try {
+                $summarizeReportLines->handle($this->report);
+            } catch (AiSummarizationException $e) {
+                event(new ActivityReportProgress($this->report->id, ActivityReportStep::Summarizing, $e->getMessage()));
+            }
         }
 
         event(new ActivityReportProgress($this->report->id, ActivityReportStep::GeneratingFiles));

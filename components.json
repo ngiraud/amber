@@ -1,10 +1,10 @@
 {
     "$schema": "https://shadcn-vue.com/schema.json",
-    "style": "radix-mira",
+    "style": "new-york-v4",
     "tailwind": {
         "config": "tailwind.config.js",
         "css": "resources/css/app.css",
-        "baseColor": "olive",
+        "baseColor": "neutral",
         "cssVariables": true,
         "prefix": ""
     },
@@ -15,7 +15,5 @@
         "ui": "@/components/ui",
         "lib": "@/lib"
     },
-    "menuColor": "default",
-    "menuAccent": "bold",
     "iconLibrary": "lucide"
 }

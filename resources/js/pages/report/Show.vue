@@ -55,10 +55,15 @@ function handleDelete(): void {
 
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', (payload) => {
     if (payload.reportId !== props.report.id) return;
+
     if (payload.step === 'completed' || payload.step === 'failed') {
-        router.reload({ only: ['report'] });
+        router.reload({ only: ['report', 'flash', 'error'] });
     } else {
         currentStep.value = payload.step;
+
+        if (payload.step === 'summarizing' && payload.message) {
+            router.flash('error', payload.message);
+        }
     }
 
     regenerateSheetOpen.value = false;

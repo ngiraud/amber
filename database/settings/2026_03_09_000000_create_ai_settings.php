@@ -12,6 +12,6 @@ return new class extends SettingsMigration
         $this->migrator->add('ai.enabled', false);
         $this->migrator->add('ai.provider', null);
         $this->migrator->addEncrypted('ai.api_key', null);
-        $this->migrator->add('ai.summary_language', AvailableLocale::French->value);
+        $this->migrator->add('ai.summary_language', AvailableLocale::English->value);
     }
 };
