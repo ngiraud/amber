@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { router } from '@inertiajs/vue3';
+import { Form, router } from '@inertiajs/vue3';
 import { PlusIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import * as sessionRoutes from '@/routes/sessions';
+import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { reconstruct } from '@/routes/sessions';
 
 const props = defineProps<{
     date: string;
@@ -17,13 +18,8 @@ function handleClick(): void {
     if (props.hasSessions) {
         open.value = true;
     } else {
-        submit('gaps');
+        router.post(reconstruct().url, { date: props.date, mode: 'gaps' }, { preserveScroll: true });
     }
-}
-
-function submit(mode: 'gaps' | 'replace'): void {
-    open.value = false;
-    router.post(sessionRoutes.reconstruct().url, { date: props.date, mode }, { preserveScroll: true });
 }
 </script>
 
@@ -38,21 +34,33 @@ function submit(mode: 'gaps' | 'replace'): void {
             </DialogHeader>
 
             <div class="flex flex-col gap-3 pt-2">
-                <button class="flex items-start gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50" @click="submit('gaps')">
-                    <PlusIcon class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <div>
-                        <p class="text-sm font-medium">Fill gaps</p>
-                        <p class="text-sm text-muted-foreground">Add missing sessions without touching existing ones.</p>
-                    </div>
-                </button>
+                <Form :action="reconstruct()" @success="() => (open = false)">
+                    <input type="hidden" name="date" :value="date" />
+                    <input type="hidden" name="mode" value="gaps" />
+                    <Item as="button" type="submit" variant="outline" class="w-full cursor-pointer text-left transition-colors hover:bg-muted/50">
+                        <ItemMedia>
+                            <PlusIcon class="size-4 text-muted-foreground" />
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle>Fill gaps</ItemTitle>
+                            <ItemDescription>Add missing sessions without touching existing ones.</ItemDescription>
+                        </ItemContent>
+                    </Item>
+                </Form>
 
-                <button class="flex items-start gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-muted/50" @click="submit('replace')">
-                    <RefreshCwIcon class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-                    <div>
-                        <p class="text-sm font-medium">Rebuild auto sessions</p>
-                        <p class="text-sm text-muted-foreground">Delete auto-generated sessions and reconstruct from scratch.</p>
-                    </div>
-                </button>
+                <Form :action="reconstruct()" @success="() => (open = false)">
+                    <input type="hidden" name="date" :value="date" />
+                    <input type="hidden" name="mode" value="replace" />
+                    <Item as="button" type="submit" variant="outline" class="w-full cursor-pointer text-left transition-colors hover:bg-muted/50">
+                        <ItemMedia>
+                            <RefreshCwIcon class="size-4 text-muted-foreground" />
+                        </ItemMedia>
+                        <ItemContent>
+                            <ItemTitle>Rebuild auto sessions</ItemTitle>
+                            <ItemDescription>Delete auto-generated sessions and reconstruct from scratch.</ItemDescription>
+                        </ItemContent>
+                    </Item>
+                </Form>
             </div>
 
             <div class="flex justify-end pt-2">
