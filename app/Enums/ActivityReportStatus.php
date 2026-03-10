@@ -18,6 +18,37 @@ enum ActivityReportStatus: int
 
     public function label(): string
     {
-        return $this->name;
+        return match ($this) {
+            self::Draft => 'Draft',
+            self::Generating => 'Generating',
+            self::Failed => 'Failed',
+            self::Finalized => 'Finalized',
+            self::Sent => 'Sent',
+        };
+    }
+
+    public function variant(): string
+    {
+        return match ($this) {
+            self::Generating => 'outline',
+            self::Draft => 'secondary',
+            self::Failed => 'destructive',
+            default => 'default',
+        };
+    }
+
+    public function shouldDisplayBadge(): bool
+    {
+        return $this !== self::Finalized;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'value' => $this->value,
+            'label' => $this->label(),
+            'variant' => $this->variant(),
+            'shouldDisplayBadge' => $this->shouldDisplayBadge(),
+        ];
     }
 }

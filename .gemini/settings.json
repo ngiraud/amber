@@ -15,13 +15,6 @@
             "env": {
                 "SITE_PATH": "/Users/nico/code/activity-record-desktop"
             }
-        },
-        "shadcnVue": {
-            "command": "npx",
-            "args": [
-                "shadcn-vue@latest",
-                "mcp"
-            ]
         }
     }
 }
