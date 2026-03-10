@@ -46,8 +46,10 @@ class ScanAllSources extends Action
      */
     public function discoverSources(?ActivityEventSourceType $sourceType = null): Collection
     {
-        return ActivityEventSourceType::collect()
-            ->when($sourceType, fn ($collection) => $collection->filter(fn (ActivityEventSourceType $type) => $type === $sourceType))
+        /** @var Collection<int, ActivityEventSourceType> $types */
+        $types = $sourceType ? collect([$sourceType]) : ActivityEventSourceType::collect();
+
+        return $types
             ->filter(fn (ActivityEventSourceType $type) => $type->isEnabled())
             ->map(fn (ActivityEventSourceType $type) => $type->sourceClass())
             ->filter()

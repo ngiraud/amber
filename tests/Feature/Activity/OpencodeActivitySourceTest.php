@@ -37,18 +37,18 @@ it('returns opencode as the identifier', function () {
 
 it('detects Opencode events from SQLite database', function () {
     $cwd = '/tmp/test-opencode';
-    $repo = ProjectRepository::factory()->create(['local_path' => $cwd]);
+    ProjectRepository::factory()->create(['local_path' => $cwd]);
     $dbPath = opencodeTestBase().'/opencode.db';
 
     $pdo = new PDO("sqlite:{$dbPath}");
-    $pdo->exec('CREATE TABLE session (id TEXT PRIMARY KEY, path TEXT, title TEXT, time_created INTEGER, time_updated INTEGER)');
+    $pdo->exec('CREATE TABLE session (id TEXT PRIMARY KEY, directory TEXT, title TEXT, time_created INTEGER, time_updated INTEGER)');
     $pdo->exec('CREATE TABLE message (id TEXT PRIMARY KEY, session_id TEXT, time_created INTEGER, time_updated INTEGER, data TEXT)');
 
     $sessionId = 'ses_123';
     $nowMs = round(microtime(true) * 1000);
     $thirtyMinsAgoMs = $nowMs - (30 * 60 * 1000);
 
-    $pdo->prepare('INSERT INTO session (id, path, title, time_created, time_updated) VALUES (?, ?, ?, ?, ?)')
+    $pdo->prepare('INSERT INTO session (id, directory, title, time_created, time_updated) VALUES (?, ?, ?, ?, ?)')
         ->execute([$sessionId, $cwd, 'Test Session', $thirtyMinsAgoMs, $nowMs]);
 
     $messageData = json_encode([
