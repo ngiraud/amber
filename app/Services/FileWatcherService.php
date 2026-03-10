@@ -23,6 +23,8 @@ class FileWatcherService
 
     public static function isAvailable(): bool
     {
+        sleep(2);
+
         return Process::run(['fswatch', '--version'])->successful();
     }
 

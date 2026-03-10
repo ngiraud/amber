@@ -18,6 +18,9 @@ enum ActivityEventSourceType: string
     case Git = 'git';
     case GitHub = 'github';
     case ClaudeCode = 'claude_code';
+    case Gemini = 'gemini';
+    case MistralVibe = 'mistral_vibe';
+    case Opencode = 'opencode';
     case Fswatch = 'fswatch';
 
     public function isEnabled(): bool
@@ -42,6 +45,9 @@ enum ActivityEventSourceType: string
             self::Git => 'text-green-400',
             self::GitHub => 'text-purple-400',
             self::ClaudeCode => 'text-red-400',
+            self::Gemini => 'text-blue-400',
+            self::MistralVibe => 'text-orange-400',
+            self::Opencode => 'text-cyan-400',
             self::Fswatch => 'text-blue-400',
         };
     }
@@ -52,6 +58,9 @@ enum ActivityEventSourceType: string
             self::Git => 'Detect commits and branch activity from local repositories',
             self::GitHub => 'Detect pull requests, reviews, and issue activity',
             self::ClaudeCode => 'Detect Claude Code sessions and conversation history',
+            self::Gemini => 'Detect Gemini CLI sessions and conversation history',
+            self::MistralVibe => 'Detect Mistral Vibe sessions and conversation history',
+            self::Opencode => 'Detect Opencode sessions and conversation history',
             self::Fswatch => 'Detect file changes in real-time — restart required on toggle',
         };
     }
@@ -62,6 +71,9 @@ enum ActivityEventSourceType: string
             self::Git => 'Requires git — <code>brew install git</code>',
             self::GitHub => 'Requires GitHub CLI authenticated — <code>brew install gh && gh auth login</code>',
             self::ClaudeCode => 'Requires Claude Code CLI — <code>npm install -g @anthropic-ai/claude-code</code>',
+            self::Gemini => 'Requires Gemini CLI — <code>npm install -g @google/gemini-cli</code>',
+            self::MistralVibe => 'Requires Mistral Vibe — <code>curl -LsSf https://mistral.ai/vibe/install.sh | bash</code>',
+            self::Opencode => 'Requires Opencode — <code>curl -fsSL https://opencode.ai/install | bash</code>',
             self::Fswatch => 'Requires fswatch — <code>brew install fswatch</code>',
         };
     }

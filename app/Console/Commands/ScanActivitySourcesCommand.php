@@ -5,22 +5,40 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Activity\ScanAllSources;
+use App\Enums\ActivityEventSourceType;
 use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 
 class ScanActivitySourcesCommand extends Command
 {
-    protected $signature = 'activity:scan';
+    protected $signature = 'activity:scan {source?} {--since= : Relative time string (e.g., "1 hour ago")}';
 
-    protected $description = 'Scan all activity sources and record detected events';
+    protected $description = 'Scan activity sources and record detected events';
 
     public function handle(ScanAllSources $scanAllSources, ActivitySettings $settings): void
     {
-        $interval = $settings->scan_interval_minutes;
-        $since = CarbonImmutable::now()->subMinutes($interval + 1);
+        $sinceValue = $this->option('since');
 
-        $events = $scanAllSources->handle($since);
+        if ($sinceValue) {
+            $since = CarbonImmutable::parse((string) $sinceValue);
+        } else {
+            $interval = $settings->scan_interval_minutes;
+            $since = CarbonImmutable::now()->subMinutes($interval + 1);
+        }
+
+        $sourceName = $this->argument('source');
+        $sourceType = $sourceName ? ActivityEventSourceType::tryFrom((string) $sourceName) : null;
+
+        if ($sourceName && ! $sourceType) {
+            $this->error("Invalid source: {$sourceName}");
+
+            return;
+        }
+
+        $this->info("Scanning activity since {$since->toDateTimeString()}...");
+
+        $events = $scanAllSources->handle($since, $sourceType);
 
         $this->info("Recorded {$events->count()} activity event(s).");
     }
