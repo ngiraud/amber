@@ -59,13 +59,7 @@ const dateLabel = computed(() => {
                             </Link>
                         </Button>
 
-                        <Button
-                            size="sm"
-                            :class="spotlightClass('start-session')"
-                            @click="shouldOpen = true"
-                        >
-                            Add Session
-                        </Button>
+                        <Button size="sm" :class="spotlightClass('start-session')" @click="shouldOpen = true"> Add Session </Button>
                     </div>
                 </template>
             </PageHeader>

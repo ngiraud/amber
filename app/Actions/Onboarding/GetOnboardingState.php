@@ -24,12 +24,18 @@ class GetOnboardingState extends Action
     /**
      * @return array{
      *   dismissed: bool,
-     *   all_complete: bool,
-     *   steps: array<int, array{key: string, label: string, description: string, complete: bool, url: string, optional: bool}>
+     *   all_complete?: bool,
+     *   steps?: array<int, array{key: string, label: string, description: string, complete: bool, url: string, optional: bool}>
      * }
      */
     public function handle(): array
     {
+        if ($this->generalSettings->onboarding_dismissed) {
+            return [
+                'dismissed' => $this->generalSettings->onboarding_dismissed,
+            ];
+        }
+
         $steps = $this->buildSteps();
 
         $requiredSteps = array_filter($steps, fn (array $step): bool => ! $step['optional']);
@@ -101,13 +107,9 @@ class GetOnboardingState extends Action
 
     private function hasConfiguredSource(): bool
     {
-        foreach (ActivityEventSourceType::cases() as $type) {
-            $config = $this->sourceSettings->configFor($type);
-            if ($config->isEnabled()) {
-                return true;
-            }
-        }
-
-        return false;
+        return array_any(
+            ActivityEventSourceType::cases(),
+            fn (ActivityEventSourceType $type) => $this->sourceSettings->configFor($type)->isEnabled()
+        );
     }
 }

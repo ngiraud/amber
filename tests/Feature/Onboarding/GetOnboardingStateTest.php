@@ -109,7 +109,7 @@ describe('get onboarding state', function () {
         expect($state['all_complete'])->toBeTrue();
     });
 
-    it('returns dismissed flag from settings', function () {
+    it('only returns dismissed flag from settings when active', function () {
         $settings = app(GeneralSettings::class);
         $settings->onboarding_dismissed = true;
         $settings->save();
@@ -117,5 +117,6 @@ describe('get onboarding state', function () {
         $state = app(GetOnboardingState::class)->handle();
 
         expect($state['dismissed'])->toBeTrue();
+        expect($state)->not()->toHaveKeys(['steps', 'all_complete']);
     });
 });

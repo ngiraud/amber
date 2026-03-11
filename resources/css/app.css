@@ -118,6 +118,8 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+
+    --animate-spotlight: spotlight-pulse 1.8s ease-out 1 forwards;
 }
 
 @layer base {
@@ -156,11 +158,6 @@
 }
 
 @layer utilities {
-    .spotlight-active {
-        @apply rounded-lg;
-        animation: spotlight-pulse 1.8s ease-out 1 forwards;
-    }
-
     .log-entry-enter-active {
         @apply transition-opacity duration-300 ease-in-out;
     }

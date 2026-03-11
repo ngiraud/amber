@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
-use App\Actions\Onboarding\GetOnboardingState;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Project;
@@ -54,7 +53,6 @@ class HandleInertiaRequests extends Middleware
                 ? SessionResource::make($s)
                 : null,
             'projects' => Inertia::optional(fn () => ProjectResource::collection(Project::active()->with('client')->get())),
-            'onboarding' => fn () => app(GetOnboardingState::class)->handle(),
         ];
     }
 }

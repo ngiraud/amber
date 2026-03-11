@@ -14,9 +14,7 @@ export function useSpotlight() {
 
             // Remove the query param from the URL without triggering a navigation
             params.delete('spotlight');
-            const newUrl = params.toString()
-                ? `${window.location.pathname}?${params.toString()}`
-                : window.location.pathname;
+            const newUrl = params.toString() ? `${window.location.pathname}?${params.toString()}` : window.location.pathname;
             history.replaceState(null, '', newUrl);
 
             // Auto-clear after the animation completes
@@ -27,7 +25,7 @@ export function useSpotlight() {
     });
 
     function spotlightClass(key: string): Record<string, boolean> {
-        return { 'spotlight-active': activeTarget.value === key };
+        return { 'rounded-lg -m-2 p-2 animate-spotlight': activeTarget.value === key };
     }
 
     return { spotlightClass };

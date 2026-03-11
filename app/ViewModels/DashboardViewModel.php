@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ViewModels;
 
+use App\Actions\Onboarding\GetOnboardingState;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
 use App\Models\Project;
@@ -14,6 +15,8 @@ use Inertia\RenderContext;
 
 class DashboardViewModel implements ProvidesInertiaProperties
 {
+    public function __construct(protected GetOnboardingState $getOnboardingState) {}
+
     public function toInertiaProperties(RenderContext $context): array
     {
         $today = CarbonImmutable::today();
@@ -44,6 +47,7 @@ class DashboardViewModel implements ProvidesInertiaProperties
             'projects' => ProjectResource::collection(
                 Project::active()->with('client')->get()
             ),
+            'onboarding' => fn () => $this->getOnboardingState->handle(),
         ];
     }
 }

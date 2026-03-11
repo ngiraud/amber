@@ -254,6 +254,6 @@ export type OnboardingStep = {
 
 export type OnboardingState = {
     dismissed: boolean;
-    all_complete: boolean;
-    steps: OnboardingStep[];
+    all_complete?: boolean;
+    steps?: OnboardingStep[];
 };

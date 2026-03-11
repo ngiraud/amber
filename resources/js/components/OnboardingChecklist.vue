@@ -12,16 +12,19 @@ const props = defineProps<{
     onboarding: OnboardingState;
 }>();
 
-const completedCount = computed(() => props.onboarding.steps.filter((s) => s.complete).length);
-const totalCount = computed(() => props.onboarding.steps.length);
+const completedCount = computed(() => (props.onboarding.steps ?? []).filter((s) => s.complete).length);
+const totalCount = computed(() => (props.onboarding.steps || []).length);
 const progressPercent = computed(() => Math.round((completedCount.value / totalCount.value) * 100));
 
 const { shouldOpen: shouldOpenSession } = useOpenSessionDialog();
 
 function actionFor(step: OnboardingStep): (() => void) | undefined {
     if (step.key === 'start-session') {
-        return () => { shouldOpenSession.value = true; };
+        return () => {
+            shouldOpenSession.value = true;
+        };
     }
+
     return undefined;
 }
 
@@ -36,20 +39,13 @@ function dismiss() {
             <div class="flex items-center justify-between">
                 <div>
                     <CardTitle class="text-base">Get started with Activity Record</CardTitle>
-                    <p class="mt-1 text-sm text-muted-foreground">
-                        {{ completedCount }} of {{ totalCount }} steps completed
-                    </p>
+                    <p class="mt-1 text-sm text-muted-foreground">{{ completedCount }} of {{ totalCount }} steps completed</p>
                 </div>
-                <Button variant="ghost" size="sm" class="text-muted-foreground" @click="dismiss">
-                    Dismiss
-                </Button>
+                <Button variant="ghost" size="sm" class="text-muted-foreground" @click="dismiss"> Dismiss </Button>
             </div>
 
             <div class="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-muted">
-                <div
-                    class="h-full rounded-full bg-primary transition-all duration-500"
-                    :style="{ width: `${progressPercent}%` }"
-                />
+                <div class="h-full rounded-full bg-primary transition-all duration-500" :style="{ width: `${progressPercent}%` }" />
             </div>
         </CardHeader>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSpotlight } from '@/composables/useSpotlight';
 import SettingsLayout from '@/components/settings/SettingsLayout.vue';
 import SourceCard from '@/components/settings/SourceCard.vue';
+import { useSpotlight } from '@/composables/useSpotlight';
 import type { SourceDefinition } from '@/types';
 
 defineProps<{
