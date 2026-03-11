@@ -15,13 +15,13 @@ enum ActivityEventSourceType: string
 {
     use EnhanceEnum;
 
+    case Fswatch = 'fswatch';
     case Git = 'git';
     case GitHub = 'github';
     case ClaudeCode = 'claude_code';
     case Gemini = 'gemini';
     case MistralVibe = 'mistral_vibe';
     case Opencode = 'opencode';
-    case Fswatch = 'fswatch';
 
     public function isEnabled(): bool
     {
@@ -68,13 +68,13 @@ enum ActivityEventSourceType: string
     public function requirements(): string
     {
         return match ($this) {
-            self::Git => 'Requires git — <code>brew install git</code>',
-            self::GitHub => 'Requires GitHub CLI authenticated — <code>brew install gh && gh auth login</code>',
-            self::ClaudeCode => 'Requires Claude Code CLI — <code>npm install -g @anthropic-ai/claude-code</code>',
-            self::Gemini => 'Requires Gemini CLI — <code>npm install -g @google/gemini-cli</code>',
-            self::MistralVibe => 'Requires Mistral Vibe — <code>curl -LsSf https://mistral.ai/vibe/install.sh | bash</code>',
-            self::Opencode => 'Requires Opencode — <code>curl -fsSL https://opencode.ai/install | bash</code>',
-            self::Fswatch => 'Requires fswatch — <code>brew install fswatch</code>',
+            self::Git => 'Requires git<code class="block mt-1">brew install git</code>',
+            self::GitHub => 'Requires GitHub CLI authenticated<code class="block mt-1">brew install gh && gh auth login</code>',
+            self::ClaudeCode => 'Requires Claude Code CLI<code class="block mt-1">npm install -g @anthropic-ai/claude-code</code>',
+            self::Gemini => 'Requires Gemini CLI<code class="block mt-1">npm install -g @google/gemini-cli</code>',
+            self::MistralVibe => 'Requires Mistral Vibe<code class="block mt-1">curl -LsSf https://mistral.ai/vibe/install.sh | bash</code>',
+            self::Opencode => 'Requires Opencode<code class="block mt-1">curl -fsSL https://opencode.ai/install | bash</code>',
+            self::Fswatch => 'Requires fswatch<code class="block mt-1">brew install fswatch</code>',
         };
     }
 

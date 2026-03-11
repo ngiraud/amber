@@ -5,9 +5,12 @@ import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
+import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import type { Client, Paginator } from '@/types';
+
+const { spotlightClass } = useSpotlight();
 
 defineProps<{
     clients: Paginator<Client>;
@@ -20,7 +23,7 @@ defineProps<{
             <PageHeader title="Clients">
                 <template #actions>
                     <ClientSheet>
-                        <Button size="sm">New client</Button>
+                        <Button size="sm" :class="spotlightClass('new-client')">New client</Button>
                     </ClientSheet>
                 </template>
             </PageHeader>
@@ -30,7 +33,7 @@ defineProps<{
             <EmptyTitle>No clients yet</EmptyTitle>
             <EmptyDescription>Get started by adding your first client.</EmptyDescription>
             <ClientSheet>
-                <Button size="sm">New client</Button>
+                <Button size="sm" :class="spotlightClass('new-client')">New client</Button>
             </ClientSheet>
         </Empty>
 

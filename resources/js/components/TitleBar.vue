@@ -51,7 +51,7 @@ const activeSession = computed(() => page.props.activeSession);
                     <SessionTimer :started-at="activeSession.started_at" />
                 </span>
                 <Form :action="sessionRoutes.stop(activeSession)" method="patch" #default="{ submit }">
-                    <Button variant="ghost" size="sm" class="h-6 text-xs text-muted-foreground hover:text-destructive" @click="submit">
+                    <Button variant="ghost" size="sm" class="h-6 text-xs text-muted-foreground hover:text-white" @click="submit">
                         <SquareIcon class="size-3 fill-current" />
                         Stop
                     </Button>

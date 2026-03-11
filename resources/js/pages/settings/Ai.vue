@@ -9,8 +9,11 @@ import { Card, CardAction, CardContent, CardDescription, CardFooter, CardHeader,
 import { Input } from '@/components/ui/input';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Switch } from '@/components/ui/switch';
+import { useSpotlight } from '@/composables/useSpotlight';
 import * as aiRoutes from '@/routes/settings/ai';
 import type { AiProviderOption, AiSettings } from '@/types';
+
+const { spotlightClass } = useSpotlight();
 
 const props = defineProps<{
     aiSettings: AiSettings;
@@ -72,7 +75,7 @@ async function handleTest(): Promise<void> {
 <template>
     <SettingsLayout active-tab="ai">
         <Form @submit.prevent="form.submit(aiRoutes.update())">
-            <Card class="gap-0 overflow-hidden py-0">
+            <Card :class="['gap-0 overflow-hidden py-0', spotlightClass('ai')]">
                 <!-- Header: title + description + toggle -->
                 <CardHeader class="border-b py-4">
                     <CardTitle class="text-base font-semibold">AI Summaries</CardTitle>
