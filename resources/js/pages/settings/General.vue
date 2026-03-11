@@ -11,8 +11,11 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { useSpotlight } from '@/composables/useSpotlight';
 import * as generalRoutes from '@/routes/settings/general';
 import type { GeneralSettings } from '@/types';
+
+const { spotlightClass } = useSpotlight();
 
 const props = defineProps<{
     generalSettings: GeneralSettings;
@@ -77,7 +80,7 @@ function submit(): void {
 
                     <Separator />
 
-                    <div class="flex flex-col gap-4">
+                    <div :class="['flex flex-col gap-4 rounded-lg p-0 transition-all', spotlightClass('company')]">
                         <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Company</h2>
 
                         <InputField label="Company name" :error="form.errors.company_name">

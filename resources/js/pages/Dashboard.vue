@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { Link, router } from '@inertiajs/vue3';
+import { Link, router, usePage } from '@inertiajs/vue3';
 import { CalendarDaysIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
+import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Empty, EmptyDescription } from '@/components/ui/empty';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
+import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
-import type { Session } from '@/types';
+import type { OnboardingState, Session } from '@/types';
 
 const props = defineProps<{
     date: string;
@@ -20,6 +22,12 @@ const props = defineProps<{
     week_minutes: number;
     month_minutes: number;
 }>();
+
+const page = usePage<{ onboarding: OnboardingState }>();
+const onboarding = computed(() => page.props.onboarding);
+const showChecklist = computed(() => !onboarding.value?.dismissed && !onboarding.value?.all_complete);
+
+const { spotlightClass } = useSpotlight();
 
 const { shouldOpen } = useOpenSessionDialog();
 
@@ -51,11 +59,13 @@ const dateLabel = computed(() => {
                             </Link>
                         </Button>
 
-                        <Button size="sm" @click="shouldOpen = true">Add Session</Button>
+                        <Button size="sm" :class="spotlightClass('start-session')" @click="shouldOpen = true"> Add Session </Button>
                     </div>
                 </template>
             </PageHeader>
         </template>
+
+        <OnboardingChecklist v-if="showChecklist" :onboarding="onboarding" />
 
         <div class="mb-6 grid grid-cols-3 gap-4">
             <Card>

@@ -294,6 +294,12 @@ describe('TestActivitySourceConnection action', function () {
 })->group('actions');
 
 describe('UpdateActivitySourceSettings action', function () {
+    beforeEach(function () {
+        TestActivitySourceConnection::fake()
+            ->shouldReceive('handle')
+            ->andReturn(true);
+    });
+
     it('persists source settings as DTOs', function () {
         UpdateActivitySourceSettings::make()->handle([
             'git' => ['enabled' => false, 'author_emails' => ['dev@example.com']],

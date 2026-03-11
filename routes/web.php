@@ -7,6 +7,7 @@ use App\Http\Controllers\ActivityReportController;
 use App\Http\Controllers\ActivityReportExportController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DismissOnboardingController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
 use App\Http\Controllers\RegenerateActivityReportController;
@@ -20,6 +21,9 @@ use App\Http\Controllers\TimelineController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
+
+// Onboarding
+Route::post('/onboarding/dismiss', DismissOnboardingController::class)->name('onboarding.dismiss');
 
 // Activity
 Route::get('/activity', ActivityEventController::class)->name('activity.index');

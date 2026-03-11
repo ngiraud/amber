@@ -118,6 +118,8 @@
     --radius-2xl: calc(var(--radius) * 1.8);
     --radius-3xl: calc(var(--radius) * 2.2);
     --radius-4xl: calc(var(--radius) * 2.6);
+
+    --animate-spotlight: spotlight-pulse 1.8s ease-out 1 forwards;
 }
 
 @layer base {
@@ -131,6 +133,27 @@
 
     html {
         @apply font-sans;
+    }
+}
+
+@keyframes spotlight-pulse {
+    0% {
+        box-shadow:
+            0 0 0 3px var(--background),
+            0 0 0 5px oklch(from var(--primary) l c h / 60%),
+            0 0 20px 4px oklch(from var(--primary) l c h / 25%);
+    }
+    50% {
+        box-shadow:
+            0 0 0 3px var(--background),
+            0 0 0 5px oklch(from var(--primary) l c h / 30%),
+            0 0 32px 8px oklch(from var(--primary) l c h / 10%);
+    }
+    100% {
+        box-shadow:
+            0 0 0 3px var(--background),
+            0 0 0 5px oklch(from var(--primary) l c h / 0%),
+            0 0 0 0 oklch(from var(--primary) l c h / 0%);
     }
 }
 

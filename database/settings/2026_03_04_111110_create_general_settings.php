@@ -15,7 +15,7 @@ return new class extends SettingsMigration
         $this->migrator->add('general.company_address', null);
         $this->migrator->add('general.default_hourly_rate', null);
         $this->migrator->add('general.default_daily_rate', null);
-        $this->migrator->add('general.default_daily_reference_hours', 7);
+        $this->migrator->add('general.default_daily_reference_hours', 8);
         $this->migrator->add('general.default_rounding_strategy', RoundingStrategy::Quarter->value);
         $this->migrator->add('general.timezone', 'Europe/Paris');
         $this->migrator->add('general.locale', AvailableLocale::English->value);

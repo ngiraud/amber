@@ -31,6 +31,8 @@ class GeneralSettings extends Settings
 
     public bool $open_at_login;
 
+    public bool $onboarding_dismissed;
+
     public static function group(): string
     {
         return 'general';
