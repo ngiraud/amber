@@ -43,12 +43,12 @@ enum ActivityEventSourceType: string
     {
         return match ($this) {
             self::Git => 'text-green-400',
-            self::GitHub => 'text-purple-400',
-            self::ClaudeCode => 'text-red-400',
-            self::Gemini => 'text-blue-400',
-            self::MistralVibe => 'text-orange-400',
-            self::Opencode => 'text-cyan-400',
-            self::Fswatch => 'text-blue-400',
+            self::GitHub => 'text-[#0FBF3E]',
+            self::ClaudeCode => 'text-[#DE7356]',
+            self::Gemini => 'text-[#4796E3]',
+            self::MistralVibe => 'text-[#FFAF00]',
+            self::Opencode => 'text-[#007ACC]',
+            self::Fswatch => 'text-rose-400',
         };
     }
 
