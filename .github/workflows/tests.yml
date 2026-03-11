@@ -76,7 +76,7 @@ jobs:
         run: php artisan key:generate
 
       - name: Run Pint
-        run: pint --parallel --test -vvv
+        run: vendor/bin/pint --parallel --test -vvv
 
       - name: Run Tests
         run: composer test:all
