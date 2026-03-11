@@ -107,6 +107,12 @@ describe('get onboarding state', function () {
         $state = app(GetOnboardingState::class)->handle();
 
         expect($state['all_complete'])->toBeTrue();
+
+        // assert that dismissed flag is set to true if all complete is true
+        expect($state['dismissed'])->toBeTrue();
+
+        $generalSettings = app(GeneralSettings::class);
+        expect($generalSettings->onboarding_dismissed)->toBeTrue();
     });
 
     it('only returns dismissed flag from settings when active', function () {

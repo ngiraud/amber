@@ -41,6 +41,11 @@ class GetOnboardingState extends Action
         $requiredSteps = array_filter($steps, fn (array $step): bool => ! $step['optional']);
         $allComplete = count(array_filter($requiredSteps, fn (array $step): bool => $step['complete'])) === count($requiredSteps);
 
+        if ($allComplete) {
+            $this->generalSettings->onboarding_dismissed = true;
+            $this->generalSettings->save();
+        }
+
         return [
             'dismissed' => $this->generalSettings->onboarding_dismissed,
             'all_complete' => $allComplete,
