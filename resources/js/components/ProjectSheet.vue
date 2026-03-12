@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Form, usePage } from '@inertiajs/vue3';
-import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from 'lucide-vue-next';
+import { ChevronDownIcon, PlusIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import ColorPicker from '@/components/ColorPicker.vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Input } from '@/components/ui/input';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -34,14 +35,14 @@ const selectedClientId = computed(() => props.project?.client_id ?? props.client
 
 const color = ref(props.project?.color ?? '#6366f1');
 const showAdvanced = ref(false);
-const showRepos = ref(false);
+const showRepos = ref(true);
 const repos = ref<Repo[]>([]);
 
 watch(open, (isOpen) => {
     if (isOpen) {
         color.value = props.project?.color ?? '#6366f1';
         showAdvanced.value = false;
-        showRepos.value = false;
+        showRepos.value = true;
         repos.value = [];
     }
 });
@@ -89,18 +90,55 @@ function removeRepo(index: number): void {
                     <ColorPicker v-model="color" name="color" />
                 </InputField>
 
-                <!-- Advanced section -->
-                <div class="flex flex-col gap-1">
-                    <button
-                        type="button"
-                        class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        @click="showAdvanced = !showAdvanced"
+                <!-- Repositories section (create mode only) -->
+                <Collapsible v-if="!isEditing" v-model:open="showRepos">
+                    <CollapsibleTrigger
+                        class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
                     >
-                        <component :is="showAdvanced ? ChevronUpIcon : ChevronDownIcon" class="h-3.5 w-3.5" />
-                        Advanced settings
-                    </button>
+                        <ChevronDownIcon class="h-3.5 w-3.5 transition-transform duration-200" :class="{ '-rotate-90': !showRepos }" />
+                        Repositories
+                        <span v-if="repos.length" class="ml-1 text-xs text-foreground">({{ repos.length }})</span>
+                    </CollapsibleTrigger>
 
-                    <div v-show="showAdvanced" class="flex flex-col gap-4 pt-2">
+                    <CollapsibleContent class="flex flex-col gap-3 pt-3">
+                        <div v-for="(repo, i) in repos" :key="i" class="flex flex-col gap-2 rounded-md border p-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-muted-foreground">Repository {{ i + 1 }}</span>
+                                <button type="button" class="text-muted-foreground transition-colors hover:text-destructive" @click="removeRepo(i)">
+                                    <TrashIcon class="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                            <InputField label="Name" :error="(errors as Record<string, string>)[`repositories.${i}.name`]">
+                                <Input :name="`repositories[${i}][name]`" type="text" placeholder="my-repo" v-model="repo.name" />
+                            </InputField>
+                            <InputField label="Local path" :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]">
+                                <Input
+                                    :name="`repositories[${i}][local_path]`"
+                                    type="text"
+                                    placeholder="/Users/me/code/my-repo"
+                                    class="font-mono"
+                                    v-model="repo.local_path"
+                                />
+                            </InputField>
+                        </div>
+
+                        <Button type="button" variant="outline" size="sm" class="w-full" @click="addRepo">
+                            <PlusIcon class="mr-1.5 h-3.5 w-3.5" />
+                            Add a repository
+                        </Button>
+                    </CollapsibleContent>
+                </Collapsible>
+
+                <!-- Advanced section -->
+                <Collapsible v-model:open="showAdvanced">
+                    <CollapsibleTrigger
+                        class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                    >
+                        <ChevronDownIcon class="h-3.5 w-3.5 transition-transform duration-200" :class="{ '-rotate-90': !showAdvanced }" />
+                        Advanced settings
+                    </CollapsibleTrigger>
+
+                    <CollapsibleContent class="flex flex-col gap-4 pt-3">
                         <div class="grid grid-cols-2 gap-4">
                             <InputField label="Hourly rate (€)" :error="errors.hourly_rate">
                                 <Input
@@ -144,58 +182,8 @@ function removeRepo(index: number): void {
                                 </NativeSelect>
                             </InputField>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Repositories section (create mode only) -->
-                <div v-if="!isEditing" class="flex flex-col gap-1">
-                    <button
-                        type="button"
-                        class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-                        @click="showRepos = !showRepos"
-                    >
-                        <component :is="showRepos ? ChevronUpIcon : ChevronDownIcon" class="h-3.5 w-3.5" />
-                        Repositories
-                        <span v-if="repos.length" class="ml-1 text-xs text-foreground">({{ repos.length }})</span>
-                    </button>
-
-                    <div v-show="showRepos" class="flex flex-col gap-3 pt-2">
-                        <div v-for="(repo, i) in repos" :key="i" class="flex flex-col gap-2 rounded-md border p-3">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-muted-foreground">Repository {{ i + 1 }}</span>
-                                <button
-                                    type="button"
-                                    class="text-muted-foreground hover:text-destructive transition-colors"
-                                    @click="removeRepo(i)"
-                                >
-                                    <TrashIcon class="h-3.5 w-3.5" />
-                                </button>
-                            </div>
-                            <InputField label="Name" :error="(errors as Record<string, string>)[`repositories.${i}.name`]">
-                                <Input
-                                    :name="`repositories[${i}][name]`"
-                                    type="text"
-                                    placeholder="my-repo"
-                                    v-model="repo.name"
-                                />
-                            </InputField>
-                            <InputField label="Local path" :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]">
-                                <Input
-                                    :name="`repositories[${i}][local_path]`"
-                                    type="text"
-                                    placeholder="/Users/me/code/my-repo"
-                                    class="font-mono"
-                                    v-model="repo.local_path"
-                                />
-                            </InputField>
-                        </div>
-
-                        <Button type="button" variant="outline" size="sm" class="w-full" @click="addRepo">
-                            <PlusIcon class="mr-1.5 h-3.5 w-3.5" />
-                            Add a repository
-                        </Button>
-                    </div>
-                </div>
+                    </CollapsibleContent>
+                </Collapsible>
 
                 <SheetFooter>
                     <Button type="submit" :disabled="processing" class="w-full">

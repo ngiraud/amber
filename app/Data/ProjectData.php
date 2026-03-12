@@ -34,9 +34,7 @@ class ProjectData
             client: $data['client_id'] instanceof Client ? $data['client_id'] : Client::findOrFail($data['client_id']),
             name: $data['name'],
             color: $data['color'],
-            rounding: isset($data['rounding'])
-                ? RoundingStrategy::from((int) $data['rounding'])
-                : $settings->default_rounding_strategy,
+            rounding: isset($data['rounding']) ? RoundingStrategy::from((int) $data['rounding']) : $settings->default_rounding_strategy,
             daily_reference_hours: (int) ($data['daily_reference_hours'] ?? $settings->default_daily_reference_hours),
             is_active: (bool) ($data['is_active'] ?? true),
             hourly_rate: isset($data['hourly_rate']) ? (float) $data['hourly_rate'] : $settings->default_hourly_rate,

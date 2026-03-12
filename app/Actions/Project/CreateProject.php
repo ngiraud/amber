@@ -11,10 +11,18 @@ use Illuminate\Support\Facades\DB;
 
 class CreateProject extends Action
 {
+    public function __construct(protected AttachRepository $attachRepository) {}
+
     public function handle(ProjectData $data): Project
     {
         return DB::transaction(function () use ($data) {
-            return Project::create($data->toArray());
+            $project = Project::create($data->toArray());
+
+            foreach ($data->repositories as $repo) {
+                $this->attachRepository->handle($project, $repo);
+            }
+
+            return $project;
         });
     }
 }

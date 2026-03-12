@@ -19,6 +19,7 @@ use App\Http\Controllers\Settings\AiSettingsController;
 use App\Http\Controllers\Settings\GeneralSettingsController;
 use App\Http\Controllers\Settings\ResetDatabaseController;
 use App\Http\Controllers\TimelineController;
+use App\Http\Controllers\ToggleProjectStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
@@ -42,6 +43,7 @@ Route::post('/projects', [ProjectController::class, 'store'])->name('projects.st
 Route::get('/projects/{project}', [ProjectController::class, 'show'])->name('projects.show');
 Route::patch('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
 Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+Route::post('/projects/{project}/toggle-status', ToggleProjectStatusController::class)->name('projects.toggle-status');
 
 // Repositories
 Route::scopeBindings()->group(function () {

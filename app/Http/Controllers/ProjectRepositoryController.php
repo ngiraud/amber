@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Project\AttachRepository;
 use App\Actions\Project\DetachRepository;
+use App\Data\ProjectRepositoryData;
 use App\Http\Requests\Project\StoreProjectRepositoryRequest;
 use App\Models\Project;
 use App\Models\ProjectRepository;
@@ -16,7 +17,7 @@ class ProjectRepositoryController extends Controller
 {
     public function store(StoreProjectRepositoryRequest $request, Project $project, AttachRepository $action): RedirectResponse
     {
-        $action->handle($project, $request->validated('local_path'), $request->validated('name'));
+        $action->handle($project, ProjectRepositoryData::fromArray($request->validated()));
 
         Inertia::flash('success', 'Repository attached successfully.');
 

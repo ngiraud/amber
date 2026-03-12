@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Project\CreateProject;
 use App\Data\ProjectData;
+use App\Data\ProjectRepositoryData;
 use App\Enums\RoundingStrategy;
 use App\Models\Client;
 use App\Models\Project;
@@ -27,7 +28,29 @@ describe('create project', function () {
             'color' => '#6366f1',
             'rounding' => RoundingStrategy::Quarter->value,
             'daily_reference_hours' => 7,
-            'is_active' => true,
+        ])->assertRedirectToRoute('projects.show', $project);
+    });
+
+    it('passes repositories via ProjectData to CreateProject action', function () {
+        $client = Client::factory()->create();
+        $project = Project::factory()->make(['id' => 'fake-id', 'client_id' => $client->id]);
+
+        CreateProject::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->with(Mockery::on(fn ($data) => $data->repositories->count() === 1
+                && $data->repositories->first()->name === 'my-repo'
+                && $data->repositories->first()->localPath === '/Users/me/code/my-repo'
+            ))
+            ->andReturn($project);
+
+        $this->post(route('projects.store'), [
+            'client_id' => $client->id,
+            'name' => 'New Project',
+            'color' => '#6366f1',
+            'rounding' => RoundingStrategy::Quarter->value,
+            'daily_reference_hours' => 7,
+            'repositories' => [['name' => 'my-repo', 'local_path' => '/Users/me/code/my-repo']],
         ])->assertRedirectToRoute('projects.show', $project);
     });
 
@@ -88,5 +111,27 @@ describe('CreateProject action', function () {
             ->and($project->name)->toBe('My Project');
 
         $this->assertDatabaseHas('projects', ['name' => 'My Project', 'client_id' => $client->id]);
+    });
+
+    it('creates repositories within the same transaction', function () {
+        $client = Client::factory()->create();
+        $data = new ProjectData(
+            client: $client,
+            name: 'My Project',
+            color: '#6366f1',
+            rounding: RoundingStrategy::Quarter,
+            repositories: collect([
+                new ProjectRepositoryData(name: 'my-repo', localPath: '/Users/me/code/my-repo'),
+            ]),
+        );
+
+        $project = CreateProject::make()->handle($data);
+
+        expect($project->repositories)->toHaveCount(1);
+        $this->assertDatabaseHas('project_repositories', [
+            'project_id' => $project->id,
+            'name' => 'my-repo',
+            'local_path' => '/Users/me/code/my-repo',
+        ]);
     });
 })->group('actions');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Project\AttachRepository;
 use App\Actions\Project\DetachRepository;
+use App\Data\ProjectRepositoryData;
 use App\Models\ActivityEvent;
 use App\Models\Client;
 use App\Models\Project;
@@ -22,8 +23,7 @@ describe('attach repository', function () {
             ->once()
             ->with(
                 Mockery::on(fn ($arg) => $arg->id === $project->id),
-                '/Users/nico/code/my-repo',
-                'my-repo',
+                Mockery::on(fn (ProjectRepositoryData $data) => $data->localPath === '/Users/nico/code/my-repo' && $data->name === 'my-repo'),
             )
             ->andReturn($repository);
 
@@ -68,7 +68,10 @@ describe('AttachRepository action', function () {
     it('creates a repository record for the project', function () {
         $project = Project::factory()->create();
 
-        $repository = AttachRepository::make()->handle($project, '/Users/nico/code/my-repo', 'my-repo');
+        $repository = AttachRepository::make()->handle(
+            $project,
+            new ProjectRepositoryData(name: 'my-repo', localPath: '/Users/nico/code/my-repo'),
+        );
 
         expect($repository)->toBeInstanceOf(ProjectRepository::class)
             ->and($repository->project_id)->toBe($project->id)
