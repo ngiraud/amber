@@ -48,7 +48,7 @@ class HandleInertiaRequests extends Middleware
             'name' => config('app.name'),
             'display_timezone' => config('app.display_timezone'),
             'display_locale' => config('app.locale'),
-            'theme' => fn () => app(GeneralSettings::class)->theme->value,
+            'generalSettings' => fn () => app(GeneralSettings::class)->toArray(),
             'activeSession' => fn () => ($s = Session::findActive(['project.client']))
                 ? SessionResource::make($s)
                 : null,

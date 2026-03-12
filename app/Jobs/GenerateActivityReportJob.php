@@ -14,6 +14,7 @@ use App\Events\ActivityReportProgress;
 use App\Exceptions\AiSummarizationException;
 use App\Models\ActivityReport;
 use App\Models\Session;
+use App\Settings\GeneralSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -32,6 +33,7 @@ class GenerateActivityReportJob implements ShouldQueue
         CollectDayContext $collectDayContext,
         BuildLineDescription $buildLineDescription,
         SummarizeReportLines $summarizeReportLines,
+        GeneralSettings $generalSettings,
     ): void {
         event(new ActivityReportProgress($this->report->id, ActivityReportStep::CollectingContext));
 
@@ -78,7 +80,7 @@ class GenerateActivityReportJob implements ShouldQueue
             }
 
             $minutes = $group['minutes'];
-            $dailyReferenceMinutes = ($project->daily_reference_hours ?? 8) * 60;
+            $dailyReferenceMinutes = ($project->daily_reference_hours ?? $generalSettings->default_daily_reference_hours) * 60;
             $days = $dailyReferenceMinutes > 0
                 ? round($minutes / $dailyReferenceMinutes, 2)
                 : 0;

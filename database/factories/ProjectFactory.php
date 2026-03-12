@@ -23,7 +23,7 @@ class ProjectFactory extends Factory
             'name' => fake()->words(2, true),
             'color' => fake()->hexColor(),
             'is_active' => true,
-            'daily_reference_hours' => 7,
+            'daily_reference_hours' => 8,
             'rounding' => RoundingStrategy::Quarter,
             'hourly_rate' => fake()->optional(0.7)->randomFloat(2, 50, 200),
             'daily_rate' => fake()->optional(0.7)->randomFloat(2, 300, 1500),

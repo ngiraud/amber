@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { Form } from '@inertiajs/vue3';
+import { Form, usePage } from '@inertiajs/vue3';
+import { ChevronDownIcon, ChevronUpIcon, PlusIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import ColorPicker from '@/components/ColorPicker.vue';
 import InputField from '@/components/InputField.vue';
@@ -16,6 +17,10 @@ const props = defineProps<{
     clients: Client[];
 }>();
 
+const page = usePage();
+const defaults = computed(() => page.props.generalSettings);
+type Repo = { name: string; local_path: string };
+
 const ROUNDING_OPTIONS = [
     { value: 15, label: '15 min' },
     { value: 30, label: '30 min' },
@@ -28,12 +33,26 @@ const action = computed(() => (isEditing.value ? projectRoutes.update(props.proj
 const selectedClientId = computed(() => props.project?.client_id ?? props.client?.id);
 
 const color = ref(props.project?.color ?? '#6366f1');
+const showAdvanced = ref(false);
+const showRepos = ref(false);
+const repos = ref<Repo[]>([]);
 
 watch(open, (isOpen) => {
     if (isOpen) {
         color.value = props.project?.color ?? '#6366f1';
+        showAdvanced.value = false;
+        showRepos.value = false;
+        repos.value = [];
     }
 });
+
+function addRepo(): void {
+    repos.value.push({ name: '', local_path: '' });
+}
+
+function removeRepo(index: number): void {
+    repos.value.splice(index, 1);
+}
 </script>
 
 <template>
@@ -50,7 +69,6 @@ watch(open, (isOpen) => {
             <Form
                 class="flex flex-col gap-5 overflow-y-auto px-4 py-2"
                 :action="action"
-                :transform="(data) => ({ ...data, is_active: data.is_active === '1' })"
                 #default="{ errors, processing }"
                 @success="() => (open = false)"
             >
@@ -71,54 +89,113 @@ watch(open, (isOpen) => {
                     <ColorPicker v-model="color" name="color" />
                 </InputField>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <InputField label="Hourly rate (€)" :error="errors.hourly_rate">
-                        <Input
-                            name="hourly_rate"
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            :default-value="project?.hourly_rate ?? undefined"
-                            placeholder="0.00"
-                        />
-                    </InputField>
+                <!-- Advanced section -->
+                <div class="flex flex-col gap-1">
+                    <button
+                        type="button"
+                        class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        @click="showAdvanced = !showAdvanced"
+                    >
+                        <component :is="showAdvanced ? ChevronUpIcon : ChevronDownIcon" class="h-3.5 w-3.5" />
+                        Advanced settings
+                    </button>
 
-                    <InputField label="Daily rate (€)" :error="errors.daily_rate">
-                        <Input
-                            name="daily_rate"
-                            type="number"
-                            min="0"
-                            step="0.01"
-                            :default-value="project?.daily_rate ?? undefined"
-                            placeholder="0.00"
-                        />
-                    </InputField>
+                    <div v-show="showAdvanced" class="flex flex-col gap-4 pt-2">
+                        <div class="grid grid-cols-2 gap-4">
+                            <InputField label="Hourly rate (€)" :error="errors.hourly_rate">
+                                <Input
+                                    name="hourly_rate"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    :default-value="project?.hourly_rate ?? defaults.default_hourly_rate ?? undefined"
+                                    placeholder="0.00"
+                                />
+                            </InputField>
+
+                            <InputField label="Daily rate (€)" :error="errors.daily_rate">
+                                <Input
+                                    name="daily_rate"
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    :default-value="project?.daily_rate ?? defaults.default_daily_rate ?? undefined"
+                                    placeholder="0.00"
+                                />
+                            </InputField>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <InputField label="Daily reference hours" :error="errors.daily_reference_hours">
+                                <Input
+                                    name="daily_reference_hours"
+                                    type="number"
+                                    min="1"
+                                    max="24"
+                                    :default-value="project?.daily_reference_hours ?? defaults.default_daily_reference_hours ?? 8"
+                                />
+                            </InputField>
+
+                            <InputField label="Rounding" :error="errors.rounding">
+                                <NativeSelect name="rounding" :model-value="project?.rounding.value ?? defaults.default_rounding_strategy ?? 15">
+                                    <NativeSelectOption v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </NativeSelectOption>
+                                </NativeSelect>
+                            </InputField>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                    <InputField label="Daily reference hours" :error="errors.daily_reference_hours">
-                        <Input name="daily_reference_hours" type="number" min="1" max="24" :default-value="project?.daily_reference_hours ?? 8" />
-                    </InputField>
+                <!-- Repositories section (create mode only) -->
+                <div v-if="!isEditing" class="flex flex-col gap-1">
+                    <button
+                        type="button"
+                        class="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        @click="showRepos = !showRepos"
+                    >
+                        <component :is="showRepos ? ChevronUpIcon : ChevronDownIcon" class="h-3.5 w-3.5" />
+                        Repositories
+                        <span v-if="repos.length" class="ml-1 text-xs text-foreground">({{ repos.length }})</span>
+                    </button>
 
-                    <InputField label="Rounding" :error="errors.rounding">
-                        <NativeSelect name="rounding" :model-value="project?.rounding.value ?? 15">
-                            <NativeSelectOption v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
-                                {{ option.label }}
-                            </NativeSelectOption>
-                        </NativeSelect>
-                    </InputField>
+                    <div v-show="showRepos" class="flex flex-col gap-3 pt-2">
+                        <div v-for="(repo, i) in repos" :key="i" class="flex flex-col gap-2 rounded-md border p-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-medium text-muted-foreground">Repository {{ i + 1 }}</span>
+                                <button
+                                    type="button"
+                                    class="text-muted-foreground hover:text-destructive transition-colors"
+                                    @click="removeRepo(i)"
+                                >
+                                    <TrashIcon class="h-3.5 w-3.5" />
+                                </button>
+                            </div>
+                            <InputField label="Name" :error="(errors as Record<string, string>)[`repositories.${i}.name`]">
+                                <Input
+                                    :name="`repositories[${i}][name]`"
+                                    type="text"
+                                    placeholder="my-repo"
+                                    v-model="repo.name"
+                                />
+                            </InputField>
+                            <InputField label="Local path" :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]">
+                                <Input
+                                    :name="`repositories[${i}][local_path]`"
+                                    type="text"
+                                    placeholder="/Users/me/code/my-repo"
+                                    class="font-mono"
+                                    v-model="repo.local_path"
+                                />
+                            </InputField>
+                        </div>
+
+                        <Button type="button" variant="outline" size="sm" class="w-full" @click="addRepo">
+                            <PlusIcon class="mr-1.5 h-3.5 w-3.5" />
+                            Add a repository
+                        </Button>
+                    </div>
                 </div>
-
-                <label class="flex items-center gap-2.5">
-                    <input
-                        type="checkbox"
-                        name="is_active"
-                        value="1"
-                        :checked="project?.is_active ?? true"
-                        class="h-4 w-4 rounded border-input accent-foreground"
-                    />
-                    <span class="text-sm">Active project</span>
-                </label>
 
                 <SheetFooter>
                     <Button type="submit" :disabled="processing" class="w-full">

@@ -6,6 +6,7 @@ import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ProjectSheet from '@/components/ProjectSheet.vue';
 import RepositorySheet from '@/components/RepositorySheet.vue';
+import ToggleProjectStatusDialog from '@/components/ToggleProjectStatusDialog.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
@@ -76,6 +77,12 @@ function removeRepo(): void {
                     <ProjectSheet :project="project" :clients="clients">
                         <Button variant="outline" size="sm">Edit</Button>
                     </ProjectSheet>
+
+                    <ToggleProjectStatusDialog :project="project">
+                        <Button variant="outline" size="sm">
+                            {{ project.is_active ? 'Archive' : 'Restore' }}
+                        </Button>
+                    </ToggleProjectStatusDialog>
 
                     <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
 

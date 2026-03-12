@@ -26,7 +26,7 @@ function select(value: Appearance): void {
 // Sync HTML class when the saved theme is loaded from shared props
 const page = usePage();
 watch(
-    () => page.props.theme as Appearance,
+    () => page.props.generalSettings.theme as Appearance,
     (theme) => applyTheme(theme),
     { immediate: true },
 );

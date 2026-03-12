@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('color', 7);
             $table->boolean('is_active')->default(true);
-            $table->unsignedTinyInteger('daily_reference_hours')->default(7);
+            $table->unsignedTinyInteger('daily_reference_hours')->default(8);
             $table->unsignedTinyInteger('rounding')->default(RoundingStrategy::Quarter);
             $table->unsignedInteger('hourly_rate')->nullable()->comment('Hourly rate in cents');
             $table->unsignedInteger('daily_rate')->nullable()->comment('Daily rate in cents');

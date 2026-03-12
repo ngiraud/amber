@@ -19,7 +19,7 @@ declare module 'vite/client' {
     }
 }
 
-import type { Project, Session } from './resources';
+import type { GeneralSettings, Project, Session } from './resources';
 
 declare module '@inertiajs/core' {
     interface InertiaFlashData {
@@ -32,7 +32,7 @@ declare module '@inertiajs/core' {
             name: string;
             display_timezone: string;
             display_locale: string;
-            theme: string;
+            generalSettings: GeneralSettings;
             activeSession: Session | null;
             projects?: Project[];
             [key: string]: unknown;
