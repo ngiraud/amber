@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
+import { useClipboard } from '@vueuse/core';
 import { AlertCircleIcon, InfoIcon, Loader2, Settings2 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
+import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
@@ -47,7 +49,22 @@ function onToggle(val: boolean): void {
     save({ preserveScroll: true });
 }
 
-// Extract color from Tailwind class (e.g. text-[#DE7356] or text-green-400)
+// ── Clipboard ───────────────────────────────────────────────────────────────
+
+const { copy } = useClipboard();
+
+function handleCopy(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    const codeElement = target.closest('code');
+
+    if (codeElement) {
+        copy(codeElement.innerText);
+        toast.info('Command copied to clipboard');
+    }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
 const indicatorColor = computed(() => {
     const colorClass = props.source.color;
     if (colorClass.startsWith('text-[')) {
@@ -66,7 +83,7 @@ const indicatorClass = computed(() => {
     <Item
         variant="outline"
         size="sm"
-        class="relative flex-col items-stretch rounded-xl bg-card p-4 text-card-foreground shadow-sm transition-all hover:ring-1 hover:ring-primary/30 dark:hover:ring-primary/40"
+        class="group group relative flex-col items-stretch rounded-xl bg-card p-4 text-card-foreground shadow-sm transition-all hover:ring-1 hover:ring-primary/30 dark:hover:ring-primary/40"
     >
         <div class="flex items-start gap-3">
             <ItemMedia class="relative pt-1.5">
@@ -121,14 +138,14 @@ const indicatorClass = computed(() => {
             </ItemActions>
         </div>
 
-        <!-- Requirements & Error Handling -->
+        <!-- Requirements Container -->
         <div
             :class="
                 cn(
-                    'mt-4 flex flex-col gap-2 rounded-lg border border-dashed p-3 text-[11px] transition-all duration-300',
+                    'group/requirements mt-4 flex flex-col gap-2 rounded-lg border border-dashed p-3 text-[11px] transition-all duration-300',
                     hasError
                         ? 'shake-1 animate-in border-destructive/50 bg-destructive/5 text-destructive dark:border-destructive/40'
-                        : 'border-primary/20 bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-muted/60 dark:border-primary/10 dark:bg-muted/20 dark:hover:border-primary/30',
+                        : 'border-primary/20 bg-muted/40 text-muted-foreground group-hover:border-primary/40 group-hover:bg-muted/60 dark:border-primary/10 dark:bg-muted/20 dark:group-hover:border-primary/30',
                 )
             "
         >
@@ -146,7 +163,7 @@ const indicatorClass = computed(() => {
             </div>
 
             <div
-                class="leading-relaxed [&_code]:mt-1.5 [&_code]:block [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs"
+                class="relative leading-relaxed [&_code]:mt-1.5 [&_code]:block [&_code]:cursor-pointer [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs"
                 :class="
                     cn(
                         hasError
@@ -154,8 +171,40 @@ const indicatorClass = computed(() => {
                             : '[&_code]:bg-background/80 [&_code]:text-foreground dark:[&_code]:bg-background/20',
                     )
                 "
+                @click="handleCopy"
                 v-html="source.requirements"
             />
         </div>
     </Item>
 </template>
+
+<style scoped>
+:deep(code) {
+    position: relative;
+    transition: all 0.2s;
+}
+
+:deep(code::after) {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 12px;
+    height: 12px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'%3E%3C/path%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    opacity: 0;
+    filter: grayscale(1) brightness(0.5);
+    transition: opacity 0.2s;
+}
+
+:deep(code:hover::after) {
+    opacity: 0.4;
+}
+
+.dark :deep(code::after) {
+    filter: invert(1) brightness(0.8);
+}
+</style>
