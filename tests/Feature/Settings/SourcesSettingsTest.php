@@ -28,13 +28,13 @@ describe('source settings', function () {
             );
     });
 
-    it('delegates PUT to UpdateActivitySourceSettings and redirects', function () {
+    it('delegates PUT to UpdateActivitySourceSettings and redirects back', function () {
         UpdateActivitySourceSettings::fake()
             ->shouldReceive('handle')
             ->once();
 
         $this->put(route('settings.sources.update'), ['git' => ['enabled' => false, 'author_emails' => []]])
-            ->assertRedirectToRoute('settings.sources');
+            ->assertRedirectBack();
     });
 
     it('validates git author emails are valid email addresses', function () {

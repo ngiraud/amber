@@ -33,7 +33,7 @@ class ActivitySourceSettingsController extends Controller
 
         Inertia::flash('success', 'Source settings saved.');
 
-        return redirect()->route('settings.sources');
+        return back();
     }
 
     public function test(ActivityEventSourceType $source, TestActivitySourceConnection $action): JsonResponse

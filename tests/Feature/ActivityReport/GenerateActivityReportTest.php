@@ -465,7 +465,7 @@ describe('regenerate activity report', function () {
             ->andReturn($report);
 
         $this->post(route('reports.regenerate', $report))
-            ->assertRedirectToRoute('reports.show', $report);
+            ->assertRedirectBack();
     });
 
     it('passes notes and use_ai_summary to the action', function () {
@@ -484,7 +484,7 @@ describe('regenerate activity report', function () {
         $this->post(route('reports.regenerate', $report), [
             'notes' => 'my notes',
             'use_ai_summary' => true,
-        ])->assertRedirectToRoute('reports.show', $report);
+        ])->assertRedirectBack();
     });
 })->group('controllers');
 

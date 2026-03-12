@@ -20,7 +20,7 @@ describe('ai settings', function () {
             );
     });
 
-    it('delegates PUT to UpdateAiSettings and redirects', function () {
+    it('delegates PUT to UpdateAiSettings and redirects back', function () {
         UpdateAiSettings::fake()
             ->shouldReceive('handle')
             ->once()
@@ -31,7 +31,7 @@ describe('ai settings', function () {
             'provider' => 'anthropic',
             'api_key' => 'sk-test',
             'summary_language' => 'fr',
-        ])->assertRedirectToRoute('settings.ai');
+        ])->assertRedirectBack();
     });
 
     it('validates provider is a valid AiProvider enum value', function () {

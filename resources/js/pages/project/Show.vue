@@ -129,7 +129,7 @@ function removeRepo(): void {
                         <p class="mt-0.5 font-mono text-xs text-muted-foreground">{{ repo.local_path }}</p>
                     </div>
 
-                    <Button variant="ghost" size="sm" class="text-destructive hover:text-destructive" @click="repoToDelete = repo"> Remove </Button>
+                    <Button variant="ghost" size="sm" class="text-destructive" @click="repoToDelete = repo"> Remove </Button>
                 </div>
             </div>
 

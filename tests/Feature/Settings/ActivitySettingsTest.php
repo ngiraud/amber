@@ -17,7 +17,7 @@ describe('activity settings', function () {
             );
     });
 
-    it('delegates PUT to UpdateActivitySettings and redirects', function () {
+    it('delegates PUT to UpdateActivitySettings and redirects back', function () {
         UpdateActivitySettings::fake()
             ->shouldReceive('handle')
             ->once()
@@ -28,7 +28,7 @@ describe('activity settings', function () {
             'scan_interval_minutes' => 5,
             'block_end_padding_minutes' => 0,
             'manual_session_reminder_minutes' => 0,
-        ])->assertRedirectToRoute('settings.activity');
+        ])->assertRedirectBack();
     });
 
     it('validates idle_timeout_minutes is within bounds', function () {

@@ -64,7 +64,7 @@ class ProjectController extends Controller
     {
         $action->handle(project: $project, data: ProjectData::fromArray($request->validated()));
 
-        return redirect()->route('projects.show', $project);
+        return back();
     }
 
     /**

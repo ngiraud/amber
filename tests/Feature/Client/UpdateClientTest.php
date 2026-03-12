@@ -9,7 +9,7 @@ use App\Models\Client;
 pest()->group('client');
 
 describe('update client', function () {
-    it('delegates to UpdateClient action and redirects to show', function () {
+    it('delegates to UpdateClient action and redirects back', function () {
         $client = Client::factory()->create();
 
         UpdateClient::fake()
@@ -22,7 +22,7 @@ describe('update client', function () {
             ->andReturn($client);
 
         $this->patch(route('clients.update', $client), ['name' => 'Updated Name'])
-            ->assertRedirectToRoute('clients.show', $client);
+            ->assertRedirectBack();
     });
 
     it('validates that name is required', function () {

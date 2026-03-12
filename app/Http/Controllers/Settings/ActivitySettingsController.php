@@ -27,6 +27,6 @@ class ActivitySettingsController extends Controller
 
         Inertia::flash('success', 'Activity settings saved.');
 
-        return redirect()->route('settings.activity');
+        return back();
     }
 }

@@ -31,6 +31,6 @@ class GeneralSettingsController extends Controller
 
         Inertia::flash('success', 'General settings saved.');
 
-        return redirect()->route('settings.general');
+        return back();
     }
 }

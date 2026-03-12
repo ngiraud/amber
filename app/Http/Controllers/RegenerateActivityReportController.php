@@ -19,6 +19,6 @@ class RegenerateActivityReportController extends Controller
             useAiSummary: $request->boolean('use_ai_summary'),
         );
 
-        return redirect()->route('reports.show', $report);
+        return back();
     }
 }

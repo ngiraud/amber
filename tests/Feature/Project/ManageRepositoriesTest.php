@@ -12,7 +12,7 @@ use App\Models\ProjectRepository;
 pest()->group('project');
 
 describe('attach repository', function () {
-    it('delegates to AttachRepository action and redirects to project show', function () {
+    it('delegates to AttachRepository action and redirects back', function () {
         $client = Client::factory()->create();
         $project = Project::factory()->create(['client_id' => $client->id]);
         $repository = ProjectRepository::factory()->make(['project_id' => $project->id]);
@@ -30,7 +30,7 @@ describe('attach repository', function () {
         $this->post(route('projects.repositories.store', $project), [
             'local_path' => '/Users/nico/code/my-repo',
             'name' => 'my-repo',
-        ])->assertRedirectToRoute('projects.show', $project);
+        ])->assertRedirectBack();
     });
 
     it('validates repository fields are required', function () {
@@ -53,7 +53,7 @@ describe('detach repository', function () {
             ->with(Mockery::on(fn ($arg) => $arg->id === $repository->id));
 
         $this->delete(route('projects.repositories.destroy', [$project, $repository]))
-            ->assertRedirectToRoute('projects.show', $project);
+            ->assertRedirectBack();
     });
 
     it('returns 404 for a non-existent repository', function () {

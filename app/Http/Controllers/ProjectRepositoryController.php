@@ -20,7 +20,7 @@ class ProjectRepositoryController extends Controller
 
         Inertia::flash('success', 'Repository attached successfully.');
 
-        return redirect()->route('projects.show', $project);
+        return back();
     }
 
     public function destroy(Project $project, ProjectRepository $repository, DetachRepository $action): RedirectResponse
@@ -29,6 +29,6 @@ class ProjectRepositoryController extends Controller
 
         Inertia::flash('success', 'Repository removed successfully.');
 
-        return redirect()->route('projects.show', $project);
+        return back();
     }
 }

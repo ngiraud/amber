@@ -20,7 +20,7 @@ describe('general settings', function () {
             );
     });
 
-    it('delegates PUT to UpdateGeneralSettings and redirects', function () {
+    it('delegates PUT to UpdateGeneralSettings and redirects back', function () {
         UpdateGeneralSettings::fake()
             ->shouldReceive('handle')
             ->once()
@@ -33,7 +33,7 @@ describe('general settings', function () {
             //            'locale' => 'fr',
             'theme' => 'system',
             'open_at_login' => false,
-        ])->assertRedirectToRoute('settings.general');
+        ])->assertRedirectBack();
     });
 
     it('validates default_rounding_strategy is a valid enum value', function () {
@@ -55,7 +55,7 @@ describe('general settings', function () {
             //            'locale' => 'fr',
             'theme' => 'system',
             'open_at_login' => false,
-        ])->assertRedirectToRoute('settings.general');
+        ])->assertRedirectBack();
     });
 
     //    it('validates locale must be in allowed list', function () {

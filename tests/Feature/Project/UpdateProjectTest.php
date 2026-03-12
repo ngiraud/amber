@@ -11,7 +11,7 @@ use App\Models\Project;
 pest()->group('project');
 
 describe('update project', function () {
-    it('delegates to UpdateProject action and redirects to show', function () {
+    it('delegates to UpdateProject action and redirects back', function () {
         $client = Client::factory()->create();
         $project = Project::factory()->create(['client_id' => $client->id]);
 
@@ -31,7 +31,7 @@ describe('update project', function () {
             'rounding' => RoundingStrategy::Quarter->value,
             'daily_reference_hours' => 7,
             'is_active' => true,
-        ])->assertRedirectToRoute('projects.show', $project);
+        ])->assertRedirectBack();
     });
 
     it('can reassign a project to a different client', function () {
@@ -45,7 +45,7 @@ describe('update project', function () {
             'color' => $project->color,
             'rounding' => $project->rounding->value,
             'daily_reference_hours' => $project->daily_reference_hours,
-        ])->assertRedirectToRoute('projects.show', $project);
+        ])->assertRedirectBack();
 
         $this->assertDatabaseHas('projects', ['id' => $project->id, 'client_id' => $newClient->id]);
     });

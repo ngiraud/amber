@@ -60,7 +60,7 @@ class ClientController extends Controller
     {
         $client = $action->handle($client, ClientData::fromArray($request->validated()));
 
-        return redirect()->route('clients.show', $client);
+        return back();
     }
 
     /**

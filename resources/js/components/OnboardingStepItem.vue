@@ -32,8 +32,8 @@ defineProps<{
             <ItemDescription>{{ step.description }}</ItemDescription>
         </ItemContent>
         <ItemActions>
-            <Button v-if="!step.complete && action" variant="link" @click="action"> Go → </Button>
-            <Button v-else-if="!step.complete" :as="Link" :href="step.url" variant="link"> Go → </Button>
+            <Button v-if="!step.complete && action" variant="ghost" class="text-primary" @click="action"> Go → </Button>
+            <Button v-else-if="!step.complete" :as="Link" :href="step.url" variant="ghost" class="text-primary"> Go → </Button>
         </ItemActions>
     </Item>
 </template>

@@ -31,7 +31,7 @@ class AiSettingsController extends Controller
 
         Inertia::flash('success', 'AI settings saved.');
 
-        return redirect()->route('settings.ai');
+        return back();
     }
 
     public function test(TestAiConnection $action): JsonResponse
