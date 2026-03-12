@@ -97,7 +97,7 @@ watch(open, (isOpen) => {
 
                 <div class="grid grid-cols-2 gap-4">
                     <InputField label="Daily reference hours" :error="errors.daily_reference_hours">
-                        <Input name="daily_reference_hours" type="number" min="1" max="24" :default-value="project?.daily_reference_hours ?? 7" />
+                        <Input name="daily_reference_hours" type="number" min="1" max="24" :default-value="project?.daily_reference_hours ?? 8" />
                     </InputField>
 
                     <InputField label="Rounding" :error="errors.rounding">
