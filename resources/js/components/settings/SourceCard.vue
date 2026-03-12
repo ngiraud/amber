@@ -114,7 +114,7 @@ const indicatorClass = computed(() => {
                 </ItemDescription>
             </ItemContent>
 
-            <ItemActions class="gap-3 pt-0.5">
+            <ItemActions class="h-8 gap-3">
                 <Loader2 v-if="form.processing" class="size-4 animate-spin text-muted-foreground" />
 
                 <SourceConfigurationSheet v-model:open="isSheetOpen" :source="source">
@@ -163,7 +163,7 @@ const indicatorClass = computed(() => {
             </div>
 
             <div
-                class="relative leading-relaxed [&_code]:relative [&_code]:mt-1.5 [&_code]:block [&_code]:cursor-pointer [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs [&_code]:transition-all [&_code]:duration-200 [&_code::after]:absolute [&_code::after]:top-1/2 [&_code::after]:right-2 [&_code::after]:-translate-y-1/2 [&_code::after]:size-3 [&_code::after]:bg-contain [&_code::after]:bg-no-repeat [&_code::after]:opacity-0 [&_code::after]:grayscale [&_code::after]:brightness-50 [&_code::after]:transition-opacity [&_code::after]:duration-200 [&_code:hover::after]:opacity-40 dark:[&_code::after]:grayscale-0 dark:[&_code::after]:brightness-150 dark:[&_code::after]:invert"
+                class="relative leading-relaxed [&_code]:relative [&_code]:mt-1.5 [&_code]:block [&_code]:cursor-pointer [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs [&_code]:transition-all [&_code]:duration-200 [&_code::after]:absolute [&_code::after]:top-1/2 [&_code::after]:right-2 [&_code::after]:size-3 [&_code::after]:-translate-y-1/2 [&_code::after]:bg-contain [&_code::after]:bg-no-repeat [&_code::after]:opacity-0 [&_code::after]:brightness-50 [&_code::after]:grayscale [&_code::after]:transition-opacity [&_code::after]:duration-200 dark:[&_code::after]:brightness-150 dark:[&_code::after]:grayscale-0 dark:[&_code::after]:invert [&_code:hover::after]:opacity-40"
                 :class="
                     cn(
                         hasError

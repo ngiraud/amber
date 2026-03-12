@@ -24,7 +24,7 @@ const action = computed(() => (isEditing.value ? clientRoutes.update(props.clien
             <slot />
         </SheetTrigger>
 
-        <SheetContent side="right" class="w-96">
+        <SheetContent class="sm:max-w-md">
             <SheetHeader>
                 <SheetTitle>{{ isEditing ? 'Edit client' : 'New client' }}</SheetTitle>
             </SheetHeader>

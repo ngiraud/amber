@@ -62,7 +62,7 @@ function removeRepo(index: number): void {
             <slot />
         </SheetTrigger>
 
-        <SheetContent side="right" class="sm:max-w-md">
+        <SheetContent class="sm:max-w-md">
             <SheetHeader>
                 <SheetTitle>{{ isEditing ? 'Edit project' : 'New project' }}</SheetTitle>
             </SheetHeader>

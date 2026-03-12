@@ -46,7 +46,7 @@ const open = ref(false);
             <slot />
         </SheetTrigger>
 
-        <SheetContent side="right" class="sm:max-w-md">
+        <SheetContent class="sm:max-w-md">
             <SheetHeader>
                 <SheetTitle>Generate Activity Report</SheetTitle>
             </SheetHeader>

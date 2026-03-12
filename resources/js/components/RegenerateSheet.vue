@@ -22,7 +22,7 @@ const useAiSummary = ref(props.aiSettings.enabled);
 
 <template>
     <Sheet v-model:open="open">
-        <SheetContent side="right" class="sm:max-w-md">
+        <SheetContent class="sm:max-w-md">
             <SheetHeader>
                 <SheetTitle>Regenerate Report</SheetTitle>
             </SheetHeader>

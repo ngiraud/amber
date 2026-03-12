@@ -21,7 +21,7 @@ const open = ref(false);
             <slot />
         </SheetTrigger>
 
-        <SheetContent side="right" class="w-96">
+        <SheetContent class="sm:max-w-md">
             <SheetHeader>
                 <SheetTitle>Add repository</SheetTitle>
             </SheetHeader>

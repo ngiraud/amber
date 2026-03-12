@@ -82,7 +82,7 @@ function submitPast(): void {
             <slot />
         </SheetTrigger>
 
-        <SheetContent side="right" class="w-96">
+        <SheetContent class="sm:max-w-md">
             <SheetHeader>
                 <SheetTitle>Add Session</SheetTitle>
             </SheetHeader>
@@ -111,7 +111,7 @@ function submitPast(): void {
                         <Textarea id="timer-notes" v-model="timerForm.notes" placeholder="What are you working on?" :rows="3" />
                     </div>
 
-                    <SheetFooter>
+                    <SheetFooter class="px-0">
                         <Button class="w-full" :disabled="timerForm.processing" @click="submitTimer">
                             {{ timerForm.processing ? 'Starting…' : 'Start timer' }}
                         </Button>
@@ -158,7 +158,7 @@ function submitPast(): void {
                         <Textarea id="past-notes" v-model="pastForm.notes" placeholder="Additional notes…" :rows="2" />
                     </div>
 
-                    <SheetFooter>
+                    <SheetFooter class="px-0">
                         <Button class="w-full" :disabled="pastForm.processing" @click="submitPast">
                             {{ pastForm.processing ? 'Saving…' : 'Add session' }}
                         </Button>

@@ -5,7 +5,7 @@ import { computed, reactive, ref, watch } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import * as sourcesRoutes from '@/routes/settings/sources';
@@ -186,7 +186,7 @@ watch(
                     </InputField>
                 </template>
 
-                <div class="mt-2 flex flex-col gap-3">
+                <SheetFooter class="px-0">
                     <Button type="submit" :disabled="form.processing" class="w-full">
                         {{ form.processing ? 'Saving…' : 'Save Changes' }}
                     </Button>
@@ -203,7 +203,7 @@ watch(
                         <XIcon v-else-if="testStatus === 'fail'" class="mr-2 size-4" />
                         Verify Connection
                     </Button>
-                </div>
+                </SheetFooter>
             </form>
         </SheetContent>
     </Sheet>
