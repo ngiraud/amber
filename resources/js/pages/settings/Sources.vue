@@ -20,12 +20,7 @@ const { spotlightClass } = useSpotlight();
                     <p class="text-xs text-muted-foreground">{{ group.category.description }}</p>
                 </div>
 
-                <div
-                    :class="[
-                        'grid gap-4 rounded-lg',
-                        group.category.display_layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1',
-                    ]"
-                >
+                <div :class="['grid gap-4 rounded-lg', group.category.display_layout === 'grid-2' ? 'grid-cols-2' : 'grid-cols-1']">
                     <div v-for="source in group.sources" :key="source.value" class="h-full">
                         <SourceCard :source="source" class="h-full" />
                     </div>

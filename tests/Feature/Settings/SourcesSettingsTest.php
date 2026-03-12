@@ -16,10 +16,6 @@ use Illuminate\Support\Facades\Process;
 pest()->group('settings', 'sources');
 
 describe('source settings', function () {
-    beforeEach(function () {
-        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
-    });
-
     it('renders the sources tab with required props', function () {
         $this->get(route('settings.sources'))
             ->assertSuccessful()

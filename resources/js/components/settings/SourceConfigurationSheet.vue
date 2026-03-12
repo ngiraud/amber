@@ -5,11 +5,11 @@ import { computed, reactive, ref, watch } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { cn } from '@/lib/utils';
 import * as sourcesRoutes from '@/routes/settings/sources';
 import type { SourceDefinition, SourceFieldDefinition } from '@/types';
-import { cn } from '@/lib/utils';
 
 const props = defineProps<{
     source: SourceDefinition;

@@ -3,12 +3,12 @@ import { useForm } from '@inertiajs/vue3';
 import { AlertCircleIcon, InfoIcon, Loader2, Settings2 } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
+import { Switch } from '@/components/ui/switch';
+import { cn } from '@/lib/utils';
 import * as sourcesRoutes from '@/routes/settings/sources';
 import type { SourceDefinition } from '@/types';
 import SourceConfigurationSheet from './SourceConfigurationSheet.vue';
-import { cn } from '@/lib/utils';
 
 const props = defineProps<{
     source: SourceDefinition;
@@ -66,7 +66,7 @@ const indicatorClass = computed(() => {
     <Item
         variant="outline"
         size="sm"
-        class="bg-card text-card-foreground relative flex-col items-stretch rounded-xl p-4 shadow-sm transition-all hover:ring-1 hover:ring-primary/30 dark:hover:ring-primary/40"
+        class="relative flex-col items-stretch rounded-xl bg-card p-4 text-card-foreground shadow-sm transition-all hover:ring-1 hover:ring-primary/30 dark:hover:ring-primary/40"
     >
         <div class="flex items-start gap-3">
             <ItemMedia class="relative pt-1.5">
@@ -111,37 +111,49 @@ const indicatorClass = computed(() => {
                     </Button>
                 </SourceConfigurationSheet>
 
-                <Switch :model-value="form.enabled" :disabled="form.processing" class="data-[state=checked]:bg-primary" @update:model-value="onToggle" @click.stop />
+                <Switch
+                    :model-value="form.enabled"
+                    :disabled="form.processing"
+                    class="data-[state=checked]:bg-primary"
+                    @update:model-value="onToggle"
+                    @click.stop
+                />
             </ItemActions>
         </div>
 
         <!-- Requirements & Error Handling -->
         <div
-            :class="cn(
-                'mt-4 flex flex-col gap-2 rounded-lg border border-dashed p-3 text-[11px] transition-all duration-300',
-                hasError 
-                    ? 'border-destructive/50 bg-destructive/5 text-destructive animate-in shake-1 dark:border-destructive/40' 
-                    : 'border-primary/20 bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-muted/60 dark:border-primary/10 dark:bg-muted/20 dark:hover:border-primary/30'
-            )"
+            :class="
+                cn(
+                    'mt-4 flex flex-col gap-2 rounded-lg border border-dashed p-3 text-[11px] transition-all duration-300',
+                    hasError
+                        ? 'shake-1 animate-in border-destructive/50 bg-destructive/5 text-destructive dark:border-destructive/40'
+                        : 'border-primary/20 bg-muted/40 text-muted-foreground hover:border-primary/40 hover:bg-muted/60 dark:border-primary/10 dark:bg-muted/20 dark:hover:border-primary/30',
+                )
+            "
         >
-            <div 
-                :class="cn(
-                    'flex items-center gap-1.5 font-bold uppercase tracking-widest text-[9px]',
-                    hasError ? 'text-destructive' : 'text-primary/80 dark:text-primary/60'
-                )"
+            <div
+                :class="
+                    cn(
+                        'flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase',
+                        hasError ? 'text-destructive' : 'text-primary/80 dark:text-primary/60',
+                    )
+                "
             >
                 <AlertCircleIcon v-if="hasError" class="size-3" />
                 <InfoIcon v-else class="size-3" />
                 {{ hasError ? 'Tool Not Found' : 'Setup Requirements' }}
             </div>
-            
+
             <div
                 class="leading-relaxed [&_code]:mt-1.5 [&_code]:block [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs"
-                :class="cn(
-                    hasError 
-                        ? '[&_code]:border-destructive/20 [&_code]:bg-destructive/10 [&_code]:text-destructive' 
-                        : '[&_code]:bg-background/80 [&_code]:text-foreground dark:[&_code]:bg-background/20'
-                )"
+                :class="
+                    cn(
+                        hasError
+                            ? '[&_code]:border-destructive/20 [&_code]:bg-destructive/10 [&_code]:text-destructive'
+                            : '[&_code]:bg-background/80 [&_code]:text-foreground dark:[&_code]:bg-background/20',
+                    )
+                "
                 v-html="source.requirements"
             />
         </div>
