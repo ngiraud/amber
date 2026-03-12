@@ -27,6 +27,7 @@ activity reports.
 - **📊 Export Options:** Generate activity reports in multiple formats (PDF, CSV) ready for your clients or team.
 - **🔔 Native Integration:** Get real-time feedback via system notifications, dock badge updates, and a dedicated menu bar interface.
 - **🔍 File Watcher:** (Optional) Automatically detect activity based on file system changes in your development folders.
+- **🔗 Deep Link Support:** Trigger session actions from external tools (Raycast, Alfred, scripts) using `amber://` URLs.
 
 ## 🖼 Screenshots
 
@@ -34,6 +35,22 @@ activity reports.
 
 > [!TIP]
 > This section will be updated with the final UI once the first stable version is released.
+
+## 🔗 Deep Linking
+
+Amber supports deep links via the `amber://` URL scheme, allowing external tools (Raycast, Alfred, shell scripts, etc.) to control sessions.
+
+| URL | Action |
+|-----|--------|
+| `amber://session/start?project=<id>` | Start a session on the given project |
+| `amber://session/start` | Start a session on the first active project |
+| `amber://session/stop` | Stop the currently active session |
+
+**Example — open from terminal:**
+```bash
+open "amber://session/start?project=<project-ulid>"
+open "amber://session/stop"
+```
 
 ## 🛠 Tech Stack
 

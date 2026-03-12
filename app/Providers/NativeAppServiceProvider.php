@@ -4,12 +4,15 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Listeners\HandleDeepLink;
 use App\Models\Session;
 use App\Services\ApplicationMenuService;
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Event;
 use Native\Desktop\Contracts\ProvidesPhpIni;
+use Native\Desktop\Events\App\OpenedFromURL;
 use Native\Desktop\Facades\App;
 use Native\Desktop\Facades\System;
 use Native\Desktop\Facades\Window;
@@ -38,6 +41,8 @@ class NativeAppServiceProvider implements ProvidesPhpIni
         System::theme($settings->theme);
         App::openAtLogin($settings->open_at_login);
         App::badgeCount(Session::hasActive() ? 1 : 0);
+
+        Event::listen(OpenedFromURL::class, HandleDeepLink::class);
 
         ApplicationMenuService::make()->build();
 
