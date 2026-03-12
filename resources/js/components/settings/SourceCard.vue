@@ -99,7 +99,7 @@ const indicatorClass = computed(() => {
                 <div
                     :class="
                         cn(
-                            'relative size-2.5 rounded-full ring-2 ring-background transition-all duration-300',
+                            'relative size-2.5 rounded-full ring-2 ring-card transition-all duration-300',
                             source.config.enabled ? indicatorClass : 'bg-muted-foreground/30',
                         )
                     "
@@ -163,12 +163,12 @@ const indicatorClass = computed(() => {
             </div>
 
             <div
-                class="relative leading-relaxed [&_code]:mt-1.5 [&_code]:block [&_code]:cursor-pointer [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs"
+                class="relative leading-relaxed [&_code]:relative [&_code]:mt-1.5 [&_code]:block [&_code]:cursor-pointer [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs [&_code]:transition-all [&_code]:duration-200 [&_code::after]:absolute [&_code::after]:top-1/2 [&_code::after]:right-2 [&_code::after]:-translate-y-1/2 [&_code::after]:size-3 [&_code::after]:bg-contain [&_code::after]:bg-no-repeat [&_code::after]:opacity-0 [&_code::after]:grayscale [&_code::after]:brightness-50 [&_code::after]:transition-opacity [&_code::after]:duration-200 [&_code:hover::after]:opacity-40 dark:[&_code::after]:grayscale-0 dark:[&_code::after]:brightness-150 dark:[&_code::after]:invert"
                 :class="
                     cn(
                         hasError
                             ? '[&_code]:border-destructive/20 [&_code]:bg-destructive/10 [&_code]:text-destructive'
-                            : '[&_code]:bg-background/80 [&_code]:text-foreground dark:[&_code]:bg-background/20',
+                            : '[&_code]:bg-background/80 [&_code]:text-foreground dark:[&_code]:bg-background/40',
                     )
                 "
                 @click="handleCopy"
@@ -179,32 +179,8 @@ const indicatorClass = computed(() => {
 </template>
 
 <style scoped>
-:deep(code) {
-    position: relative;
-    transition: all 0.2s;
-}
-
 :deep(code::after) {
     content: '';
-    position: absolute;
-    top: 50%;
-    right: 8px;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'%3E%3C/path%3E%3C/svg%3E");
-    background-size: contain;
-    background-repeat: no-repeat;
-    opacity: 0;
-    filter: grayscale(1) brightness(0.5);
-    transition: opacity 0.2s;
-}
-
-:deep(code:hover::after) {
-    opacity: 0.4;
-}
-
-.dark :deep(code::after) {
-    filter: invert(1) brightness(0.8);
 }
 </style>
