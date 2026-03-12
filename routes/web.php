@@ -17,6 +17,7 @@ use App\Http\Controllers\Settings\ActivitySettingsController;
 use App\Http\Controllers\Settings\ActivitySourceSettingsController;
 use App\Http\Controllers\Settings\AiSettingsController;
 use App\Http\Controllers\Settings\GeneralSettingsController;
+use App\Http\Controllers\Settings\ResetDatabaseController;
 use App\Http\Controllers\TimelineController;
 use Illuminate\Support\Facades\Route;
 
@@ -89,4 +90,6 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::get('/ai', [AiSettingsController::class, 'edit'])->name('ai');
     Route::put('/ai', [AiSettingsController::class, 'update'])->name('ai.update');
     Route::post('/ai/test', [AiSettingsController::class, 'test'])->name('ai.test');
+
+    Route::post('/reset', ResetDatabaseController::class)->name('reset');
 });

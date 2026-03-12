@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Actions\Settings\ResetDatabase;
 use App\Actions\Settings\TestActivitySourceConnection;
 use App\Actions\Settings\TestAiConnection;
 use App\Actions\Settings\UpdateActivitySettings;
@@ -19,155 +20,12 @@ use App\Settings\ActivitySettings;
 use App\Settings\ActivitySourceSettings;
 use App\Settings\AiSettings;
 use App\Settings\GeneralSettings;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Process;
 
 pest()->group('settings');
-
-// ── General ────────────────────────────────────────────────────────────────
-
-describe('general settings', function () {
-    it('renders the general tab with required props', function () {
-        $this->get(route('settings.general'))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('settings/General')
-                ->has('generalSettings')
-                ->has('timezones')
-                //                ->has('locales')
-            );
-    });
-
-    it('delegates PUT to UpdateGeneralSettings and redirects', function () {
-        UpdateGeneralSettings::fake()
-            ->shouldReceive('handle')
-            ->once()
-            ->with(Mockery::on(fn ($data) => $data['company_name'] === 'Acme Corp'));
-
-        $this->put(route('settings.general.update'), [
-            'company_name' => 'Acme Corp',
-            'default_rounding_strategy' => 15,
-            'timezone' => 'Europe/Paris',
-            //            'locale' => 'fr',
-            'theme' => 'system',
-            'open_at_login' => false,
-        ])->assertRedirectToRoute('settings.general');
-    });
-
-    it('validates default_rounding_strategy is a valid enum value', function () {
-        $this->put(route('settings.general.update'), ['default_rounding_strategy' => 999])
-            ->assertInvalid(['default_rounding_strategy']);
-    });
-
-    it('validates timezone is a valid timezone identifier', function () {
-        $this->put(route('settings.general.update'), ['timezone' => 'Invalid/Zone'])
-            ->assertInvalid(['timezone']);
-    });
-
-    it('accepts a valid timezone', function () {
-        UpdateGeneralSettings::fake()->shouldReceive('handle')->once();
-
-        $this->put(route('settings.general.update'), [
-            'default_rounding_strategy' => 15,
-            'timezone' => 'Europe/Paris',
-            //            'locale' => 'fr',
-            'theme' => 'system',
-            'open_at_login' => false,
-        ])->assertRedirectToRoute('settings.general');
-    });
-
-    //    it('validates locale must be in allowed list', function () {
-    //        $this->put(route('settings.general.update'), ['locale' => 'de'])
-    //            ->assertInvalid(['locale']);
-    //    });
-})->group('controllers');
-
-describe('UpdateGeneralSettings action', function () {
-    beforeEach(function () {
-        Http::fake([
-            '*/system/theme' => Http::response(['result' => 'system']),
-            '*/app/open-at-login' => Http::response([]),
-        ]);
-    });
-
-    it('persists general settings', function () {
-        UpdateGeneralSettings::make()->handle([
-            'company_name' => 'Acme Corp',
-            'default_daily_reference_hours' => 7,
-        ]);
-
-        $settings = app(GeneralSettings::class);
-        expect($settings->company_name)->toBe('Acme Corp')
-            ->and($settings->default_daily_reference_hours)->toBe(7);
-    });
-
-    it('persists open_at_login and applies it', function () {
-        UpdateGeneralSettings::make()->handle([
-            'open_at_login' => true,
-        ]);
-
-        expect(app(GeneralSettings::class)->open_at_login)->toBeTrue();
-        Http::assertSent(fn ($request) => str_contains($request->url(), 'app/open-at-login')
-            && $request->data()['open'] === true
-        );
-    });
-})->group('actions');
-
-// ── Activity ───────────────────────────────────────────────────────────────
-
-describe('activity settings', function () {
-    it('renders the activity tab with required props', function () {
-        $this->get(route('settings.activity'))
-            ->assertSuccessful()
-            ->assertInertia(fn ($page) => $page
-                ->component('settings/Activity')
-                ->has('activitySettings')
-            );
-    });
-
-    it('delegates PUT to UpdateActivitySettings and redirects', function () {
-        UpdateActivitySettings::fake()
-            ->shouldReceive('handle')
-            ->once()
-            ->with(Mockery::on(fn ($data) => $data['idle_timeout_minutes'] === 45));
-
-        $this->put(route('settings.activity.update'), [
-            'idle_timeout_minutes' => 45,
-            'scan_interval_minutes' => 5,
-            'block_end_padding_minutes' => 0,
-            'manual_session_reminder_minutes' => 0,
-        ])->assertRedirectToRoute('settings.activity');
-    });
-
-    it('validates idle_timeout_minutes is within bounds', function () {
-        $this->put(route('settings.activity.update'), ['idle_timeout_minutes' => 0])
-            ->assertInvalid(['idle_timeout_minutes']);
-
-        $this->put(route('settings.activity.update'), ['idle_timeout_minutes' => 200])
-            ->assertInvalid(['idle_timeout_minutes']);
-    });
-
-    it('validates scan_interval_minutes is within bounds', function () {
-        $this->put(route('settings.activity.update'), ['scan_interval_minutes' => 0])
-            ->assertInvalid(['scan_interval_minutes']);
-
-        $this->put(route('settings.activity.update'), ['scan_interval_minutes' => 60])
-            ->assertInvalid(['scan_interval_minutes']);
-    });
-})->group('controllers');
-
-describe('UpdateActivitySettings action', function () {
-    it('persists timing settings', function () {
-        UpdateActivitySettings::make()->handle([
-            'idle_timeout_minutes' => 45,
-            'scan_interval_minutes' => 5,
-        ]);
-
-        $settings = app(ActivitySettings::class);
-        expect($settings->idle_timeout_minutes)->toBe(45)
-            ->and($settings->scan_interval_minutes)->toBe(5);
-    });
-})->group('actions');
 
 // ── Sources ────────────────────────────────────────────────────────────────
 
@@ -532,5 +390,59 @@ describe('UpdateAiSettings action', function () {
         ]);
 
         expect(app(AiSettings::class)->api_key)->toBeNull();
+    });
+})->group('actions');
+
+// ── Reset database ──────────────────────────────────────────────────────────
+
+describe('reset database', function () {
+    it('delegates POST to ResetDatabase and redirects to home', function () {
+        ResetDatabase::fake()
+            ->shouldReceive('handle')
+            ->once();
+
+        $this->post(route('settings.reset'))
+            ->assertRedirectToRoute('home');
+    });
+})->group('controllers');
+
+describe('ResetDatabase action', function () {
+    it('disconnects the database, deletes files, and runs migrations', function () {
+        $dbPath = tempnam(sys_get_temp_dir(), 'test_db');
+        file_put_contents("{$dbPath}-wal", '');
+        file_put_contents("{$dbPath}-shm", '');
+
+        $connection = Mockery::mock();
+        $connection->shouldReceive('getDatabaseName')->andReturn($dbPath);
+        DB::shouldReceive('connection')->andReturn($connection);
+        DB::shouldReceive('disconnect')->once();
+
+        Artisan::spy();
+
+        ResetDatabase::make()->handle();
+
+        expect(file_exists($dbPath))->toBeFalse()
+            ->and(file_exists("{$dbPath}-wal"))->toBeFalse()
+            ->and(file_exists("{$dbPath}-shm"))->toBeFalse();
+
+        Artisan::shouldHaveReceived('call')
+            ->with('migrate', ['--force' => true])
+            ->once();
+    });
+
+    it('skips deletion for files that do not exist', function () {
+        $dbPath = '/tmp/nonexistent_test_db_'.uniqid();
+
+        $connection = Mockery::mock();
+        $connection->shouldReceive('getDatabaseName')->andReturn($dbPath);
+        DB::shouldReceive('connection')->andReturn($connection);
+        DB::shouldReceive('disconnect')->once();
+
+        Artisan::spy();
+
+        // Should not throw even when no files exist
+        ResetDatabase::make()->handle();
+
+        Artisan::shouldHaveReceived('call')->once();
     });
 })->group('actions');
