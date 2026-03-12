@@ -2,6 +2,7 @@
 import { Link } from '@inertiajs/vue3';
 import { CheckCircle2Icon, CircleIcon } from 'lucide-vue-next';
 import { Button } from '@/components/ui/button';
+import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import type { OnboardingStep } from '@/types';
 
 defineProps<{
@@ -11,14 +12,13 @@ defineProps<{
 </script>
 
 <template>
-    <div class="flex items-start gap-3 py-2">
-        <div class="mt-0.5 shrink-0">
+    <Item variant="outline" size="sm">
+        <ItemMedia>
             <CheckCircle2Icon v-if="step.complete" class="size-4.5 text-primary" />
             <CircleIcon v-else class="size-4.5 text-muted-foreground/40" />
-        </div>
-
-        <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2">
+        </ItemMedia>
+        <ItemContent>
+            <ItemTitle>
                 <span :class="['text-sm font-medium', step.complete ? 'text-muted-foreground line-through' : 'text-foreground']">
                     {{ step.label }}
                 </span>
@@ -28,11 +28,12 @@ defineProps<{
                 >
                     Optional
                 </span>
-            </div>
-            <p class="mt-0.5 text-xs text-muted-foreground">{{ step.description }}</p>
-        </div>
-
-        <Button v-if="!step.complete && action" variant="link" @click="action"> Go → </Button>
-        <Button v-else-if="!step.complete" :as="Link" :href="step.url" variant="link"> Go → </Button>
-    </div>
+            </ItemTitle>
+            <ItemDescription>{{ step.description }}</ItemDescription>
+        </ItemContent>
+        <ItemActions>
+            <Button v-if="!step.complete && action" variant="link" @click="action"> Go → </Button>
+            <Button v-else-if="!step.complete" :as="Link" :href="step.url" variant="link"> Go → </Button>
+        </ItemActions>
+    </Item>
 </template>

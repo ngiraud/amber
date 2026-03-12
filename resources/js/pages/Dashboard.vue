@@ -65,51 +65,53 @@ const dateLabel = computed(() => {
             </PageHeader>
         </template>
 
-        <OnboardingChecklist v-if="showChecklist" :onboarding="onboarding" />
+        <div class="flex flex-col gap-6">
+            <OnboardingChecklist v-if="showChecklist" :onboarding="onboarding" />
 
-        <div class="mb-6 grid grid-cols-3 gap-4">
-            <Card>
-                <CardHeader class="pb-2">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">Today</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p class="font-mono text-2xl font-semibold">{{ formatMinutes(total_minutes) }}</p>
-                    <p class="mt-0.5 text-xs text-muted-foreground">{{ dateLabel }}</p>
-                </CardContent>
-            </Card>
+            <div class="grid grid-cols-3 gap-4">
+                <Card>
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-medium text-muted-foreground">Today</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(total_minutes) }}</p>
+                        <p class="mt-0.5 text-xs text-muted-foreground">{{ dateLabel }}</p>
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader class="pb-2">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">This Week</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p class="font-mono text-2xl font-semibold">{{ formatMinutes(week_minutes) }}</p>
-                </CardContent>
-            </Card>
+                <Card>
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-medium text-muted-foreground">This Week</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(week_minutes) }}</p>
+                    </CardContent>
+                </Card>
 
-            <Card>
-                <CardHeader class="pb-2">
-                    <CardTitle class="text-sm font-medium text-muted-foreground">This Month</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p class="font-mono text-2xl font-semibold">{{ formatMinutes(month_minutes) }}</p>
-                </CardContent>
-            </Card>
-        </div>
+                <Card>
+                    <CardHeader class="pb-2">
+                        <CardTitle class="text-sm font-medium text-muted-foreground">This Month</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(month_minutes) }}</p>
+                    </CardContent>
+                </Card>
+            </div>
 
-        <Empty v-if="sessions.length === 0" class="mt-4">
-            <EmptyDescription>No sessions today yet.</EmptyDescription>
-        </Empty>
+            <Empty v-if="sessions.length === 0">
+                <EmptyDescription>No sessions today yet.</EmptyDescription>
+            </Empty>
 
-        <div v-else class="flex flex-col gap-1.5">
-            <SessionRow
-                v-for="session in sessions"
-                :key="session.id"
-                :session="session"
-                :show-date="true"
-                @click="router.visit(sessionRoutes.show(session).url)"
-                class="cursor-pointer"
-            />
+            <div v-else class="flex flex-col gap-1.5">
+                <SessionRow
+                    v-for="session in sessions"
+                    :key="session.id"
+                    :session="session"
+                    :show-date="true"
+                    @click="router.visit(sessionRoutes.show(session).url)"
+                    class="cursor-pointer"
+                />
+            </div>
         </div>
     </AppLayout>
 </template>
