@@ -43,7 +43,7 @@ const action = computed(() => (isEditing.value ? clientRoutes.update(props.clien
                     />
                 </InputField>
 
-                <SheetFooter>
+                <SheetFooter class="px-0">
                     <Button type="submit" :disabled="processing" class="w-full">
                         {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create client' }}
                     </Button>

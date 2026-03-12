@@ -2,7 +2,16 @@
 import { Form } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from '@/components/ui/dialog';
 import * as projectRoutes from '@/routes/projects';
 import type { Project } from '@/types';
 
@@ -23,8 +32,8 @@ const open = ref(false);
                 <DialogTitle>{{ project.is_active ? 'Archive project' : 'Restore project' }}</DialogTitle>
                 <DialogDescription>
                     <template v-if="project.is_active">
-                        Archiving <strong>{{ project.name }}</strong> will hide it from active lists and stop new activity from being recorded. Existing
-                        data is preserved.
+                        Archiving <strong>{{ project.name }}</strong> will hide it from active lists and stop new activity from being recorded.
+                        Existing data is preserved.
                     </template>
                     <template v-else>
                         Restoring <strong>{{ project.name }}</strong> will make it active again and allow new activity to be recorded.

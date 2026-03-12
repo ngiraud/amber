@@ -42,13 +42,13 @@ enum ActivityEventSourceType: string
     public function color(): string
     {
         return match ($this) {
-            self::Git => 'text-green-400',
+            self::Git => 'text-[#05df72]',
             self::GitHub => 'text-[#0FBF3E]',
             self::ClaudeCode => 'text-[#DE7356]',
             self::Gemini => 'text-[#4796E3]',
             self::MistralVibe => 'text-[#FFAF00]',
             self::Opencode => 'text-[#007ACC]',
-            self::Fswatch => 'text-rose-400',
+            self::Fswatch => 'text-[#ff637e]',
         };
     }
 
@@ -68,13 +68,13 @@ enum ActivityEventSourceType: string
     public function requirements(): string
     {
         return match ($this) {
-            self::Git => 'Requires git<code class="block mt-1">brew install git</code>',
-            self::GitHub => 'Requires GitHub CLI authenticated<code class="block mt-1">brew install gh && gh auth login</code>',
-            self::ClaudeCode => 'Requires Claude Code CLI<code class="block mt-1">npm install -g @anthropic-ai/claude-code</code>',
-            self::Gemini => 'Requires Gemini CLI<code class="block mt-1">npm install -g @google/gemini-cli</code>',
-            self::MistralVibe => 'Requires Mistral Vibe<code class="block mt-1">curl -LsSf https://mistral.ai/vibe/install.sh | bash</code>',
-            self::Opencode => 'Requires Opencode<code class="block mt-1">curl -fsSL https://opencode.ai/install | bash</code>',
-            self::Fswatch => 'Requires fswatch<code class="block mt-1">brew install fswatch</code>',
+            self::Git => 'Requires git<code>brew install git</code>',
+            self::GitHub => 'Requires GitHub CLI authenticated<code>brew install gh && gh auth login</code>',
+            self::ClaudeCode => 'Requires Claude Code CLI<code>npm install -g @anthropic-ai/claude-code</code>',
+            self::Gemini => 'Requires Gemini CLI<code>npm install -g @google/gemini-cli</code>',
+            self::MistralVibe => 'Requires Mistral Vibe<code>curl -LsSf https://mistral.ai/vibe/install.sh | bash</code>',
+            self::Opencode => 'Requires Opencode<code>curl -fsSL https://opencode.ai/install | bash</code>',
+            self::Fswatch => 'Requires fswatch<code>brew install fswatch</code>',
         };
     }
 
@@ -82,6 +82,15 @@ enum ActivityEventSourceType: string
     public function configClass(): string
     {
         return $this->guessConfigClass();
+    }
+
+    public function category(): ActivitySourceCategory
+    {
+        return match ($this) {
+            self::ClaudeCode, self::Gemini, self::MistralVibe, self::Opencode => ActivitySourceCategory::AiClients,
+            self::Git, self::GitHub => ActivitySourceCategory::DevTools,
+            self::Fswatch => ActivitySourceCategory::FileWatcher,
+        };
     }
 
     public function toArray(): array
@@ -92,6 +101,7 @@ enum ActivityEventSourceType: string
             'color' => $this->color(),
             'description' => $this->description(),
             'requirements' => $this->requirements(),
+            'category' => $this->category()->toArray(),
             'fields' => array_map(fn (FieldDefinition $f) => $f->toArray(), $this->configClass()::fieldDefinitions()),
         ];
     }

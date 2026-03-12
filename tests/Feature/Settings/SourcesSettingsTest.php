@@ -16,15 +16,18 @@ use Illuminate\Support\Facades\Process;
 pest()->group('settings', 'sources');
 
 describe('source settings', function () {
+    beforeEach(function () {
+        $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+    });
+
     it('renders the sources tab with required props', function () {
         $this->get(route('settings.sources'))
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
                 ->component('settings/Sources')
-                ->has('sources')
-                ->has('sources.0.value')
-                ->has('sources.0.fields')
-                ->has('sources.0.config')
+                ->has('categories')
+                ->has('categories.0.category')
+                ->has('categories.0.sources')
             );
     });
 
@@ -33,18 +36,18 @@ describe('source settings', function () {
             ->shouldReceive('handle')
             ->once();
 
-        $this->put(route('settings.sources.update'), ['git' => ['enabled' => false, 'author_emails' => []]])
+        $this->put(route('settings.sources.update', ['source' => 'git']), ['git' => ['enabled' => false, 'author_emails' => []]])
             ->assertRedirectBack();
     });
 
     it('validates git author emails are valid email addresses', function () {
-        $this->put(route('settings.sources.update'), [
+        $this->put(route('settings.sources.update', ['source' => 'git']), [
             'git' => ['enabled' => true, 'author_emails' => ['not-an-email']],
         ])->assertInvalid(['git.author_emails.0']);
     });
 
     it('validates source enabled fields are boolean', function () {
-        $this->put(route('settings.sources.update'), [
+        $this->put(route('settings.sources.update', ['source' => 'git']), [
             'git' => ['enabled' => 'not-a-bool'],
         ])->assertInvalid(['git.enabled']);
     });
@@ -145,15 +148,14 @@ describe('UpdateActivitySourceSettings action', function () {
     });
 
     it('persists source settings as DTOs', function () {
-        UpdateActivitySourceSettings::make()->handle([
-            'git' => ['enabled' => false, 'author_emails' => ['dev@example.com']],
-            'github' => ['enabled' => true, 'username' => 'johndoe'],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
+            'enabled' => false,
+            'author_emails' => ['dev@example.com'],
         ]);
 
         $settings = app(ActivitySourceSettings::class);
         expect($settings->git->enabled)->toBeFalse()
-            ->and($settings->git->author_emails)->toBe(['dev@example.com'])
-            ->and($settings->github->username)->toBe('johndoe');
+            ->and($settings->git->author_emails)->toBe(['dev@example.com']);
     });
 
     it('stops the file watcher when fswatch is disabled', function () {
@@ -165,8 +167,8 @@ describe('UpdateActivitySourceSettings action', function () {
         $watcher->shouldReceive('stop')->once();
         app()->instance(FileWatcherService::class, $watcher);
 
-        UpdateActivitySourceSettings::make()->handle([
-            'fswatch' => ['enabled' => false, 'debounce_seconds' => 3, 'excluded_patterns' => [], 'allowed_extensions' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Fswatch, [
+            'enabled' => false, 'debounce_seconds' => 3, 'excluded_patterns' => [], 'allowed_extensions' => [],
         ]);
     });
 
@@ -181,8 +183,8 @@ describe('UpdateActivitySourceSettings action', function () {
         $watcher->shouldReceive('start')->once();
         app()->instance(FileWatcherService::class, $watcher);
 
-        UpdateActivitySourceSettings::make()->handle([
-            'fswatch' => ['enabled' => true, 'debounce_seconds' => 3, 'excluded_patterns' => [], 'allowed_extensions' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Fswatch, [
+            'enabled' => true, 'debounce_seconds' => 3, 'excluded_patterns' => [], 'allowed_extensions' => [],
         ]);
     });
 
@@ -195,8 +197,8 @@ describe('UpdateActivitySourceSettings action', function () {
         $watcher->shouldReceive('restart')->once();
         app()->instance(FileWatcherService::class, $watcher);
 
-        UpdateActivitySourceSettings::make()->handle([
-            'fswatch' => ['enabled' => true, 'debounce_seconds' => 5, 'excluded_patterns' => [], 'allowed_extensions' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Fswatch, [
+            'enabled' => true, 'debounce_seconds' => 5, 'excluded_patterns' => [], 'allowed_extensions' => [],
         ]);
     });
 
@@ -207,8 +209,8 @@ describe('UpdateActivitySourceSettings action', function () {
         $watcher->shouldNotReceive('restart');
         app()->instance(FileWatcherService::class, $watcher);
 
-        UpdateActivitySourceSettings::make()->handle([
-            'git' => ['enabled' => true, 'author_emails' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
+            'enabled' => true, 'author_emails' => [],
         ]);
     });
 
@@ -223,8 +225,8 @@ describe('UpdateActivitySourceSettings action', function () {
             ->once()
             ->andReturn(false);
 
-        UpdateActivitySourceSettings::make()->handle([
-            'git' => ['enabled' => true, 'author_emails' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
+            'enabled' => true, 'author_emails' => [],
         ]);
     })->throws(Illuminate\Validation\ValidationException::class);
 
@@ -236,8 +238,8 @@ describe('UpdateActivitySourceSettings action', function () {
         TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(false);
 
         try {
-            UpdateActivitySourceSettings::make()->handle([
-                'git' => ['enabled' => true, 'author_emails' => ['new@example.com']],
+            UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
+                'enabled' => true, 'author_emails' => ['new@example.com'],
             ]);
         } catch (Illuminate\Validation\ValidationException) {
             // expected
@@ -254,16 +256,16 @@ describe('UpdateActivitySourceSettings action', function () {
 
         TestActivitySourceConnection::fake()->shouldNotReceive('handle');
 
-        UpdateActivitySourceSettings::make()->handle([
-            'git' => ['enabled' => true, 'author_emails' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
+            'enabled' => true, 'author_emails' => [],
         ]);
     });
 
     it('does not check availability when a source is being disabled', function () {
         TestActivitySourceConnection::fake()->shouldNotReceive('handle');
 
-        UpdateActivitySourceSettings::make()->handle([
-            'git' => ['enabled' => false, 'author_emails' => []],
+        UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
+            'enabled' => false, 'author_emails' => [],
         ]);
     });
 
@@ -275,9 +277,9 @@ describe('UpdateActivitySourceSettings action', function () {
         TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(false);
 
         try {
-            UpdateActivitySourceSettings::make()->handle([
-                'github' => ['enabled' => true, 'username' => 'octocat'],
-            ]);
+            UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::GitHub, [
+                'enabled' => true, 'username' => 'octocat'],
+            );
             expect(true)->toBeFalse('expected ValidationException');
         } catch (Illuminate\Validation\ValidationException $e) {
             expect($e->errors())->toHaveKey('github.enabled');

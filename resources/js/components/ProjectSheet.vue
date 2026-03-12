@@ -92,9 +92,7 @@ function removeRepo(index: number): void {
 
                 <!-- Repositories section (create mode only) -->
                 <Collapsible v-if="!isEditing" v-model:open="showRepos">
-                    <CollapsibleTrigger
-                        class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
+                    <CollapsibleTrigger class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
                         <ChevronDownIcon class="h-3.5 w-3.5 transition-transform duration-200" :class="{ '-rotate-90': !showRepos }" />
                         Repositories
                         <span v-if="repos.length" class="ml-1 text-xs text-foreground">({{ repos.length }})</span>
@@ -131,9 +129,7 @@ function removeRepo(index: number): void {
 
                 <!-- Advanced section -->
                 <Collapsible v-model:open="showAdvanced">
-                    <CollapsibleTrigger
-                        class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-                    >
+                    <CollapsibleTrigger class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
                         <ChevronDownIcon class="h-3.5 w-3.5 transition-transform duration-200" :class="{ '-rotate-90': !showAdvanced }" />
                         Advanced settings
                     </CollapsibleTrigger>
@@ -185,8 +181,8 @@ function removeRepo(index: number): void {
                     </CollapsibleContent>
                 </Collapsible>
 
-                <SheetFooter>
-                    <Button type="submit" :disabled="processing" class="w-full">
+                <SheetFooter class="px-0">
+                    <Button type="submit" :disabled="processing">
                         {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create project' }}
                     </Button>
                 </SheetFooter>

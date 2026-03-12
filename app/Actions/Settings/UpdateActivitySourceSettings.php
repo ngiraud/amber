@@ -18,67 +18,45 @@ class UpdateActivitySourceSettings extends Action
     /**
      * @param  array<string, mixed>  $data
      */
-    public function handle(array $data): void
+    public function handle(ActivityEventSourceType $source, array $data): void
     {
         // Check availability BEFORE touching $this->settings so a failure leaves no side-effects
-        $this->assertSourcesAvailable($data);
+        $this->assertSourceAvailable($source, $data);
 
         $previousFswatch = $this->settings->fswatch;
 
-        foreach (ActivityEventSourceType::cases() as $type) {
-            if (isset($data[$type->value])) {
-                $this->settings->mergeConfig($type, $data[$type->value]);
-            }
-        }
+        $this->settings->mergeConfig($source, $data);
 
         $this->settings->save();
 
-        $this->handleFswatchLifecycle($previousFswatch);
-    }
-
-    /**
-     * @return array<string, bool>
-     */
-    protected function captureEnabledStates(): array
-    {
-        return ActivityEventSourceType::collect()
-            ->mapWithKeys(fn (ActivityEventSourceType $type) => [
-                $type->value => $this->settings->configFor($type)->isEnabled(),
-            ])
-            ->all();
+        if ($source === ActivityEventSourceType::Fswatch) {
+            $this->handleFswatchLifecycle($previousFswatch);
+        }
     }
 
     /**
      * @param  array<string, mixed>  $data
      */
-    protected function assertSourcesAvailable(array $data): void
+    protected function assertSourceAvailable(ActivityEventSourceType $source, array $data): void
     {
-        $previousEnabled = $this->captureEnabledStates();
+        $beingEnabled = ($data['enabled'] ?? null) === true;
+        $wasEnabled = $this->settings->configFor($source)->isEnabled();
 
-        $errors = [];
-
-        foreach (ActivityEventSourceType::cases() as $type) {
-            $beingEnabled = ($data[$type->value]['enabled'] ?? null) === true;
-            $wasEnabled = $previousEnabled[$type->value];
-
-            if (! $beingEnabled) {
-                continue;
-            }
-
-            if ($wasEnabled) {
-                continue;
-            }
-
-            if (app(TestActivitySourceConnection::class)->handle($type)) {
-                continue;
-            }
-
-            $errors["{$type->value}.enabled"] = $type->requirements();
+        if (! $beingEnabled) {
+            return;
         }
 
-        if (! empty($errors)) {
-            throw ValidationException::withMessages($errors);
+        if ($wasEnabled) {
+            return;
         }
+
+        if (app(TestActivitySourceConnection::class)->handle($source)) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            "{$source->value}.enabled" => $source->requirements(),
+        ]);
     }
 
     protected function handleFswatchLifecycle(FswatchSourceConfig $previous): void

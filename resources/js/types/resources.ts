@@ -173,6 +173,18 @@ export type SourceDefinition = {
     };
 };
 
+export type ActivitySourceCategory = {
+    value: string;
+    label: string;
+    description: string;
+    display_layout: 'grid-2' | 'full-width';
+};
+
+export type CategoryWithSources = {
+    category: ActivitySourceCategory;
+    sources: SourceDefinition[];
+};
+
 export type LocaleOption = { value: string; label: string };
 
 export interface ActivityReportStatus {

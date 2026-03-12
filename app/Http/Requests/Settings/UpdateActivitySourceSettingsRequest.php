@@ -15,12 +15,11 @@ class UpdateActivitySourceSettingsRequest extends FormRequest
      */
     public function rules(): array
     {
-        return ActivityEventSourceType::collect()
-            ->flatMap(
-                fn (ActivityEventSourceType $type) => Arr::mapWithKeys($type->configClass()::validationRules(), fn ($rule, $key) => [
-                    "{$type->value}.{$key}" => $rule,
-                ])
-            )
-            ->all();
+        /** @var ActivityEventSourceType $source */
+        $source = $this->route('source');
+
+        return Arr::mapWithKeys($source->configClass()::validationRules(), fn ($rule, $key) => [
+            "{$source->value}.{$key}" => $rule,
+        ]);
     }
 }

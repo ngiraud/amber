@@ -63,6 +63,14 @@ const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
                         </SidebarMenuItem>
 
                         <SidebarMenuItem>
+                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(reportRoutes.index())" tooltip="Reports">
+                                <Link :href="reportRoutes.index()" class="items-center justify-center">
+                                    <FileTextIcon />
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+
+                        <SidebarMenuItem>
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(sessionRoutes.index())" tooltip="Sessions">
                                 <Link :href="sessionRoutes.index()" class="items-center justify-center">
                                     <ClockIcon />
@@ -74,14 +82,6 @@ const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
                             <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(activityRoutes.index())" tooltip="Activity">
                                 <Link :href="activityRoutes.index()" class="items-center justify-center">
                                     <ActivityIcon />
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(reportRoutes.index())" tooltip="Reports">
-                                <Link :href="reportRoutes.index()" class="items-center justify-center">
-                                    <FileTextIcon />
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>

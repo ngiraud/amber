@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Settings;
 use App\Actions\Settings\TestActivitySourceConnection;
 use App\Actions\Settings\UpdateActivitySourceSettings;
 use App\Enums\ActivityEventSourceType;
+use App\Enums\ActivitySourceCategory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\UpdateActivitySourceSettingsRequest;
 use App\Settings\ActivitySourceSettings;
@@ -20,16 +21,23 @@ class ActivitySourceSettingsController extends Controller
     public function edit(ActivitySourceSettings $settings): Response
     {
         return Inertia::render('settings/Sources', [
-            'sources' => ActivityEventSourceType::collect()
+            'categories' => ActivityEventSourceType::collect()
                 ->map(fn (ActivityEventSourceType $type) => array_merge($type->toArray(), [
                     'config' => $settings->configFor($type)->toArray(),
-                ])),
+                ]))
+                ->groupBy(fn ($source) => $source['category']['value'])
+                ->map(fn ($sources, $categoryValue) => [
+                    'category' => ActivitySourceCategory::from($categoryValue)->toArray(),
+                    'sources' => $sources->values()->all(),
+                ])
+                ->values()
+                ->all(),
         ]);
     }
 
-    public function update(UpdateActivitySourceSettingsRequest $request, UpdateActivitySourceSettings $action): RedirectResponse
+    public function update(ActivityEventSourceType $source, UpdateActivitySourceSettingsRequest $request, UpdateActivitySourceSettings $action): RedirectResponse
     {
-        $action->handle($request->validated());
+        $action->handle($source, $request->validated()[$source->value]);
 
         Inertia::flash('success', 'Source settings saved.');
 

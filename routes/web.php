@@ -86,7 +86,7 @@ Route::prefix('settings')->name('settings.')->group(function () {
     Route::put('/activity', [ActivitySettingsController::class, 'update'])->name('activity.update');
 
     Route::get('/sources', [ActivitySourceSettingsController::class, 'edit'])->name('sources');
-    Route::put('/sources', [ActivitySourceSettingsController::class, 'update'])->name('sources.update');
+    Route::put('/sources/{source}', [ActivitySourceSettingsController::class, 'update'])->name('sources.update');
     Route::post('/sources/{source}/test', [ActivitySourceSettingsController::class, 'test'])->name('sources.test');
 
     Route::get('/ai', [AiSettingsController::class, 'edit'])->name('ai');
