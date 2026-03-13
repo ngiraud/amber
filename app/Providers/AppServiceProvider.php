@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Agent\MistralVibeAgent;
 use App\Services\ApplicationMenuService;
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
@@ -18,7 +17,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
-use Laravel\Boost\Boost;
 use Throwable;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,8 +36,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Boost::registerAgent('mistral_vibe_agent', MistralVibeAgent::class);
-
         $this->configureAiProvider();
         $this->configureCommands();
         $this->configureDates();
