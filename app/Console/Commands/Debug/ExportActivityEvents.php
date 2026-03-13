@@ -54,7 +54,7 @@ class ExportActivityEvents extends Command
                     'database/nativephp.sqlite',
                     sprintf('SELECT %s FROM activity_events;', $tableColumns->join(', ')),
                 ]);
-                $pipe->command(sprintf("jq '.' > %s", storage_path('sample-data/activity-events.json')));
+                $pipe->command(sprintf("jq '.' > %s", storage_path('app/private/activity-events.json')));
             })->throw();
         }, 'Exporting activity events to JSON file...');
 

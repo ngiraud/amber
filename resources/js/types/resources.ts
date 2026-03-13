@@ -1,26 +1,4 @@
-import type { Appearance } from './ui';
-
-export type Paginator<T> = {
-    data: T[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    from: number | null;
-    to: number | null;
-    next_page_url: string | null;
-    prev_page_url: string | null;
-    links: {
-        url: string | null;
-        label: string;
-        active: boolean;
-    }[];
-};
-
-export type RoundingStrategyOption = {
-    value: number;
-    label: string;
-};
+import type { ActivityEventSourceType, ActivityReportStatus, EnumValue, RoundingStrategyOption, SessionSource } from './enums';
 
 export type ProjectRepository = {
     id: string;
@@ -69,11 +47,6 @@ export type Client = {
     projects_count?: number;
 };
 
-export type SessionSource = {
-    value: number;
-    label: string;
-};
-
 export type Session = {
     id: string;
     project_id: string;
@@ -90,15 +63,6 @@ export type Session = {
     updated_at: string;
     project?: Project;
 };
-
-export interface EnumValue {
-    value: string;
-    label: string;
-}
-
-export interface ActivityEventSourceType extends EnumValue {
-    color: string;
-}
 
 export type ActivityEvent = {
     id: string;
@@ -117,89 +81,6 @@ export type ActivityEvent = {
     updated_at: string;
 };
 
-export type TimelineDay = {
-    date: string;
-    total_minutes: number;
-    projects: {
-        id: string;
-        name: string | undefined;
-        color: string | undefined;
-        minutes: number;
-    }[];
-};
-
-export type GeneralSettings = {
-    company_name: string | null;
-    company_address: string | null;
-    default_hourly_rate: number | null;
-    default_daily_rate: number | null;
-    default_daily_reference_hours: number;
-    default_rounding_strategy: number;
-    timezone: string | null;
-    locale: string | null;
-    theme: Appearance;
-    open_at_login: boolean;
-};
-
-export type ActivitySettings = {
-    idle_timeout_minutes: number;
-    scan_interval_minutes: number;
-    block_end_padding_minutes: number;
-    manual_session_reminder_minutes: number;
-};
-
-export type SourceFieldDefinition = {
-    name: string;
-    type: 'text' | 'number' | 'textarea' | 'email-list' | 'string-list';
-    label: string;
-    hint: string;
-    placeholder?: string;
-    min?: number;
-    max?: number;
-    rows?: number;
-    separator?: string;
-};
-
-export type SourceDefinition = {
-    value: string;
-    label: string;
-    color: string;
-    description: string;
-    requirements: string;
-    fields: SourceFieldDefinition[];
-    config: {
-        enabled: boolean;
-        [key: string]: unknown;
-    };
-};
-
-export type ActivitySourceCategory = {
-    value: string;
-    label: string;
-    description: string;
-    display_layout: 'grid-2' | 'full-width';
-};
-
-export type CategoryWithSources = {
-    category: ActivitySourceCategory;
-    sources: SourceDefinition[];
-};
-
-export type LocaleOption = { value: string; label: string };
-
-export interface ActivityReportStatus {
-    value: number;
-    label: string;
-    variant: 'default' | 'secondary' | 'outline' | 'destructive';
-    shouldDisplayBadge: boolean;
-}
-
-export interface ActivityReportStep {
-    value: string;
-    label: string;
-    shouldDisplayStep: boolean;
-}
-
 export type ActivityReportLine = {
     id: string;
     activity_report_id: string;
@@ -213,20 +94,6 @@ export type ActivityReportLine = {
     created_at: string;
     updated_at: string;
     project?: Project;
-};
-
-export type AiProviderOption = {
-    value: string;
-    label: string;
-    model: string;
-    requiresApiKey: boolean;
-};
-
-export type AiSettings = {
-    enabled: boolean;
-    provider: string | null;
-    api_key: string | null;
-    summary_language: string;
 };
 
 export type ActivityReport = {
@@ -247,25 +114,4 @@ export type ActivityReport = {
     client?: Client;
     lines?: ActivityReportLine[];
     lines_count?: number;
-};
-
-export type ActivityReportProgressPayload = {
-    reportId: string;
-    step: string;
-    message?: string | null;
-};
-
-export type OnboardingStep = {
-    key: string;
-    label: string;
-    description: string;
-    complete: boolean;
-    url: string;
-    optional: boolean;
-};
-
-export type OnboardingState = {
-    dismissed: boolean;
-    all_complete?: boolean;
-    steps?: OnboardingStep[];
 };

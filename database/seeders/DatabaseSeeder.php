@@ -67,9 +67,9 @@ class DatabaseSeeder extends Seeder
         $thisProject = Project::factory()->create([
             'id' => '01kj5qc6afcnqgn9zek1nx1zsz',
             'client_id' => $startup->id,
-            'name' => 'CRA project',
-            'color' => '#000000',
-            'daily_rate' => 700,
+            'name' => 'Amber',
+            'color' => '#ffd230',
+            'daily_rate' => 500,
             'hourly_rate' => null,
             'rounding' => RoundingStrategy::Quarter,
         ]);
@@ -78,7 +78,7 @@ class DatabaseSeeder extends Seeder
             ['local_path' => '/Users/nico/code/activity-record-desktop', 'name' => 'CRA Tracker', 'id' => '01kj5qc6agq8dw5z7pqg6xqg0v'],
         ]);
 
-        $this->pushActivityEvents();
+        //        $this->pushActivityEvents();
     }
 
     protected function pushActivityEvents(): void
