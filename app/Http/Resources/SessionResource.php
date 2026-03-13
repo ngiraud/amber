@@ -24,8 +24,8 @@ class SessionResource extends JsonResource
             'date' => $this->date?->toDateString(),
             'started_at' => $this->started_at,
             'ended_at' => $this->ended_at,
-            'duration_minutes' => $this->duration_minutes,
-            'rounded_minutes' => $this->rounded_minutes,
+            'duration_minutes' => $this->getDurationMinutes(),
+            'rounded_minutes' => $this->getRoundedMinutes(),
             'source' => $this->source->toArray(),
             'notes' => $this->notes,
             'description' => $this->description,
@@ -35,5 +35,23 @@ class SessionResource extends JsonResource
 
             'project' => ProjectResource::make($this->whenLoaded('project')),
         ];
+    }
+
+    protected function getDurationMinutes(): int
+    {
+        if (! $this->resource->isActive()) {
+            return $this->resource->duration_minutes ?? 0;
+        }
+
+        return (int) $this->resource->started_at->diffInMinutes(now());
+    }
+
+    protected function getRoundedMinutes(): int
+    {
+        if (! $this->resource->isActive() || ! $this->resource->relationLoaded('project')) {
+            return $this->resource->rounded_minutes ?? 0;
+        }
+
+        return $this->resource->project->rounding->round($this->getDurationMinutes());
     }
 }

@@ -1,16 +1,20 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { CalendarDaysIcon } from 'lucide-vue-next';
+import { CalendarDaysIcon, ClockIcon, RadioIcon, TargetIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
+import DaySummaryCard from '@/components/DaySummaryCard.vue';
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Empty, EmptyDescription } from '@/components/ui/empty';
+import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
+import { Separator } from '@/components/ui/separator';
+import { useNow } from '@/composables/useNow';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { cn, formatMinutes } from '@/lib/utils';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
 import type { OnboardingState, Session } from '@/types';
@@ -23,22 +27,26 @@ const props = defineProps<{
     month_minutes: number;
 }>();
 
-const page = usePage<{ onboarding: OnboardingState }>();
-const onboarding = computed(() => page.props.onboarding);
+const page = usePage();
+const onboarding = computed(() => page.props.onboarding as OnboardingState);
 const showChecklist = computed(() => !onboarding.value?.dismissed && !onboarding.value?.all_complete);
 
 const { spotlightClass } = useSpotlight();
-
 const { shouldOpen } = useOpenSessionDialog();
+const { now, isToday: isTodayFn } = useNow();
 
-function formatMinutes(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    if (minutes === 0) return '0h';
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
-    return `${h}h${String(m).padStart(2, '0')}m`;
-}
+const isToday = computed(() => isTodayFn(props.date));
+const activeSession = computed(() => (isToday.value ? (page.props.activeSession as Session | null) : null));
+
+const activeSessionMinutes = computed(() => {
+    if (!activeSession.value) return 0;
+
+    if (activeSession.value.rounded_minutes) return activeSession.value.rounded_minutes;
+
+    const start = new Date(activeSession.value.started_at);
+    const diff = now.value.getTime() - start.getTime();
+    return Math.max(Math.floor(diff / 1000 / 60), 0);
+});
 
 const dateLabel = computed(() => {
     const d = new Date(props.date + 'T00:00:00');
@@ -65,53 +73,90 @@ const dateLabel = computed(() => {
             </PageHeader>
         </template>
 
-        <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-10">
+            <!-- Compact Quick Stats -->
+            <div class="flex items-center justify-between rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-border/5 ring-inset">
+                <div class="flex items-center gap-10">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <ClockIcon class="-mt-0.5 size-3 text-muted-foreground" />
+                            <span class="text-[9px] font-black tracking-widest text-muted-foreground/80 uppercase">Today</span>
+                        </div>
+                        <div class="flex items-baseline gap-2.5">
+                            <p :class="cn('font-mono text-2xl font-black tracking-tighter', activeSession ? 'text-primary' : '')">
+                                {{ formatMinutes(total_minutes + activeSessionMinutes) }}
+                            </p>
+
+                            <Badge v-if="activeSession" class="animate-pulse">
+                                <RadioIcon class="size-3" />
+                                <span class="text-[9px] font-black tracking-tighter tabular-nums"> LIVE </span>
+                            </Badge>
+                        </div>
+                    </div>
+                    <Separator orientation="vertical" class="h-8 opacity-20" />
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <TargetIcon class="-mt-px size-3 text-muted-foreground" />
+                            <span class="text-[9px] font-black tracking-widest text-muted-foreground/80 uppercase">This Week</span>
+                        </div>
+                        <p class="font-mono text-2xl font-black tracking-tighter opacity-70">
+                            {{ formatMinutes(week_minutes + (isToday ? activeSessionMinutes : 0)) }}
+                        </p>
+                    </div>
+                    <Separator orientation="vertical" class="h-8 opacity-20" />
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-1.5">
+                            <CalendarDaysIcon class="-mt-0.5 size-3 text-muted-foreground" />
+                            <span class="text-[9px] font-black tracking-widest text-muted-foreground/80 uppercase">This Month</span>
+                        </div>
+                        <p class="font-mono text-2xl font-black tracking-tighter opacity-70">
+                            {{ formatMinutes(month_minutes + (isToday ? activeSessionMinutes : 0)) }}
+                        </p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-[10px] font-black tracking-widest text-muted-foreground/60 uppercase">{{ dateLabel }}</p>
+                </div>
+            </div>
+
             <OnboardingChecklist v-if="showChecklist" :onboarding="onboarding" />
 
-            <div class="grid grid-cols-3 gap-4">
-                <Card>
-                    <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">Today</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(total_minutes) }}</p>
-                        <p class="mt-0.5 text-xs text-muted-foreground">{{ dateLabel }}</p>
-                    </CardContent>
-                </Card>
+            <div v-if="sessions.length > 0 || (isToday && activeSessionMinutes > 0)" class="grid gap-10">
+                <DaySummaryCard :sessions="sessions" :date="date" />
 
-                <Card>
-                    <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">This Week</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(week_minutes) }}</p>
-                    </CardContent>
-                </Card>
-
-                <Card>
-                    <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">This Month</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(month_minutes) }}</p>
-                    </CardContent>
-                </Card>
+                <!-- Detail List Section -->
+                <div class="space-y-6">
+                    <div class="flex items-center gap-3 px-1">
+                        <h3 class="text-[10px] font-black tracking-[0.25em] text-muted-foreground/80 uppercase">Recent Activity</h3>
+                        <Separator class="flex-1 opacity-20" />
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <SessionRow
+                            v-if="activeSession"
+                            :session="activeSession"
+                            :show-date="false"
+                            class="cursor-pointer"
+                            @click="router.visit(sessionRoutes.show(activeSession).url)"
+                        />
+                        <SessionRow
+                            v-for="session in sessions"
+                            :key="session.id"
+                            :session="session"
+                            :show-date="false"
+                            class="cursor-pointer"
+                            @click="router.visit(sessionRoutes.show(session).url)"
+                        />
+                    </div>
+                </div>
             </div>
 
-            <Empty v-if="sessions.length === 0">
-                <EmptyDescription>No sessions today yet.</EmptyDescription>
+            <Empty v-else>
+                <EmptyTitle>No activity recorded yet.</EmptyTitle>
+                <EmptyDescription>Start tracking your work by adding a session.</EmptyDescription>
+                <div class="mt-4">
+                    <Button size="sm" @click="shouldOpen = true">Add Session</Button>
+                </div>
             </Empty>
-
-            <div v-else class="flex flex-col gap-1.5">
-                <SessionRow
-                    v-for="session in sessions"
-                    :key="session.id"
-                    :session="session"
-                    :show-date="true"
-                    @click="router.visit(sessionRoutes.show(session).url)"
-                    class="cursor-pointer"
-                />
-            </div>
         </div>
     </AppLayout>
 </template>

@@ -46,6 +46,11 @@ class Session extends Model
         return $this->hasMany(ActivityEvent::class);
     }
 
+    public function isActive(): bool
+    {
+        return is_null($this->ended_at);
+    }
+
     #[Scope]
     protected function active(Builder $query): void
     {

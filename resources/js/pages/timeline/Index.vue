@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import MonthCalendar from '@/components/MonthCalendar.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
@@ -41,7 +41,15 @@ function selectDay(date: string): void {
 
 const fromDateDialog = ref<InstanceType<typeof ReconstructDialog> | null>(null);
 
+function onKeyDown(e: KeyboardEvent): void {
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+    if (e.key === 'ArrowLeft') navigate(-1);
+    if (e.key === 'ArrowRight') navigate(1);
+}
+
 onMounted(() => {
+    window.addEventListener('keydown', onKeyDown);
+
     const params = new URLSearchParams(window.location.search);
     const reconstructFrom = params.get('reconstruct_from');
     if (reconstructFrom) {
@@ -49,6 +57,8 @@ onMounted(() => {
         window.history.replaceState({}, '', timelineRoutes.index().url);
     }
 });
+
+onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 </script>
 
 <template>
