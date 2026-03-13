@@ -36,7 +36,7 @@ class SessionTimerController extends Controller
 
     public function reconstruct(ReconstructDailySessionsRequest $request, ReconstructDailySessions $action): RedirectResponse
     {
-        $generated = $action->handle($request->getDate(), null, $request->getMode());
+        $generated = $action->handle(date: $request->getDate(), mode: $request->getMode());
 
         $count = $generated->count();
         $message = $count > 0
@@ -51,6 +51,7 @@ class SessionTimerController extends Controller
     public function reconstructFrom(ReconstructFromDateRequest $request, ReconstructSessionsFromDate $action): RedirectResponse
     {
         $from = $request->getFromDate();
+
         $generated = $action->handle($from, $request->getMode());
 
         $count = $generated->count();

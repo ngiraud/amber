@@ -33,7 +33,7 @@ class GeminiActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         $events = collect();
         $projectsPath = $this->projectsPath();
@@ -60,14 +60,14 @@ class GeminiActivitySource implements ActivitySource
                     continue;
                 }
 
-                $events = $events->merge($this->scanFile($file, $matchedRepo, $since));
+                $events = $events->merge($this->scanFile($file, $matchedRepo, $since, $until));
             }
         }
 
         return $events->values();
     }
 
-    protected function scanFile(string $file, ProjectRepository $repo, CarbonImmutable $since): Collection
+    protected function scanFile(string $file, ProjectRepository $repo, CarbonImmutable $since, CarbonImmutable $until): Collection
     {
         $content = file_get_contents($file);
         if (! $content) {
@@ -89,7 +89,7 @@ class GeminiActivitySource implements ActivitySource
                 continue;
             }
 
-            if ($occurredAt->lessThanOrEqualTo($since)) {
+            if ($occurredAt->lessThanOrEqualTo($since) || $occurredAt->greaterThan($until)) {
                 continue;
             }
 

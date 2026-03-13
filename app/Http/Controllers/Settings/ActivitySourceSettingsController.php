@@ -21,6 +21,11 @@ class ActivitySourceSettingsController extends Controller
     public function edit(ActivitySourceSettings $settings): Response
     {
         return Inertia::render('settings/Sources', [
+            'hasEnabledSources' => ActivityEventSourceType::collect()->some->isEnabled(),
+            'enabledSourceTypes' => ActivityEventSourceType::collect()
+                ->filter->isEnabled()
+                ->map->toArray()
+                ->values(),
             'categories' => ActivityEventSourceType::collect()
                 ->map(fn (ActivityEventSourceType $type) => array_merge($type->toArray(), [
                     'config' => $settings->configFor($type)->toArray(),
@@ -35,11 +40,21 @@ class ActivitySourceSettingsController extends Controller
         ]);
     }
 
-    public function update(ActivityEventSourceType $source, UpdateActivitySourceSettingsRequest $request, UpdateActivitySourceSettings $action): RedirectResponse
+    public function update(ActivityEventSourceType $source, UpdateActivitySourceSettingsRequest $request, UpdateActivitySourceSettings $action, ActivitySourceSettings $settings): RedirectResponse
     {
+        $wasEnabled = $settings->configFor($source)->isEnabled();
+
         $action->handle($source, $request->validated()[$source->value]);
 
-        Inertia::flash('success', 'Source settings saved.');
+        $isNowEnabled = $settings->configFor($source)->isEnabled();
+
+        $message = 'Source settings saved.';
+
+        if (! $wasEnabled && $isNowEnabled) {
+            $message = "Source {$source->label()} enabled.";
+        }
+
+        Inertia::flash('success', $message);
 
         return back();
     }

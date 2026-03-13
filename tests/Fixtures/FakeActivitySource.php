@@ -27,7 +27,7 @@ class FakeActivitySource implements ActivitySource
         return $this->available;
     }
 
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         return collect($this->events);
     }

@@ -16,12 +16,12 @@ interface ActivitySource
     public function identifier(): ActivityEventSourceType;
 
     /**
-     * Scan for activity events since the given timestamp.
+     * Scan for activity events within the given time range.
      *
      * @param  Collection<int, ProjectRepository>  $repos  Active project repositories (pre-fetched once by the caller)
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection;
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection;
 
     /** Whether this source is available/configured on the current system. */
     public function isAvailable(): bool;

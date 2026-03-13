@@ -31,7 +31,7 @@ it('is not available when git is not installed', function () {
 });
 
 it('returns empty collection when no repositories are passed', function () {
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), collect());
 
     expect($events)->toHaveCount(0);
 });
@@ -47,7 +47,7 @@ it('returns empty collection when git log fails', function () {
         return Process::result('');
     });
 
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -67,7 +67,7 @@ it('scans commits from a git repository with enriched metadata', function () {
         return Process::result('');
     });
 
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
@@ -99,7 +99,7 @@ it('aggregates numstat across multiple changed files', function () {
         return Process::result('');
     });
 
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events->first()->metadata['added_lines'])->toBe(15)
         ->and($events->first()->metadata['removed_lines'])->toBe(3)
@@ -126,7 +126,7 @@ it('filters commits by configured author emails', function () {
         return Process::result('');
     });
 
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->metadata['author_email'])->toBe('dev@example.com');
@@ -143,7 +143,7 @@ it('detects branch switches from git reflog', function () {
         return Process::result('');
     });
 
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->type)->toBe(ActivityEventType::GitBranchSwitch)
@@ -166,7 +166,7 @@ it('ignores non-checkout reflog entries', function () {
         return Process::result('');
     });
 
-    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->type)->toBe(ActivityEventType::GitBranchSwitch);

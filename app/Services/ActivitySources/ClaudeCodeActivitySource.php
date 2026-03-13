@@ -33,7 +33,7 @@ class ClaudeCodeActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         $events = collect();
 
@@ -43,7 +43,7 @@ class ClaudeCodeActivitySource implements ActivitySource
                     continue;
                 }
 
-                $events = $events->merge($this->scanFile($file, $repos, $since));
+                $events = $events->merge($this->scanFile($file, $repos, $since, $until));
             }
         }
 
@@ -54,7 +54,7 @@ class ClaudeCodeActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    protected function scanFile(string $file, Collection $repos, CarbonImmutable $since): Collection
+    protected function scanFile(string $file, Collection $repos, CarbonImmutable $since, CarbonImmutable $until): Collection
     {
         $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
@@ -89,6 +89,10 @@ class ClaudeCodeActivitySource implements ActivitySource
             try {
                 $occurredAt = CarbonImmutable::parse($obj['timestamp'])->utc();
             } catch (Throwable) {
+                continue;
+            }
+
+            if ($occurredAt->greaterThan($until)) {
                 continue;
             }
 

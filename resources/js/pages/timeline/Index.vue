@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
 import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import MonthCalendar from '@/components/MonthCalendar.vue';
 import PageHeader from '@/components/PageHeader.vue';
-import ReconstructFromDateDialog from '@/components/ReconstructFromDateDialog.vue';
+import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as timelineRoutes from '@/routes/timeline';
@@ -39,7 +39,16 @@ function selectDay(date: string): void {
     router.get(timelineRoutes.show({ date: date }).url);
 }
 
-const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null>(null);
+const fromDateDialog = ref<InstanceType<typeof ReconstructDialog> | null>(null);
+
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    const reconstructFrom = params.get('reconstruct_from');
+    if (reconstructFrom) {
+        fromDateDialog.value?.show(reconstructFrom);
+        window.history.replaceState({}, '', timelineRoutes.index().url);
+    }
+});
 </script>
 
 <template>
@@ -48,10 +57,12 @@ const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null
             <PageHeader title="Timeline">
                 <template #actions>
                     <div class="flex items-center gap-2">
-                        <Button variant="outline" size="sm" @click="fromDateDialog?.show()">
-                            <RefreshCwIcon class="mr-1.5 size-3.5" />
-                            Reconstruct since a date
-                        </Button>
+                        <ReconstructDialog ref="fromDateDialog" batch>
+                            <Button variant="outline" size="sm">
+                                <RefreshCwIcon class="mr-1.5 size-3.5" />
+                                Reconstruct since a date
+                            </Button>
+                        </ReconstructDialog>
 
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
@@ -66,7 +77,5 @@ const fromDateDialog = ref<InstanceType<typeof ReconstructFromDateDialog> | null
         </template>
 
         <MonthCalendar :year="year" :month="month" :days="days" class="mt-2" @select="selectDay" />
-
-        <ReconstructFromDateDialog ref="fromDateDialog" />
     </AppLayout>
 </template>

@@ -14,12 +14,13 @@ use App\Services\ActivitySources\Contracts\ActivitySource;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 
-class ScanAllSources extends Action
+class ScanActivitySources extends Action
 {
     /**
+     * @param  Collection<int, ActivityEventSourceType>|null  $sources  Sources to scan, or null to scan all enabled sources
      * @return Collection<int, ActivityEvent>
      */
-    public function handle(CarbonImmutable $since, ?ActivityEventSourceType $sourceType = null): Collection
+    public function handle(CarbonImmutable $since, CarbonImmutable $until, ?Collection $sources = null): Collection
     {
         $repos = ProjectRepository::query()
             ->forActiveProjects()
@@ -29,8 +30,8 @@ class ScanAllSources extends Action
 
         $recordEventAction = app(RecordActivityEvent::class);
 
-        return $this->discoverSources($sourceType)
-            ->flatMap(fn (ActivitySource $source) => $source->scan($since, $repos))
+        return $this->discoverSources($sources)
+            ->flatMap(fn (ActivitySource $source) => $source->scan($since, $until, $repos))
             ->unique(fn (ActivityEventData $data) => implode('|', [
                 $data->sourceType->value,
                 $data->type->value,
@@ -42,12 +43,13 @@ class ScanAllSources extends Action
     }
 
     /**
+     * @param  Collection<int, ActivityEventSourceType>|null  $sources
      * @return Collection<int, ActivitySource>
      */
-    public function discoverSources(?ActivityEventSourceType $sourceType = null): Collection
+    public function discoverSources(?Collection $sources = null): Collection
     {
         /** @var Collection<int, ActivityEventSourceType> $types */
-        $types = $sourceType ? collect([$sourceType]) : ActivityEventSourceType::collect();
+        $types = $sources ?? ActivityEventSourceType::collect();
 
         return $types
             ->filter(fn (ActivityEventSourceType $type) => $type->isEnabled())

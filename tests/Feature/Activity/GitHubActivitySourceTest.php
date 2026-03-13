@@ -31,7 +31,7 @@ it('is not available when gh is not authenticated', function () {
 });
 
 it('returns empty collection when no repositories are passed', function () {
-    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), collect());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), collect());
 
     expect($events)->toHaveCount(0);
 });
@@ -47,7 +47,7 @@ it('skips repositories without a GitHub remote', function () {
         return Process::result('testuser');
     });
 
-    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });
@@ -80,7 +80,7 @@ it('emits GitPrOpened for PRs created after since', function () {
         return Process::result('testuser');
     });
 
-    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEventData::class)
@@ -121,7 +121,7 @@ it('emits GitPrMerged for PRs merged after since', function () {
         return Process::result('testuser');
     });
 
-    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     // createdAt is 2 hours ago (before since=1 hour ago) → no GitPrOpened
     // mergedAt is 15 minutes ago (after since) → GitPrMerged
@@ -149,7 +149,7 @@ it('uses github_username from settings when available', function () {
         return Process::result('');
     });
 
-    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 
@@ -186,7 +186,7 @@ it('skips PRs created and merged before the since timestamp', function () {
         return Process::result('testuser');
     });
 
-    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GitHubActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(0);
 });

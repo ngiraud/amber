@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ViewModels;
 
+use App\Enums\ActivityEventSourceType;
 use App\Http\Resources\ActivityEventResource;
 use App\Models\ActivityEvent;
 use App\Models\Client;
@@ -40,6 +41,7 @@ class EventsViewModel implements ProvidesInertiaProperties
                                        && $this->getQuery($context)
                                            ->where('occurred_at', '>', $sinceOccurredAt)
                                            ->exists(),
+            'hasEnabledSources' => ActivityEventSourceType::collect()->some->isEnabled(),
         ];
     }
 

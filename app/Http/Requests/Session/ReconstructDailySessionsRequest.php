@@ -20,7 +20,7 @@ class ReconstructDailySessionsRequest extends FormRequest
     {
         return [
             'date' => ['nullable', 'date', 'before:tomorrow'],
-            'mode' => ['nullable', Rule::enum(SessionReconstructMode::class)],
+            'mode' => [Rule::enum(SessionReconstructMode::class)],
         ];
     }
 

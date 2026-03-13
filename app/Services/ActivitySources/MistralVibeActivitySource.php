@@ -33,7 +33,7 @@ class MistralVibeActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         $events = collect();
         $projectsPath = $this->projectsPath();
@@ -66,13 +66,13 @@ class MistralVibeActivitySource implements ActivitySource
                 continue;
             }
 
-            $events = $events->merge($this->scanSession($sessionDir, $meta, $matchedRepo, $since));
+            $events = $events->merge($this->scanSession($sessionDir, $meta, $matchedRepo, $since, $until));
         }
 
         return $events->values();
     }
 
-    protected function scanSession(string $dir, array $meta, ProjectRepository $repo, CarbonImmutable $since): Collection
+    protected function scanSession(string $dir, array $meta, ProjectRepository $repo, CarbonImmutable $since, CarbonImmutable $until): Collection
     {
         try {
             $occurredAt = CarbonImmutable::parse($meta['start_time'])->utc();
@@ -80,7 +80,7 @@ class MistralVibeActivitySource implements ActivitySource
             return collect();
         }
 
-        if ($occurredAt->lessThanOrEqualTo($since)) {
+        if ($occurredAt->lessThanOrEqualTo($since) || $occurredAt->greaterThan($until)) {
             // We still scan if the file was modified recently, but we filter individual events.
             // Actually Vibe logs don't have individual timestamps.
             // If the session started before $since, we might still want to check if new messages were added?
@@ -111,7 +111,7 @@ class MistralVibeActivitySource implements ActivitySource
         if ($endTime !== null) {
             try {
                 $endedAt = CarbonImmutable::parse($endTime)->utc();
-                if ($endedAt->greaterThan($since)) {
+                if ($endedAt->greaterThan($since) && $endedAt->lessThanOrEqualTo($until)) {
                     $events->push(new ActivityEventData(
                         sourceType: $this->identifier(),
                         type: ActivityEventType::VibeSessionEnd,

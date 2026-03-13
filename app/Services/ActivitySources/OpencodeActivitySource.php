@@ -35,7 +35,7 @@ class OpencodeActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         $dbPath = $this->dbPath();
 
@@ -50,9 +50,10 @@ class OpencodeActivitySource implements ActivitySource
 
             // Opencode timestamps are in milliseconds
             $sinceMs = $since->timestamp * 1000;
+            $untilMs = $until->timestamp * 1000;
 
-            $stmt = $pdo->prepare('SELECT * FROM session WHERE time_updated > :since');
-            $stmt->execute(['since' => $sinceMs]);
+            $stmt = $pdo->prepare('SELECT * FROM session WHERE time_updated > :since AND time_created <= :until');
+            $stmt->execute(['since' => $sinceMs, 'until' => $untilMs]);
             $sessions = $stmt->fetchAll();
 
             $events = collect();
@@ -77,7 +78,7 @@ class OpencodeActivitySource implements ActivitySource
 
                 // Session start event
                 $sessionStartedAt = CarbonImmutable::createFromTimestampMs($session['time_created'])->utc();
-                if ($sessionStartedAt->greaterThan($since)) {
+                if ($sessionStartedAt->greaterThan($since) && $sessionStartedAt->lessThanOrEqualTo($until)) {
                     $events->push(new ActivityEventData(
                         sourceType: $this->identifier(),
                         type: ActivityEventType::OpencodeSessionStart,
@@ -99,8 +100,9 @@ class OpencodeActivitySource implements ActivitySource
                       AND json_extract(p.data, \'$.type\') = \'text\'
                       AND json_extract(m.data, \'$.role\') = \'user\'
                       AND p.time_created > :since
+                      AND p.time_created <= :until
                 ');
-                $promptStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs]);
+                $promptStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs, 'until' => $untilMs]);
 
                 foreach ($promptStmt->fetchAll() as $part) {
                     $data = json_decode($part['data'], true);
@@ -129,8 +131,9 @@ class OpencodeActivitySource implements ActivitySource
                     WHERE session_id = :session_id
                       AND json_extract(data, \'$.type\') = \'patch\'
                       AND time_created > :since
+                      AND time_created <= :until
                 ');
-                $patchStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs]);
+                $patchStmt->execute(['session_id' => $sessionId, 'since' => $sinceMs, 'until' => $untilMs]);
 
                 foreach ($patchStmt->fetchAll() as $part) {
                     $data = json_decode($part['data'], true);

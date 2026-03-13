@@ -61,7 +61,7 @@ it('detects GeminiSessionStart and UserPrompt', function () {
     File::makeDirectory($chatDir, recursive: true, force: true);
     File::put($chatDir.'/session.json', json_encode($chatData));
 
-    $events = app(GeminiActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GeminiActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(2)
         ->and($events[0]->type)->toBe(ActivityEventType::GeminiSessionStart)
@@ -98,7 +98,7 @@ it('detects GeminiFileTouch from toolCalls', function () {
     File::makeDirectory($chatDir, recursive: true, force: true);
     File::put($chatDir.'/session.json', json_encode($chatData));
 
-    $events = app(GeminiActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(GeminiActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     // 1 SessionStart (at index 0 message) + 1 FileTouch
     expect($events)->toHaveCount(2)

@@ -66,5 +66,31 @@ export function useDateFormat() {
             .replace('T', ' ');
     }
 
-    return { formatTime, formatDate, formatDateTime, formatDateTimeISO };
+    // Convert a local Date object to YYYY-MM-DD without UTC conversion
+    function toLocalDateString(d: Date): string {
+        return [d.getFullYear(), String(d.getMonth() + 1).padStart(2, '0'), String(d.getDate()).padStart(2, '0')].join('-');
+    }
+
+    // "March 13, 2026" — full date with month name in user locale
+    function formatDateLong(date: string | Date | null | undefined): string {
+        if (!date) return '—';
+        return new Intl.DateTimeFormat(locale, {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+            timeZone: timezone,
+        }).format(typeof date === 'string' ? new Date(date) : date);
+    }
+
+    // "March 13" — without year, for use in ranges
+    function formatDateShort(date: string | Date | null | undefined): string {
+        if (!date) return '—';
+        return new Intl.DateTimeFormat(locale, {
+            month: 'long',
+            day: 'numeric',
+            timeZone: timezone,
+        }).format(typeof date === 'string' ? new Date(date) : date);
+    }
+
+    return { formatTime, formatDate, formatDateTime, formatDateTimeISO, toLocalDateString, formatDateLong, formatDateShort };
 }

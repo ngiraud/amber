@@ -33,19 +33,19 @@ class GitHubActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         $username = $this->resolveUsername();
 
         return $repos
-            ->flatMap(fn (ProjectRepository $repo) => $this->scanRepository($repo, $since, $username))
+            ->flatMap(fn (ProjectRepository $repo) => $this->scanRepository($repo, $since, $until, $username))
             ->values();
     }
 
     /**
      * @return Collection<int, ActivityEventData>
      */
-    protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since, ?string $username): Collection
+    protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since, CarbonImmutable $until, ?string $username): Collection
     {
         $githubRepo = $this->detectGitHubRepo($repo);
 
@@ -80,7 +80,7 @@ class GitHubActivitySource implements ActivitySource
         $events = collect();
 
         foreach ($prs as $pr) {
-            $events = $events->merge($this->buildPrEvents($pr, $repo, $githubRepo, $since));
+            $events = $events->merge($this->buildPrEvents($pr, $repo, $githubRepo, $since, $until));
         }
 
         return $events;
@@ -90,7 +90,7 @@ class GitHubActivitySource implements ActivitySource
      * @param  array<string, mixed>  $pr
      * @return Collection<int, ActivityEventData>
      */
-    protected function buildPrEvents(array $pr, ProjectRepository $repo, string $githubRepo, CarbonImmutable $since): Collection
+    protected function buildPrEvents(array $pr, ProjectRepository $repo, string $githubRepo, CarbonImmutable $since, CarbonImmutable $until): Collection
     {
         $events = collect();
 
@@ -108,7 +108,7 @@ class GitHubActivitySource implements ActivitySource
             try {
                 $createdAt = CarbonImmutable::parse($pr['createdAt'])->utc();
 
-                if ($createdAt->isAfter($since)) {
+                if ($createdAt->greaterThan($since) && $createdAt->lessThanOrEqualTo($until)) {
                     $events->push(new ActivityEventData(
                         sourceType: $this->identifier(),
                         type: ActivityEventType::GitPrOpened,
@@ -127,7 +127,7 @@ class GitHubActivitySource implements ActivitySource
             try {
                 $mergedAt = CarbonImmutable::parse($pr['mergedAt'])->utc();
 
-                if ($mergedAt->isAfter($since)) {
+                if ($mergedAt->greaterThan($since) && $mergedAt->lessThanOrEqualTo($until)) {
                     $events->push(new ActivityEventData(
                         sourceType: $this->identifier(),
                         type: ActivityEventType::GitPrMerged,

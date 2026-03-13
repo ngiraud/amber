@@ -59,7 +59,7 @@ it('detects a session start event', function () {
     $pdo->prepare('INSERT INTO session VALUES (?, ?, ?, ?, ?)')
         ->execute(['ses_1', $cwd, 'My Session', $thirtyMinsAgoMs, $nowMs]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toHaveCount(1)
         ->and($events[0]->type)->toBe(ActivityEventType::OpencodeSessionStart)
@@ -86,7 +86,7 @@ it('detects user prompt events from text parts linked to user messages', functio
     $pdo->prepare('INSERT INTO part VALUES (?, ?, ?, ?, ?, ?)')
         ->execute(['prt_1', 'msg_1', 'ses_1', $thirtyMinsAgoMs + 500, $nowMs, $partData]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $promptEvents = $events->filter(fn ($e) => $e->type === ActivityEventType::OpencodeUserPrompt)->values();
 
@@ -114,7 +114,7 @@ it('does not emit user prompt for text parts linked to assistant messages', func
     $pdo->prepare('INSERT INTO part VALUES (?, ?, ?, ?, ?, ?)')
         ->execute(['prt_1', 'msg_1', 'ses_1', $thirtyMinsAgoMs + 500, $nowMs, $partData]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $promptEvents = $events->filter(fn ($e) => $e->type === ActivityEventType::OpencodeUserPrompt);
 
@@ -143,7 +143,7 @@ it('detects file touch events from patch parts', function () {
     $pdo->prepare('INSERT INTO part VALUES (?, ?, ?, ?, ?, ?)')
         ->execute(['prt_1', 'msg_1', 'ses_1', $thirtyMinsAgoMs + 1000, $nowMs, $patchData]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $fileTouchEvents = $events->filter(fn ($e) => $e->type === ActivityEventType::OpencodeFileTouch)->values();
 
@@ -175,7 +175,7 @@ it('emits one file touch event per file in a patch', function () {
     $pdo->prepare('INSERT INTO part VALUES (?, ?, ?, ?, ?, ?)')
         ->execute(['prt_2', 'msg_1', 'ses_1', $thirtyMinsAgoMs + 2000, $nowMs, $patch2]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $fileTouchEvents = $events->filter(fn ($e) => $e->type === ActivityEventType::OpencodeFileTouch);
 
@@ -193,7 +193,7 @@ it('ignores sessions not matching any repository', function () {
     $pdo->prepare('INSERT INTO session VALUES (?, ?, ?, ?, ?)')
         ->execute(['ses_1', $cwd, 'Test', $thirtyMinsAgoMs, $nowMs]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toBeEmpty();
 });
@@ -219,14 +219,14 @@ it('ignores events older than the since date', function () {
     $pdo->prepare('INSERT INTO part VALUES (?, ?, ?, ?, ?, ?)')
         ->execute(['prt_1', 'msg_1', 'ses_1', $twoHoursAgoMs, $twoHoursAgoMs, $oldPartData]);
 
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     // Session start is older than $since, so no events at all
     expect($events)->toBeEmpty();
 });
 
 it('returns empty collection when database does not exist', function () {
-    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(OpencodeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toBeEmpty();
 });

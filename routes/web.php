@@ -18,6 +18,7 @@ use App\Http\Controllers\Settings\ActivitySourceSettingsController;
 use App\Http\Controllers\Settings\AiSettingsController;
 use App\Http\Controllers\Settings\GeneralSettingsController;
 use App\Http\Controllers\Settings\ResetDatabaseController;
+use App\Http\Controllers\SyncActivityController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\ToggleProjectStatusController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,7 @@ Route::post('/onboarding/dismiss', DismissOnboardingController::class)->name('on
 
 // Activity
 Route::get('/activity', ActivityEventController::class)->name('activity.index');
+Route::post('/activity/sync', SyncActivityController::class)->name('activity.sync');
 
 // Clients
 Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');

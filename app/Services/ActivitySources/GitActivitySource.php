@@ -33,22 +33,22 @@ class GitActivitySource implements ActivitySource
      * @param  Collection<int, ProjectRepository>  $repos
      * @return Collection<int, ActivityEventData>
      */
-    public function scan(CarbonImmutable $since, Collection $repos): Collection
+    public function scan(CarbonImmutable $since, CarbonImmutable $until, Collection $repos): Collection
     {
         return $repos
-            ->flatMap(fn (ProjectRepository $repo) => $this->scanRepository($repo, $since))
+            ->flatMap(fn (ProjectRepository $repo) => $this->scanRepository($repo, $since, $until))
             ->values();
     }
 
     /**
      * @return Collection<int, ActivityEventData>
      */
-    protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since): Collection
+    protected function scanRepository(ProjectRepository $repo, CarbonImmutable $since, CarbonImmutable $until): Collection
     {
         $authorEmails = $this->resolveAuthorEmails();
 
-        $commits = $this->scanCommits($repo, $since, $authorEmails);
-        $branchSwitches = $this->scanBranchSwitches($repo, $since, $authorEmails);
+        $commits = $this->scanCommits($repo, $since, $until, $authorEmails);
+        $branchSwitches = $this->scanBranchSwitches($repo, $since, $until, $authorEmails);
 
         return $commits->merge($branchSwitches)->values();
     }
@@ -57,7 +57,7 @@ class GitActivitySource implements ActivitySource
      * @param  array<int, string>  $authorEmails
      * @return Collection<int, ActivityEventData>
      */
-    protected function scanCommits(ProjectRepository $repo, CarbonImmutable $since, array $authorEmails): Collection
+    protected function scanCommits(ProjectRepository $repo, CarbonImmutable $since, CarbonImmutable $until, array $authorEmails): Collection
     {
         // Use a unique separator to split commit blocks from --numstat output
         $separator = '---COMMIT---';
@@ -69,6 +69,7 @@ class GitActivitySource implements ActivitySource
             '--format='.$separator.'%H|%ae|%aI|%s',
             '--numstat',
             '--after='.$since->toIso8601String(),
+            '--before='.$until->toIso8601String(),
         ]);
 
         if ($result->failed()) {
@@ -106,7 +107,7 @@ class GitActivitySource implements ActivitySource
      * @param  array<int, string>  $authorEmails
      * @return Collection<int, ActivityEventData>
      */
-    protected function scanBranchSwitches(ProjectRepository $repo, CarbonImmutable $since, array $authorEmails): Collection
+    protected function scanBranchSwitches(ProjectRepository $repo, CarbonImmutable $since, CarbonImmutable $until, array $authorEmails): Collection
     {
         $result = Process::run([
             'git',
@@ -114,6 +115,7 @@ class GitActivitySource implements ActivitySource
             'reflog',
             '--format=%ae|%gI|%gs',
             '--after='.$since->toIso8601String(),
+            '--before='.$until->toIso8601String(),
         ]);
 
         if ($result->failed()) {

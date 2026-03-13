@@ -52,7 +52,7 @@ it('detects a session start event with git metadata', function () {
         'environment' => ['working_directory' => $cwd],
     ], []);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $start = $events->first(fn ($e) => $e->type === ActivityEventType::VibeSessionStart);
 
@@ -75,7 +75,7 @@ it('detects a session end event when end_time is present', function () {
         'environment' => ['working_directory' => $cwd],
     ], []);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $end = $events->first(fn ($e) => $e->type === ActivityEventType::VibeSessionEnd);
 
@@ -94,7 +94,7 @@ it('does not emit session end event when end_time is absent', function () {
         'environment' => ['working_directory' => $cwd],
     ], []);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events->filter(fn ($e) => $e->type === ActivityEventType::VibeSessionEnd))->toBeEmpty();
 });
@@ -112,7 +112,7 @@ it('detects user prompt events', function () {
         ['role' => 'assistant', 'tool_calls' => []],
     ]);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $prompt = $events->first(fn ($e) => $e->type === ActivityEventType::VibeUserPrompt);
 
@@ -136,7 +136,7 @@ it('detects file touch events from search_replace tool calls', function () {
         ]],
     ]);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     $fileTouches = $events->filter(fn ($e) => $e->type === ActivityEventType::VibeFileTouch)->values();
 
@@ -161,7 +161,7 @@ it('ignores tool calls that are not file-writing tools', function () {
         ]],
     ]);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events->filter(fn ($e) => $e->type === ActivityEventType::VibeFileTouch))->toBeEmpty();
 });
@@ -175,7 +175,7 @@ it('ignores sessions not matching any repository', function () {
         'environment' => ['working_directory' => '/tmp/unmatched'],
     ], []);
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toBeEmpty();
 });
@@ -195,7 +195,7 @@ it('ignores sessions older than the since date', function () {
     // Touch the meta file to make filemtime recent, but start_time is old
     touch(vibeTestBase().'/ses-1/meta.json');
 
-    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), ProjectRepository::all());
+    $events = app(MistralVibeActivitySource::class)->scan(CarbonImmutable::now()->subHour(), CarbonImmutable::now(), ProjectRepository::all());
 
     expect($events)->toBeEmpty();
 });

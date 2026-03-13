@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use App\Actions\Activity\ScanAllSources;
+use App\Actions\Activity\ScanActivitySources;
 use App\Data\ActivityEventData;
 use App\Data\ActivitySourceConfigs\ClaudeCodeSourceConfig;
 use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
@@ -22,7 +22,7 @@ pest()->group('actions', 'activity');
 
 function mockSource(mixed $source): void
 {
-    ScanAllSources::fakePartial()
+    ScanActivitySources::fakePartial()
         ->shouldReceive('discoverSources')
         ->andReturn(collect([$source]));
 }
@@ -43,7 +43,7 @@ it('records events from available sources during an active session', function ()
         ),
     ]));
 
-    $events = app(ScanAllSources::class)->handle($now->subMinutes(10));
+    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
     expect($events)->toHaveCount(1)
         ->and($events->first())->toBeInstanceOf(ActivityEvent::class)
@@ -63,7 +63,7 @@ it('records events with null session_id when no active session exists', function
         ),
     ]));
 
-    $events = app(ScanAllSources::class)->handle($now->subMinutes(10));
+    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
     expect($events)->toHaveCount(1)
         ->and($events->first()->session_id)->toBeNull();
@@ -74,7 +74,7 @@ it('skips unavailable sources', function () {
 
     mockSource(app(FakeActivitySource::class)->setAvailable(false));
 
-    $events = app(ScanAllSources::class)->handle($now->subMinutes(10));
+    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
     expect($events)->toHaveCount(0);
 });
@@ -86,7 +86,7 @@ it('discoverSources skips disabled sources', function () {
     $settings->claude_code = ClaudeCodeSourceConfig::fromArray(['enabled' => false, 'projects_path' => '~/.claude/projects']);
     $settings->fswatch = FswatchSourceConfig::fromArray(['enabled' => false, 'debounce_seconds' => 3, 'excluded_patterns' => [], 'allowed_extensions' => []]);
 
-    $sources = app(ScanAllSources::class)->discoverSources();
+    $sources = app(ScanActivitySources::class)->discoverSources();
 
     expect($sources)->toHaveCount(0);
 });
@@ -105,7 +105,7 @@ it('deduplicates events with the same type, occurred_at, and sourceType', functi
 
     mockSource(app(FakeActivitySource::class)->setEvents([$duplicatedEvent, $duplicatedEvent]));
 
-    $events = app(ScanAllSources::class)->handle($now->subMinutes(10));
+    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
     expect($events)->toHaveCount(1);
 });

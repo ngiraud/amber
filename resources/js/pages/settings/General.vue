@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { router, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import InputField from '@/components/InputField.vue';
 import SettingsLayout from '@/components/settings/SettingsLayout.vue';
@@ -23,6 +23,7 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { applyTheme } from '@/composables/useAppearance';
 import { useSpotlight } from '@/composables/useSpotlight';
 import * as settingsRoutes from '@/routes/settings';
 import * as generalRoutes from '@/routes/settings/general';
@@ -61,6 +62,11 @@ const form = useForm({
     theme: props.generalSettings.theme ?? 'system',
     open_at_login: props.generalSettings.open_at_login ?? false,
 });
+
+watch(
+    () => form.theme,
+    (theme) => applyTheme(theme),
+);
 
 function submit(): void {
     form.submit(generalRoutes.update());
