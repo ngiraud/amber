@@ -66,7 +66,7 @@ export default defineConfigWithVueTs(
             'node_modules',
             'public',
             'bootstrap/ssr',
-            'nativephp/electron/dist/**',
+            'nativephp',
             'tailwind.config.js',
             'vite.config.ts',
             'resources/js/actions/**',
