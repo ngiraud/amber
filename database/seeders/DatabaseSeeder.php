@@ -75,7 +75,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $thisProject->repositories()->createMany([
-            ['local_path' => '/Users/nico/code/activity-record-desktop', 'name' => 'CRA Tracker', 'id' => '01kj5qc6agq8dw5z7pqg6xqg0v'],
+            ['local_path' => '/Users/nico/code/amber', 'name' => 'Amber', 'id' => '01kj5qc6agq8dw5z7pqg6xqg0v'],
         ]);
 
         //        $this->pushActivityEvents();
