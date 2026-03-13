@@ -42,9 +42,17 @@ function selectDay(date: string): void {
 const fromDateDialog = ref<InstanceType<typeof ReconstructDialog> | null>(null);
 
 function onKeyDown(e: KeyboardEvent): void {
-    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-    if (e.key === 'ArrowLeft') navigate(-1);
-    if (e.key === 'ArrowRight') navigate(1);
+    if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+        return;
+    }
+
+    if (e.key === 'ArrowLeft') {
+        navigate(-1);
+    }
+
+    if (e.key === 'ArrowRight') {
+        navigate(1);
+    }
 }
 
 onMounted(() => {
@@ -52,6 +60,7 @@ onMounted(() => {
 
     const params = new URLSearchParams(window.location.search);
     const reconstructFrom = params.get('reconstruct_from');
+
     if (reconstructFrom) {
         fromDateDialog.value?.show(reconstructFrom);
         window.history.replaceState({}, '', timelineRoutes.index().url);

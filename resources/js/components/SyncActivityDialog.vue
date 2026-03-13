@@ -48,19 +48,28 @@ const periodOptions: { value: Period; label: string }[] = [
 
 const periodRangeLabel = computed(() => {
     const now = new Date();
-    if (period.value === 'today') return formatDateLong(now);
+
+    if (period.value === 'today') {
+        return formatDateLong(now);
+    }
+
     if (period.value === 'yesterday') {
         return formatDateLong(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1));
     }
+
     if (period.value === 'month') {
         const start = new Date(now.getFullYear(), now.getMonth(), 1);
+
         return `${formatDateShort(start)} – ${formatDateLong(now)}`;
     }
+
     if (customFrom.value && customTo.value) {
         const from = new Date(customFrom.value + 'T00:00:00');
         const to = new Date(customTo.value + 'T00:00:00');
+
         return from.getTime() === to.getTime() ? formatDateLong(from) : `${formatDateShort(from)} – ${formatDateLong(to)}`;
     }
+
     return '';
 });
 
@@ -74,6 +83,7 @@ function show(): void {
 
 function toggleSource(value: string): void {
     const index = selectedSources.value.indexOf(value);
+
     if (index > -1) {
         selectedSources.value.splice(index, 1);
     } else {
@@ -89,14 +99,19 @@ function getDateRange(): { since: string; until: string; sinceLocal: string } {
     if (period.value === 'today') {
         return { since: startOfDay(now), until: endOfDay(now), sinceLocal: toLocalDateString(now) };
     }
+
     if (period.value === 'yesterday') {
         const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+
         return { since: startOfDay(yesterday), until: endOfDay(yesterday), sinceLocal: toLocalDateString(yesterday) };
     }
+
     if (period.value === 'month') {
         const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
         return { since: startOfDay(monthStart), until: endOfDay(now), sinceLocal: toLocalDateString(monthStart) };
     }
+
     return {
         since: new Date(customFrom.value + 'T00:00:00').toISOString(),
         until: new Date(customTo.value + 'T23:59:59').toISOString(),
@@ -138,7 +153,10 @@ async function startSync(): Promise<void> {
                 const data = response.ok ? ((await response.json()) as { count: number }) : null;
                 progress.value[i].status = data !== null ? 'done' : 'error';
                 progress.value[i].count = data?.count ?? null;
-                if (data !== null) totalCount.value += data.count;
+
+                if (data !== null) {
+                    totalCount.value += data.count;
+                }
             } catch {
                 progress.value[i].status = 'error';
             }

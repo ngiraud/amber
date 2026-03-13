@@ -19,9 +19,11 @@ const today = new Date().toISOString().split('T')[0];
 
 const daysMap = computed(() => {
     const map = new Map<string, TimelineDay>();
+
     for (const day of props.days) {
         map.set(day.date, day);
     }
+
     return map;
 });
 
@@ -54,16 +56,27 @@ const calendarDays = computed(() => {
 });
 
 function formatMinutes(minutes: number): string {
-    if (minutes === 0) return '';
+    if (minutes === 0) {
+        return '';
+    }
+
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
+
+    if (h === 0) {
+        return `${m}m`;
+    }
+
+    if (m === 0) {
+        return `${h}h`;
+    }
+
     return `${h}h${String(m).padStart(2, '0')}`;
 }
 
 function isWeekend(date: string): boolean {
     const d = new Date(date + 'T00:00:00');
+
     return d.getDay() === 0 || d.getDay() === 6;
 }
 

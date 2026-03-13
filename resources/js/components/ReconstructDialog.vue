@@ -32,6 +32,7 @@ function show(initialFromDate?: string): void {
     if (props.batch && typeof initialFromDate === 'string') {
         fromDate.value = initialFromDate;
     }
+
     mode.value = 'gaps';
     open.value = true;
 }

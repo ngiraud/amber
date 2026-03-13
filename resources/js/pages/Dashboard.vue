@@ -39,17 +39,23 @@ const isToday = computed(() => isTodayFn(props.date));
 const activeSession = computed(() => (isToday.value ? (page.props.activeSession as Session | null) : null));
 
 const activeSessionMinutes = computed(() => {
-    if (!activeSession.value) return 0;
+    if (!activeSession.value) {
+        return 0;
+    }
 
-    if (activeSession.value.rounded_minutes) return activeSession.value.rounded_minutes;
+    if (activeSession.value.rounded_minutes) {
+        return activeSession.value.rounded_minutes;
+    }
 
     const start = new Date(activeSession.value.started_at);
     const diff = now.value.getTime() - start.getTime();
+
     return Math.max(Math.floor(diff / 1000 / 60), 0);
 });
 
 const dateLabel = computed(() => {
     const d = new Date(props.date + 'T00:00:00');
+
     return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 });
 </script>

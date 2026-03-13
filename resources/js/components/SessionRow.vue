@@ -32,12 +32,25 @@ const confirmDelete = ref(false);
 const isActive = computed(() => !props.session.ended_at);
 
 function formatMinutes(minutes: number | null): string {
-    if (!minutes && !isActive.value) return '—';
-    if (!minutes && isActive.value) return 'Running...';
+    if (!minutes && !isActive.value) {
+        return '—';
+    }
+
+    if (!minutes && isActive.value) {
+        return 'Running...';
+    }
+
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
+
+    if (h === 0) {
+        return `${m}m`;
+    }
+
+    if (m === 0) {
+        return `${h}h`;
+    }
+
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 

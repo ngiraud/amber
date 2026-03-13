@@ -31,17 +31,20 @@ const MINUTES_IN_DAY = 24 * 60;
 
 function getMinutesSinceStartOfDay(dateString: string): number {
     const date = new Date(dateString);
+
     return date.getHours() * 60 + date.getMinutes();
 }
 
 const isToday = computed(() => {
     const today = new Date();
     const d = new Date(props.date + 'T00:00:00');
+
     return today.toDateString() === d.toDateString();
 });
 
 const nowPosition = computed(() => {
     const minutes = now.value.getHours() * 60 + now.value.getMinutes();
+
     return `${(minutes / MINUTES_IN_DAY) * 100}%`;
 });
 
@@ -55,6 +58,7 @@ const allSessions = computed(() => {
     // Add active session if it's today and not already in the list
     if (isToday.value && globalActiveSession.value) {
         const alreadyExists = sessions.some((s) => s.id === globalActiveSession.value?.id);
+
         if (!alreadyExists) {
             sessions.push(globalActiveSession.value);
         }
@@ -73,6 +77,7 @@ const sessionsWithPositions = computed(() => {
         const end = session.ended_at ? getMinutesSinceStartOfDay(session.ended_at) : now.value.getHours() * 60 + now.value.getMinutes();
 
         let trackIndex = tracks.findIndex((trackEnd) => trackEnd <= start);
+
         if (trackIndex === -1) {
             trackIndex = tracks.length;
             tracks.push(end);

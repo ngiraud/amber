@@ -32,8 +32,15 @@ function formatPeriod(report: ActivityReport): string {
 function formatMinutes(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
+
+    if (h === 0) {
+        return `${m}m`;
+    }
+
+    if (m === 0) {
+        return `${h}h`;
+    }
+
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 
@@ -54,7 +61,9 @@ function handleDelete(): void {
 }
 
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', (payload) => {
-    if (payload.reportId !== props.report.id) return;
+    if (payload.reportId !== props.report.id) {
+        return;
+    }
 
     if (payload.step === 'completed' || payload.step === 'failed') {
         router.reload({ only: ['report', 'flash', 'error'] });

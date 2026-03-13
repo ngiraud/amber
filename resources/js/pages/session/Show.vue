@@ -20,11 +20,21 @@ const props = defineProps<{
 const { formatDate, formatDateTime } = useDateFormat();
 
 function formatMinutes(minutes: number | null): string {
-    if (!minutes) return '—';
+    if (!minutes) {
+        return '—';
+    }
+
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
+
+    if (h === 0) {
+        return `${m}m`;
+    }
+
+    if (m === 0) {
+        return `${h}h`;
+    }
+
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 
@@ -33,6 +43,7 @@ const sessionBreadcrumb = computed(() => {
     const context = project ? `${project.client?.name ?? ''} — ${project.name}` : '';
     const date = formatDate(props.session.started_at);
     const isActive = props.session.ended_at === null ? ' · Active' : '';
+
     return ['Sessions', context, `${date}${isActive}`].filter(Boolean);
 });
 </script>

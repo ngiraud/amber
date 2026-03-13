@@ -34,6 +34,7 @@ const openTooltipId = ref<string | null>(null);
 
 function onDetailMouseEnter(e: MouseEvent, id: string): void {
     const el = e.currentTarget as HTMLElement;
+
     if (el.scrollWidth > el.clientWidth) {
         openTooltipId.value = id;
     }
@@ -49,9 +50,11 @@ const isScrolling = ref(false);
 
 function onScroll(): void {
     isScrolling.value = true;
+
     if (scrollEndTimer !== null) {
         clearTimeout(scrollEndTimer);
     }
+
     scrollEndTimer = setTimeout(() => {
         isScrolling.value = false;
     }, 1000);
@@ -62,6 +65,7 @@ onMounted(() => {
         if (isScrolling.value) {
             return;
         }
+
         router.reload({
             only: ['hasNewEvents'],
             data: sinceOccurredAt.value ? { since_occurred_at: sinceOccurredAt.value } : {},
@@ -74,6 +78,7 @@ onUnmounted(() => {
     if (pollTimer !== null) {
         clearInterval(pollTimer);
     }
+
     if (scrollEndTimer !== null) {
         clearTimeout(scrollEndTimer);
     }

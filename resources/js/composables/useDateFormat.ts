@@ -5,7 +5,9 @@ export function useDateFormat() {
     const locale = (usePage().props.display_locale || 'fr-FR') as string;
 
     function formatTime(date: string | null | undefined): string {
-        if (!date) return '—';
+        if (!date) {
+            return '—';
+        }
 
         return new Intl.DateTimeFormat(locale, {
             hour: '2-digit',
@@ -16,7 +18,9 @@ export function useDateFormat() {
     }
 
     function formatDate(date: string | null | undefined): string {
-        if (!date) return '—';
+        if (!date) {
+            return '—';
+        }
 
         return new Intl.DateTimeFormat(locale, {
             year: 'numeric',
@@ -27,7 +31,9 @@ export function useDateFormat() {
     }
 
     function formatDateTime(date: string | null | undefined): string {
-        if (!date) return '—';
+        if (!date) {
+            return '—';
+        }
 
         const d = new Date(date);
 
@@ -51,7 +57,9 @@ export function useDateFormat() {
 
     // sv-SE locale produces ISO-like "YYYY-MM-DD HH:MM:SS" format, useful for technical/log display
     function formatDateTimeISO(date: string | null | undefined): string {
-        if (!date) return '—';
+        if (!date) {
+            return '—';
+        }
 
         return new Intl.DateTimeFormat('sv-SE', {
             year: 'numeric',
@@ -73,7 +81,10 @@ export function useDateFormat() {
 
     // "March 13, 2026" — full date with month name in user locale
     function formatDateLong(date: string | Date | null | undefined): string {
-        if (!date) return '—';
+        if (!date) {
+            return '—';
+        }
+
         return new Intl.DateTimeFormat(locale, {
             month: 'long',
             day: 'numeric',
@@ -84,7 +95,10 @@ export function useDateFormat() {
 
     // "March 13" — without year, for use in ranges
     function formatDateShort(date: string | Date | null | undefined): string {
-        if (!date) return '—';
+        if (!date) {
+            return '—';
+        }
+
         return new Intl.DateTimeFormat(locale, {
             month: 'long',
             day: 'numeric',

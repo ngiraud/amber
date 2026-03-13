@@ -26,15 +26,31 @@ function formatPeriod(report: ActivityReport): string {
 function formatMinutes(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
+
+    if (h === 0) {
+        return `${m}m`;
+    }
+
+    if (m === 0) {
+        return `${h}h`;
+    }
+
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 
 function statusVariant(status: ActivityReport['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
-    if (status.value === 5) return 'outline'; // Generating
-    if (status.value === 10) return 'secondary'; // Draft
-    if (status.value === 20) return 'default'; // Finalized
+    if (status.value === 5) {
+        return 'outline';
+    } // Generating
+
+    if (status.value === 10) {
+        return 'secondary';
+    } // Draft
+
+    if (status.value === 20) {
+        return 'default';
+    } // Finalized
+
     return 'default'; // Sent
 }
 

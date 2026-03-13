@@ -67,14 +67,19 @@ function handleCopy(event: MouseEvent): void {
 
 const indicatorColor = computed(() => {
     const colorClass = props.source.color;
+
     if (colorClass.startsWith('text-[')) {
         return colorClass.match(/\[(.*?)\]/)?.[1];
     }
+
     return undefined;
 });
 
 const indicatorClass = computed(() => {
-    if (indicatorColor.value) return '';
+    if (indicatorColor.value) {
+        return '';
+    }
+
     return props.source.color.replace('text-', 'bg-');
 });
 </script>

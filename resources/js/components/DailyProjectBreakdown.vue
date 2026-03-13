@@ -26,19 +26,26 @@ onUnmounted(() => {
 });
 
 const isToday = computed(() => {
-    if (!props.date) return true;
+    if (!props.date) {
+        return true;
+    }
+
     const d = new Date(props.date + 'T00:00:00');
+
     return now.value.toDateString() === d.toDateString();
 });
 
 const allSessions = computed(() => {
     const sessions = [...props.sessions];
+
     if (isToday.value && globalActiveSession.value) {
         const alreadyExists = sessions.some((s) => s.id === globalActiveSession.value?.id);
+
         if (!alreadyExists) {
             sessions.push(globalActiveSession.value);
         }
     }
+
     return sessions;
 });
 
@@ -66,6 +73,7 @@ const projectSummary = computed(() => {
                 minutes: 0,
             };
         }
+
         summary[projectId].minutes += minutes;
     });
 
@@ -75,8 +83,15 @@ const projectSummary = computed(() => {
 function formatMinutes(minutes: number): string {
     const h = Math.floor(minutes / 60);
     const m = minutes % 60;
-    if (h === 0) return `${m}m`;
-    if (m === 0) return `${h}h`;
+
+    if (h === 0) {
+        return `${m}m`;
+    }
+
+    if (m === 0) {
+        return `${h}h`;
+    }
+
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
 

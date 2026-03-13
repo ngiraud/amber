@@ -40,22 +40,30 @@ type TestStatus = 'idle' | 'loading' | 'ok' | 'fail';
 const testStatus = ref<TestStatus>('idle');
 
 const verifyVariant = computed(() => {
-    if (testStatus.value === 'fail') return 'destructive' as const;
+    if (testStatus.value === 'fail') {
+        return 'destructive' as const;
+    }
+
     return 'outline' as const;
 });
 
 const verifyClass = computed(() => {
-    if (testStatus.value === 'ok') return '!border-green-500 !bg-green-500 !text-white hover:!bg-green-600';
+    if (testStatus.value === 'ok') {
+        return '!border-green-500 !bg-green-500 !text-white hover:!bg-green-600';
+    }
+
     return '';
 });
 
 function getCsrfToken(): string {
     const cookie = document.cookie.split('; ').find((row) => row.startsWith('XSRF-TOKEN='));
+
     return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
 }
 
 async function handleTest(): Promise<void> {
     testStatus.value = 'loading';
+
     try {
         const response = await fetch(aiRoutes.test().url, {
             method: 'POST',
