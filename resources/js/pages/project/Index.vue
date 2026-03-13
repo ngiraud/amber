@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
+import { TriangleAlert } from 'lucide-vue-next';
 import * as projectRoutes from '@/actions/App/Http/Controllers/ProjectController';
 import PageHeader from '@/components/PageHeader.vue';
 import ProjectSheet from '@/components/ProjectSheet.vue';
@@ -56,7 +57,10 @@ defineProps<{
                 </div>
 
                 <div class="flex items-center gap-2">
-                    <Badge v-if="!project.is_active" variant="outline">Inactive</Badge>
+                    <Badge v-if="!project.is_active" variant="destructive">
+                        <TriangleAlert />
+                        Inactive
+                    </Badge>
                     <Badge variant="secondary">
                         {{ project.repositories_count }}
                         {{ project.repositories_count === 1 ? 'repository' : 'repositories' }}

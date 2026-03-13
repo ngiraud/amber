@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import { ActivityIcon, CalendarDaysIcon, ClockIcon, FileTextIcon, FolderIcon, LayoutDashboardIcon, SettingsIcon, UsersIcon } from 'lucide-vue-next';
+import ThemeSwitcher from '@/components/ThemeSwitcher.vue';
 import {
     Sidebar,
     SidebarContent,
@@ -69,22 +70,6 @@ const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
                                 </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(sessionRoutes.index())" tooltip="Sessions">
-                                <Link :href="sessionRoutes.index()" class="items-center justify-center">
-                                    <ClockIcon />
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-
-                        <SidebarMenuItem>
-                            <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(activityRoutes.index())" tooltip="Activity">
-                                <Link :href="activityRoutes.index()" class="items-center justify-center">
-                                    <ActivityIcon />
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
                     </SidebarMenu>
                 </SidebarGroupContent>
             </SidebarGroup>
@@ -92,6 +77,24 @@ const { isCurrentUrl, isCurrentUrlOrChild } = useCurrentUrl();
 
         <SidebarFooter>
             <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(sessionRoutes.index())" tooltip="Sessions">
+                        <Link :href="sessionRoutes.index()" class="items-center justify-center">
+                            <ClockIcon />
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                    <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrl(activityRoutes.index())" tooltip="Activity">
+                        <Link :href="activityRoutes.index()" class="items-center justify-center">
+                            <ActivityIcon />
+                        </Link>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                    <ThemeSwitcher />
+                </SidebarMenuItem>
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child :is-active="isCurrentUrlOrChild(settingsRoutes.index())" tooltip="Settings">
                         <Link :href="settingsRoutes.index()" class="items-center justify-center">

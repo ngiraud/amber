@@ -121,7 +121,7 @@ const hours = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24];
                     <Tooltip>
                         <TooltipTrigger as-child>
                             <div
-                                class="absolute h-5 rounded-md border border-black/30 opacity-90 shadow-sm transition-all hover:z-20 hover:scale-y-110 hover:opacity-100"
+                                class="absolute h-5 rounded-md border opacity-90 transition-all hover:z-20 hover:scale-y-110 hover:opacity-100"
                                 :class="[!session.ended_at ? 'animate-pulse ring-1 ring-white/10' : '']"
                                 :style="{
                                     left: session.left,

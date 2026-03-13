@@ -94,10 +94,11 @@ function isFuture(date: string): boolean {
             >
                 <template v-if="cell.date !== null">
                     <p
-                        class="text-xs leading-none font-medium group-hover:text-accent-foreground"
+                        class="text-xs leading-none font-medium"
                         :class="{
                             'text-muted-foreground/50': isWeekend(cell.date),
                             'font-bold text-primary': cell.date === today,
+                            'group-hover:text-accent-foreground': !isFuture(cell.date),
                         }"
                     >
                         {{ cell.day }}
