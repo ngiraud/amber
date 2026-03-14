@@ -34,7 +34,7 @@ class ActivityReport extends Model
      */
     public function lines(): HasMany
     {
-        return $this->hasMany(ActivityReportLine::class);
+        return $this->hasMany(ActivityReportLine::class)->orderByDesc('date');
     }
 
     public function canBeDeleted(): bool
