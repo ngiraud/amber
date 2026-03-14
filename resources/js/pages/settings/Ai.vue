@@ -141,11 +141,12 @@ async function handleTest(): Promise<void> {
 
                     <div class="flex items-center justify-end gap-4">
                         <Button
+                            v-if="aiSettings.enabled"
                             type="button"
                             :variant="verifyVariant"
                             :class="verifyClass"
                             size="sm"
-                            :disabled="testStatus === 'loading' || !form.enabled"
+                            :disabled="testStatus === 'loading'"
                             @click="handleTest"
                         >
                             Verify

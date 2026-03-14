@@ -106,7 +106,6 @@ return [
         '*.md',
         'boost.json',
         'components.json',
-        'composer.lock',
         'eslint.config.*',
         'opencode.json',
         'package.json',
@@ -125,9 +124,6 @@ return [
         // Database
         'database/factories/*',
         'database/seeders/*',
-
-        // NativePHP build output
-        'nativephp',
 
         // Node
         'node_modules',
