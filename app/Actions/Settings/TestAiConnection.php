@@ -18,6 +18,8 @@ class TestAiConnection extends Action
 
     public function handle(): bool
     {
+        $this->settings->syncConfigApiKey();
+
         try {
             $this->agent->prompt(
                 'Say "ok" and nothing else.',

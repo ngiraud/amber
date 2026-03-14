@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\ActivityReport\SummarizeReportLines;
 use App\Ai\Agents\ReportSummarizer;
+use App\Enums\AiProvider;
 use App\Exceptions\AiSummarizationException;
 use App\Models\ActivityReport;
 use App\Models\ActivityReportLine;
@@ -130,6 +131,22 @@ describe('SummarizeReportLines', function () {
 
         expect(fn () => SummarizeReportLines::make()->handle($report))
             ->toThrow(AiSummarizationException::class, 'Invalid API key. Please check your AI settings.');
+    });
+
+    it('sets the provider api key in runtime config before prompting the agent', function () {
+        $settings = app(AiSettings::class);
+        $settings->provider = AiProvider::Anthropic;
+        $settings->api_key = 'sk-test-key';
+        $settings->save();
+
+        $report = ActivityReport::factory()->finalized()->create();
+        ActivityReportLine::factory()->create(['activity_report_id' => $report->id, 'description' => 'Work done']);
+
+        ReportSummarizer::fake(fn () => ['summaries' => []]);
+
+        SummarizeReportLines::make()->handle($report);
+
+        expect(config('ai.providers.anthropic.key'))->toBe('sk-test-key');
     });
 
     it('throws AiSummarizationException with unexpected message on non-AI exception', function () {

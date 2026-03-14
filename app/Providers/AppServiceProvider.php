@@ -7,7 +7,6 @@ namespace App\Providers;
 use App\Services\ApplicationMenuService;
 use App\Services\FileWatcherService;
 use App\Services\MenuBarService;
-use App\Settings\AiSettings;
 use App\Settings\GeneralSettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
@@ -36,7 +35,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $this->configureAiProvider();
         $this->configureCommands();
         $this->configureDates();
         $this->configureEvents();
@@ -46,19 +44,6 @@ class AppServiceProvider extends ServiceProvider
         $this->configureRelations();
         $this->configureResources();
         $this->configureVite();
-    }
-
-    protected function configureAiProvider(): void
-    {
-        try {
-            $settings = app(AiSettings::class);
-
-            if ($settings->api_key !== null) {
-                config(["ai.providers.{$settings->provider->value}.key" => $settings->api_key]);
-            }
-        } catch (Throwable) {
-            // Settings table may not exist yet (e.g., during migrations)
-        }
     }
 
     protected function configureCommands(): void

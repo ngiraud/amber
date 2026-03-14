@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Actions\Settings\TestAiConnection;
 use App\Actions\Settings\UpdateAiSettings;
+use App\Ai\Agents\ReportSummarizer;
 use App\Enums\AiProvider;
 use App\Settings\AiSettings;
 
@@ -116,6 +117,19 @@ describe('UpdateAiSettings action', function () {
         ]);
 
         expect(app(AiSettings::class)->api_key)->toBeNull();
+    });
+
+    it('sets the provider api key in runtime config when handle is called', function () {
+        $settings = app(AiSettings::class);
+        $settings->provider = AiProvider::Anthropic;
+        $settings->api_key = 'sk-test-key';
+        $settings->save();
+
+        ReportSummarizer::fake(fn () => true);
+
+        TestAiConnection::make()->handle();
+
+        expect(config('ai.providers.anthropic.key'))->toBe('sk-test-key');
     });
 
     it('clears api_key when provider is null', function () {

@@ -26,6 +26,8 @@ class SummarizeReportLines extends Action
             return;
         }
 
+        $this->settings->syncConfigApiKey();
+
         $lines = $report->lines->whereNotNull('description');
 
         if ($lines->isEmpty()) {
