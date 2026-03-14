@@ -18,7 +18,7 @@ class UpdateAiSettingsRequest extends FormRequest
     {
         return [
             'enabled' => ['required', 'boolean'],
-            'provider' => ['required', 'nullable', Rule::enum(AiProvider::class)],
+            'provider' => ['required_if_accepted:enabled', 'nullable', Rule::enum(AiProvider::class)],
             'api_key' => [
                 Rule::requiredIf(fn () => $this->enum('provider', AiProvider::class)?->requiresApiKey() ?? false),
                 'nullable',

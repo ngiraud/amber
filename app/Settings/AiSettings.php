@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Settings;
 
+use App\Casts\NativeEncryptCast;
 use App\Enums\AiProvider;
 use Spatie\LaravelSettings\Settings;
 
@@ -22,13 +23,10 @@ class AiSettings extends Settings
         return 'ai';
     }
 
-    /**
-     * @return string[]
-     */
-    public static function encrypted(): array
+    public static function casts(): array
     {
         return [
-            'api_key',
+            'api_key' => NativeEncryptCast::class,
         ];
     }
 }

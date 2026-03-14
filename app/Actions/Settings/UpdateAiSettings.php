@@ -27,7 +27,7 @@ class UpdateAiSettings extends Action
             $this->settings->api_key = $data['api_key'] ?: null;
         }
 
-        if (! $this->settings->provider->requiresApiKey()) {
+        if (! $this->settings->provider?->requiresApiKey()) {
             $this->settings->api_key = null;
         }
 

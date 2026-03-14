@@ -85,13 +85,70 @@ return [
      * You may use glob / wildcard patterns here.
      */
     'cleanup_exclude_files' => [
+        // Hidden dot files & directories
         '.ai',
+        '.agents',
         '.claude',
+        '.DS_Store',
+        '.editorconfig',
+        '.gemini',
+        '.git',
+        '.gitattributes',
         '.github',
+        '.gitignore',
         '.idea',
+        '.mcp.json',
+        '.npmrc',
+        '.prettierignore',
+        '.prettierrc',
+
+        // Root config & dev files
+        '*.md',
+        'boost.json',
+        'components.json',
+        'composer.lock',
+        'eslint.config.*',
+        'opencode.json',
+        'package.json',
+        'package-lock.json',
+        'phpstan.neon',
+        'phpunit.xml',
+        'pint.json',
+        'prettier.config.*',
+        'rector.php',
+        'tsconfig.json',
+        'vite.config.ts',
+
+        // Bootstrap
+        'bootstrap/cache/*',
+
+        // Database
+        'database/factories/*',
+        'database/seeders/*',
+
+        // NativePHP build output
+        'nativephp',
+
+        // Node
         'node_modules',
+
+        // Resources (source files, compiled to public/build by prebuild)
+        'resources/css',
+        'resources/js',
+
+        // Storage
+        'storage/framework/cache/*',
+        'storage/framework/sessions/*',
+        'storage/framework/testing/*',
+        'storage/logs/*',
+        'storage/pail',
         'storage/sample-data/*',
+
+        // Tests
         'tests',
+
+        // Vendor
+        'vendor/_laravel_idea',
     ],
 
     /**
@@ -170,10 +227,13 @@ return [
      */
     'prebuild' => [
         'npm run build',
+        'php artisan optimize',
+        'php artisan wayfinder:generate',
     ],
 
     'postbuild' => [
-        //        'rm -rf public/build',
+        'rm -rf public/build',
+        'php artisan cache:clear',
     ],
 
     /**

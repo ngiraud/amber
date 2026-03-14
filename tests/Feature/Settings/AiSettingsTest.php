@@ -42,6 +42,24 @@ describe('ai settings', function () {
         ])->assertInvalid(['provider']);
     });
 
+    it('requires provider when enabled', function () {
+        $this->put(route('settings.ai'), [
+            'enabled' => true,
+            'provider' => null,
+            'summary_language' => 'fr',
+        ])->assertInvalid(['provider']);
+    });
+
+    it('does not require provider when disabled', function () {
+        UpdateAiSettings::fake()->shouldReceive('handle')->once();
+
+        $this->put(route('settings.ai'), [
+            'enabled' => false,
+            'provider' => null,
+            'summary_language' => 'fr',
+        ])->assertValid(['provider']);
+    });
+
     it('validates summary_language is a valid locale', function () {
         $this->put(route('settings.ai'), [
             'enabled' => true,
@@ -94,6 +112,17 @@ describe('UpdateAiSettings action', function () {
             'enabled' => false,
             'provider' => 'anthropic',
             'api_key' => '',
+            'summary_language' => 'fr',
+        ]);
+
+        expect(app(AiSettings::class)->api_key)->toBeNull();
+    });
+
+    it('clears api_key when provider is null', function () {
+        UpdateAiSettings::make()->handle([
+            'enabled' => false,
+            'provider' => null,
+            'api_key' => 'sk-test-key',
             'summary_language' => 'fr',
         ]);
 

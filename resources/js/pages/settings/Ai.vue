@@ -145,7 +145,7 @@ async function handleTest(): Promise<void> {
                             :variant="verifyVariant"
                             :class="verifyClass"
                             size="sm"
-                            :disabled="testStatus === 'loading' || !aiSettings.enabled"
+                            :disabled="testStatus === 'loading' || !form.enabled"
                             @click="handleTest"
                         >
                             Verify
