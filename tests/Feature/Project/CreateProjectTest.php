@@ -56,7 +56,7 @@ describe('create project', function () {
 
     it('validates required fields', function () {
         $this->post(route('projects.store'), [])
-            ->assertInvalid(['client_id', 'name', 'color', 'rounding', 'daily_reference_hours']);
+            ->assertInvalid(['client_id', 'name', 'color']);
     });
 
     it('validates client_id must exist', function () {

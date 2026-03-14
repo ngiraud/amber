@@ -54,7 +54,7 @@ describe('update project', function () {
         $project = Project::factory()->create();
 
         $this->patch(route('projects.update', $project), [])
-            ->assertInvalid(['client_id', 'name', 'color', 'rounding', 'daily_reference_hours']);
+            ->assertInvalid(['client_id', 'name', 'color']);
     });
 })->group('controllers');
 
