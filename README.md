@@ -21,10 +21,11 @@ activity reports.
 ## ✨ Key Features
 
 - **🛡️ Privacy First:** All activity data is stored locally in a SQLite database. No tracking, no external servers.
-- **⏱️ Smart Session Tracking:** Start, stop, and switch between projects directly from your macOS menu bar.
+- **⌨️ Keyboard-First:** Command palette (`Cmd+K`) for quick navigation, creation, and session control. Native macOS menu hotkeys (`Cmd+1–7`, `Cmd+Shift+S/C/P`) for every action.
+- **⏱️ Smart Session Tracking:** Start, stop, and switch between projects directly from your macOS menu bar. Add quick notes to an active session from the title bar.
 - **📁 Project & Client Management:** Organize your work by client and project for precise billing or personal tracking.
 - **🔍 Multi-Source Activity Detection:** Automatically capture activity from Git commits, GitHub PRs, Claude Code sessions, file system changes (fswatch), Gemini, Mistral Vibe, and Opencode.
-- **📅 Timeline & Time Entries:** Review, edit, and reconstruct your work sessions day by day with intelligent gap detection and rounding strategies.
+- **📅 Timeline & Time Entries:** Review, edit, and reconstruct your work sessions day by day with intelligent gap detection and rounding strategies. Reconstruct missing time directly from the dashboard.
 - **🤖 AI-Powered Reports:** Automatically summarize your activity into professional monthly reports (CRA) using the Laravel AI SDK — supports Mistral, OpenAI, Anthropic, and Ollama.
 - **📊 Export Options:** Generate activity reports in PDF and Excel formats, ready to send to clients.
 - **🔔 Native Integration:** System notifications and a dedicated menu bar interface with real-time session status.
