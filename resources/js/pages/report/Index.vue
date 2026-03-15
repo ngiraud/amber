@@ -8,8 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
-import * as reportRoutes from '@/routes/reports';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
+import * as reportRoutes from '@/routes/reports';
 import type { ActivityReport, ActivityReportProgressPayload, AiSettings, Client, Paginator } from '@/types';
 
 defineProps<{
@@ -70,7 +70,9 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                     <FileTextIcon class="size-4 shrink-0 text-muted-foreground" />
                     <div>
                         <p class="text-sm font-medium">{{ report.client?.name }}</p>
-                        <p class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">{{ formatPeriod(report.month, report.year) }}</p>
+                        <p class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">
+                            {{ formatPeriod(report.month, report.year) }}
+                        </p>
                     </div>
                 </div>
 

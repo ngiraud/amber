@@ -12,9 +12,9 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
+import { formatMinutes, formatPeriod } from '@/lib/utils';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
-import { formatMinutes, formatPeriod } from '@/lib/utils';
 import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
 
 const props = defineProps<{
@@ -60,7 +60,10 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 </script>
 
 <template>
-    <AppLayout :title="`Report — ${formatPeriod(report.month, report.year)}`" :breadcrumb="['Reports', report.client?.name ?? '', formatPeriod(report.month, report.year)].filter(Boolean)">
+    <AppLayout
+        :title="`Report — ${formatPeriod(report.month, report.year)}`"
+        :breadcrumb="['Reports', report.client?.name ?? '', formatPeriod(report.month, report.year)].filter(Boolean)"
+    >
         <template #header>
             <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report.month, report.year)">
                 <template #breadcrumb>

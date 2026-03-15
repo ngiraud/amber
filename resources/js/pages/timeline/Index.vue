@@ -7,8 +7,8 @@ import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
-import * as timelineRoutes from '@/routes/timeline';
 import { formatPeriod } from '@/lib/utils';
+import * as timelineRoutes from '@/routes/timeline';
 import type { TimelineDay } from '@/types';
 
 const props = defineProps<{

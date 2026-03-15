@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { Check, Loader2, XIcon } from 'lucide-vue-next';
-import FolderPathInput from '@/components/FolderPathInput.vue';
 import { computed, reactive, ref, watch } from 'vue';
+import FolderPathInput from '@/components/FolderPathInput.vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

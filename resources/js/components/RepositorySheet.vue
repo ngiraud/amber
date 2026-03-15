@@ -45,15 +45,15 @@ function reset(): void {
                 :action="repositories.store(project)"
                 reset-on-success
                 #default="{ errors, processing }"
-                @success="() => { open = false; reset(); }"
+                @success="
+                    () => {
+                        open = false;
+                        reset();
+                    }
+                "
             >
                 <InputField label="Local path" :error="errors.local_path">
-                    <FolderPathInput
-                        v-model="localPath"
-                        name="local_path"
-                        placeholder="/Users/me/code/my-repo"
-                        @pick="onPick"
-                    />
+                    <FolderPathInput v-model="localPath" name="local_path" placeholder="/Users/me/code/my-repo" @pick="onPick" />
                 </InputField>
 
                 <InputField label="Repository name" :error="errors.name">
