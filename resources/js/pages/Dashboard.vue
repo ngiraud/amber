@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { CalendarDaysIcon, ClockIcon, RadioIcon, TargetIcon } from 'lucide-vue-next';
+import { CalendarDaysIcon, ClockIcon, RadioIcon, RefreshCwIcon, TargetIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -72,6 +73,13 @@ const dateLabel = computed(() => {
                                 Timeline
                             </Link>
                         </Button>
+
+                        <ReconstructDialog :has-sessions="sessions.length > 0">
+                            <Button variant="outline" size="sm">
+                                <RefreshCwIcon class="mr-1.5 size-3.5" />
+                                Reconstruct today
+                            </Button>
+                        </ReconstructDialog>
 
                         <Button size="sm" :class="spotlightClass('start-session')" @click="shouldOpen = true"> Add Session </Button>
                     </div>

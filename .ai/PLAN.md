@@ -2,9 +2,11 @@
 
 ## Context
 
-macOS desktop app (NativePHP + Electron) that automatically tracks development activity and generates monthly activity reports (CRA). Built on Laravel 12, NativePHP, Inertia/Vue 3, Tailwind v4, Actions pattern.
+macOS desktop app (NativePHP + Electron) that automatically tracks development activity and generates monthly activity reports (CRA). Built on Laravel 12, NativePHP, Inertia/Vue 3,
+Tailwind v4, Actions pattern.
 
-**Key decisions**: multi-project from day one, multiple activity sources (Git + GitHub + fswatch + Claude Code), menu bar from the start, activity reports/PDF last. Laravel HTTP `sessions` table removed — the term "session" refers to work sessions. Optional LLM summarization via Laravel AI SDK (multi-provider: Mistral, OpenAI, Anthropic, Ollama).
+**Key decisions**: multi-project from day one, multiple activity sources (Git + GitHub + fswatch + Claude Code), menu bar from the start, activity reports/PDF last. Laravel HTTP
+`sessions` table removed — the term "session" refers to work sessions. Optional LLM summarization via Laravel AI SDK (multi-provider: Mistral, OpenAI, Anthropic, Ollama).
 
 ---
 
@@ -14,20 +16,26 @@ macOS desktop app (NativePHP + Electron) that automatically tracks development a
 
 **clients**: id (ulid), name, address?, contact_name?, contact_email?, contact_phone?, notes?, timestamps
 
-**projects**: id (ulid), client_id (FK cascade), name, color (hex), tjm? (decimal 10,2), hourly_rate? (decimal 10,2), daily_reference_hours (decimal 4,2 default 7), rounding (enum default quarter), is_active (bool default true), timestamps — INDEX(client_id, is_active)
+**projects**: id (ulid), client_id (FK cascade), name, color (hex), tjm? (decimal 10,2), hourly_rate? (decimal 10,2), daily_reference_hours (decimal 4,2 default 7), rounding (enum
+default quarter), is_active (bool default true), timestamps — INDEX(client_id, is_active)
 
 **project_repositories**: id (ulid), project_id (FK cascade), local_path (unique), name, timestamps
 
-**sessions**: id (ulid), project_id (FK cascade), started_at (datetime), ended_at? (datetime), duration_minutes? (int), source (enum: manual/auto/reconstructed), notes?, is_validated (bool default false), timestamps — INDEX(project_id, started_at), INDEX(started_at, ended_at)
+**sessions**: id (ulid), project_id (FK cascade), started_at (datetime), ended_at? (datetime), duration_minutes? (int), source (enum: manual/auto/reconstructed), notes?,
+is_validated (bool default false), timestamps — INDEX(project_id, started_at), INDEX(started_at, ended_at)
 > Note: the Laravel HTTP `sessions` migration is deleted. This table is 100% domain-specific.
 
-**activity_events**: id (ulid), project_id? (FK cascade), project_repository_id? (FK), session_id? (FK set null), source_type (string — source identifier: git, claude_code, filesystem), type (enum: git_commit/file_change/claude_session_start/claude_session_end/claude_file_touch), occurred_at (datetime), metadata (json), timestamps — INDEX(project_id, occurred_at), INDEX(source_type, occurred_at)
+**activity_events**: id (ulid), project_id? (FK cascade), project_repository_id? (FK), session_id? (FK set null), source_type (string — source identifier: git, claude_code,
+filesystem), type (enum: git_commit/file_change/claude_session_start/claude_session_end/claude_file_touch), occurred_at (datetime), metadata (json), timestamps — INDEX(project_id,
+occurred_at), INDEX(source_type, occurred_at)
 
-**time_entries**: id (ulid), session_id? (FK cascade), project_id (FK cascade), date, started_at, ended_at, raw_minutes (int), rounded_minutes (int), source (enum: session/manual/reconstructed), description?, is_validated (bool default true), timestamps — INDEX(project_id, date)
+**time_entries**: id (ulid), session_id? (FK cascade), project_id (FK cascade), date, started_at, ended_at, raw_minutes (int), rounded_minutes (int), source (enum:
+session/manual/reconstructed), description?, is_validated (bool default true), timestamps — INDEX(project_id, date)
 
 **app_settings**: id, key (unique), value (json), timestamps
 
-**activity_reports**: id (ulid), client_id (FK cascade), month (int), year (int), status (enum: draft/finalized/sent), total_minutes, total_days (decimal 5,2), total_amount_ht? (decimal 10,2), generated_at?, pdf_path?, notes?, timestamps — UNIQUE(client_id, month, year)
+**activity_reports**: id (ulid), client_id (FK cascade), month (int), year (int), status (enum: draft/finalized/sent), total_minutes, total_days (decimal 5,2), total_amount_ht? (
+decimal 10,2), generated_at?, pdf_path?, notes?, timestamps — UNIQUE(client_id, month, year)
 
 **activity_report_lines**: id (ulid), activity_report_id (FK cascade), project_id (FK), date, minutes (int), days (decimal 4,2), description?, timestamps
 
@@ -62,7 +70,8 @@ interface ActivitySource
 
 ### Implementations
 
-- `GitActivitySource` — parses `git log` for configured repos, filters by author email. Also captures current branch name, diff stats (lines added/removed), and branch switches via `git reflog`
+- `GitActivitySource` — parses `git log` for configured repos, filters by author email. Also captures current branch name, diff stats (lines added/removed), and branch switches via
+  `git reflog`
 - `GitHubActivitySource` — uses `gh` CLI to fetch PRs (opened, merged, title, description) and reviews for project repos. Requires `gh` installed and authenticated
 - `ClaudeCodeActivitySource` — parses JSONL files in `~/.claude/projects/`, matches to project via path
 - `FilesystemActivitySource` — receives real-time fswatch events, converts them to `ActivityEvent`
@@ -303,9 +312,10 @@ Goal: capture enough semantic context to describe **what was done** (not just wh
 
 #### To do — UX & quality of life
 
-1. ✅ **Native folder picker** for `local_path` when creating/editing a `ProjectRepository` — auto-fill `name` from the selected folder's basename. Also available in `ProjectSheet` (inline repos) and `SourceConfigurationSheet` (via new `folder-path` field type). Reusable `FolderPathInput.vue` component.
-2. **Quick note during active session** — note field accessible from the session banner or sidebar, saved to `Session.notes`
-3. **Recent projects** in `StartSessionDialog` — show last-used projects first
+1. ✅ **Native folder picker** for `local_path` when creating/editing a `ProjectRepository` — auto-fill `name` from the selected folder's basename. Also available in
+   `ProjectSheet` (inline repos) and `SourceConfigurationSheet` (via new `folder-path` field type). Reusable `FolderPathInput.vue` component.
+2. ✅ **Quick note during active session** — note field accessible from the session banner or sidebar, saved to `Session.notes`
+3. ✅ **Recent projects** in `StartSessionDialog` — show last-used projects first
 4. **Skeletons / deferred props** — loading states for heavy lists (activity events, timeline)
 
 #### To do — Native macOS
