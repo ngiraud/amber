@@ -26,7 +26,7 @@ class ClientController extends Controller
     {
         return Inertia::render('client/Index', [
             'clients' => ClientResource::collection(
-                Client::query()->withCount('projects')->latest('id')->paginate()
+                Client::query()->withCount('projects')->orderBy('name')->paginate()
             ),
         ]);
     }

@@ -30,7 +30,9 @@ class ProjectController extends Controller
             'projects' => fn () => ProjectResource::collection(
                 Project::query()->with('client')->withCount('repositories')->orderBy('name')->paginate()
             ),
-            'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
+            'clients' => fn () => ClientResource::collection(
+                Client::query()->orderBy('name')->get()
+            ),
         ]);
     }
 
