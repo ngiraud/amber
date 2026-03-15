@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace App\ViewModels;
 
 use App\Actions\Onboarding\GetOnboardingState;
-use App\Http\Resources\ProjectResource;
 use App\Http\Resources\SessionResource;
-use App\Models\Project;
 use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Inertia\ProvidesInertiaProperties;
@@ -44,9 +42,6 @@ class DashboardViewModel implements ProvidesInertiaProperties
             'total_minutes' => $sessions->sum('rounded_minutes'),
             'week_minutes' => $weekMinutes,
             'month_minutes' => $monthMinutes,
-            'projects' => ProjectResource::collection(
-                Project::active()->with('client')->get()
-            ),
             'onboarding' => fn () => $this->getOnboardingState->handle(),
         ];
     }

@@ -28,7 +28,7 @@ class ProjectController extends Controller
     {
         return Inertia::render('project/Index', [
             'projects' => fn () => ProjectResource::collection(
-                Project::query()->with('client')->withCount('repositories')->latest('id')->paginate()
+                Project::query()->with('client')->withCount('repositories')->orderBy('name')->paginate()
             ),
             'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
         ]);

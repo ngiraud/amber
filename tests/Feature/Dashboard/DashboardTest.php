@@ -14,6 +14,5 @@ test('home renders the dashboard page', function () {
             ->has('total_minutes')
             ->has('week_minutes')
             ->has('month_minutes')
-            ->has('projects')
         );
 });
