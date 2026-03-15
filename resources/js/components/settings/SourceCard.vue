@@ -158,7 +158,7 @@ const indicatorClass = computed(() => {
                 :class="
                     cn(
                         'flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase',
-                        hasError ? 'text-destructive' : 'text-primary/80 dark:text-primary/60',
+                        hasError ? 'text-destructive' : 'text-primary/80 group-hover:text-primary',
                     )
                 "
             >

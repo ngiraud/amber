@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import { Check, Loader2, XIcon } from 'lucide-vue-next';
+import FolderPathInput from '@/components/FolderPathInput.vue';
 import { computed, reactive, ref, watch } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
@@ -168,8 +169,15 @@ watch(
             <form class="flex flex-col gap-6 overflow-y-auto px-4 py-6" @submit.prevent="save">
                 <template v-for="field in source.fields" :key="field.name">
                     <InputField :label="field.label" :error="errors[field.name]" :hint="field.hint">
+                        <FolderPathInput
+                            v-if="field.type === 'folder-path'"
+                            :model-value="String(fieldValue(field) ?? '')"
+                            :name="field.name"
+                            :placeholder="field.placeholder ?? ''"
+                            @update:model-value="(v) => setFieldValue(field, v)"
+                        />
                         <Input
-                            v-if="field.type === 'text' || field.type === 'email-list'"
+                            v-else-if="field.type === 'text' || field.type === 'email-list'"
                             :model-value="String(fieldValue(field) ?? '')"
                             type="text"
                             :placeholder="field.placeholder ?? ''"

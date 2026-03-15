@@ -42,7 +42,7 @@ class OpencodeSourceConfig implements SourceConfig
         return [
             new FieldDefinition(
                 name: 'projects_path',
-                type: 'text',
+                type: 'folder-path',
                 label: 'Projects path',
                 hint: 'Path to your Opencode data directory (default: ~/.local/share/opencode)',
                 placeholder: '~/.local/share/opencode',

@@ -13,7 +13,7 @@ export type TimelineDay = {
 
 export type SourceFieldDefinition = {
     name: string;
-    type: 'text' | 'number' | 'textarea' | 'email-list' | 'string-list';
+    type: 'text' | 'number' | 'textarea' | 'email-list' | 'string-list' | 'folder-path';
     label: string;
     hint: string;
     placeholder?: string;

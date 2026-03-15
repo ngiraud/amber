@@ -3,6 +3,7 @@ import { Form, usePage } from '@inertiajs/vue3';
 import { ChevronDownIcon, PlusIcon, TrashIcon } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 import ColorPicker from '@/components/ColorPicker.vue';
+import FolderPathInput from '@/components/FolderPathInput.vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
@@ -106,17 +107,20 @@ function removeRepo(index: number): void {
                                     <TrashIcon class="h-3.5 w-3.5" />
                                 </button>
                             </div>
+                            <InputField label="Local path" :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]">
+                                <FolderPathInput
+                                    v-model="repo.local_path"
+                                    :name="`repositories[${i}][local_path]`"
+                                    placeholder="/Users/me/code/my-repo"
+                                    @pick="
+                                        (path) => {
+                                            if (!repo.name) repo.name = path.split('/').filter(Boolean).pop() ?? '';
+                                        }
+                                    "
+                                />
+                            </InputField>
                             <InputField label="Name" :error="(errors as Record<string, string>)[`repositories.${i}.name`]">
                                 <Input :name="`repositories[${i}][name]`" type="text" placeholder="my-repo" v-model="repo.name" />
-                            </InputField>
-                            <InputField label="Local path" :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]">
-                                <Input
-                                    :name="`repositories[${i}][local_path]`"
-                                    type="text"
-                                    placeholder="/Users/me/code/my-repo"
-                                    class="font-mono"
-                                    v-model="repo.local_path"
-                                />
                             </InputField>
                         </div>
 

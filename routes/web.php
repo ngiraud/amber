@@ -8,6 +8,7 @@ use App\Http\Controllers\ActivityReportExportController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DismissOnboardingController;
+use App\Http\Controllers\FolderPickerController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
 use App\Http\Controllers\RegenerateActivityReportController;
@@ -24,6 +25,9 @@ use App\Http\Controllers\ToggleProjectStatusController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
+
+// Native dialogs
+Route::get('/folder-picker', FolderPickerController::class)->name('folder-picker');
 
 // Onboarding
 Route::post('/onboarding/dismiss', DismissOnboardingController::class)->name('onboarding.dismiss');

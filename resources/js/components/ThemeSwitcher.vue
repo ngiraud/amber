@@ -49,7 +49,7 @@ function select(theme: Appearance): void {
 </script>
 
 <template>
-    <SidebarMenuButton size="lg" class="items-center justify-center" tooltip="Theme">
+    <SidebarMenuButton size="lg" class="cursor-pointer items-center justify-center" tooltip="Theme">
         <Popover v-model:open="open">
             <PopoverTrigger as-child>
                 <component :is="currentIcon" />

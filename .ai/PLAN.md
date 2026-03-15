@@ -303,7 +303,7 @@ Goal: capture enough semantic context to describe **what was done** (not just wh
 
 #### To do — UX & quality of life
 
-1. **Native folder picker** for `local_path` when creating/editing a `ProjectRepository` — auto-fill `name` from the selected folder's basename
+1. ✅ **Native folder picker** for `local_path` when creating/editing a `ProjectRepository` — auto-fill `name` from the selected folder's basename. Also available in `ProjectSheet` (inline repos) and `SourceConfigurationSheet` (via new `folder-path` field type). Reusable `FolderPathInput.vue` component.
 2. **Quick note during active session** — note field accessible from the session banner or sidebar, saved to `Session.notes`
 3. **Recent projects** in `StartSessionDialog` — show last-used projects first
 4. **Skeletons / deferred props** — loading states for heavy lists (activity events, timeline)

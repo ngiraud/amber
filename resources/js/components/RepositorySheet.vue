@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import FolderPathInput from '@/components/FolderPathInput.vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,6 +14,19 @@ defineProps<{
 }>();
 
 const open = ref(false);
+const name = ref('');
+const localPath = ref('');
+
+function onPick(path: string): void {
+    if (!name.value) {
+        name.value = path.split('/').filter(Boolean).pop() ?? '';
+    }
+}
+
+function reset(): void {
+    name.value = '';
+    localPath.value = '';
+}
 </script>
 
 <template>
@@ -31,14 +45,19 @@ const open = ref(false);
                 :action="repositories.store(project)"
                 reset-on-success
                 #default="{ errors, processing }"
-                @success="() => (open = false)"
+                @success="() => { open = false; reset(); }"
             >
-                <InputField label="Repository name" :error="errors.name">
-                    <Input name="name" type="text" placeholder="my-repo" autofocus />
+                <InputField label="Local path" :error="errors.local_path">
+                    <FolderPathInput
+                        v-model="localPath"
+                        name="local_path"
+                        placeholder="/Users/me/code/my-repo"
+                        @pick="onPick"
+                    />
                 </InputField>
 
-                <InputField label="Local path" :error="errors.local_path">
-                    <Input name="local_path" type="text" placeholder="/Users/me/code/my-repo" class="font-mono" />
+                <InputField label="Repository name" :error="errors.name">
+                    <Input v-model="name" name="name" type="text" placeholder="my-repo" />
                 </InputField>
 
                 <SheetFooter>

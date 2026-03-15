@@ -42,7 +42,7 @@ class MistralVibeSourceConfig implements SourceConfig
         return [
             new FieldDefinition(
                 name: 'projects_path',
-                type: 'text',
+                type: 'folder-path',
                 label: 'Projects path',
                 hint: 'Path to your Mistral Vibe logs directory (default: ~/.vibe/logs/session)',
                 placeholder: '~/.vibe/logs/session',

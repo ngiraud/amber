@@ -42,7 +42,7 @@ class GeminiSourceConfig implements SourceConfig
         return [
             new FieldDefinition(
                 name: 'projects_path',
-                type: 'text',
+                type: 'folder-path',
                 label: 'Projects path',
                 hint: 'Path to your Gemini CLI projects directory (default: ~/.gemini/tmp)',
                 placeholder: '~/.gemini/tmp',

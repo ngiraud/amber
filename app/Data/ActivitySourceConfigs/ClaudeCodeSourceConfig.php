@@ -42,7 +42,7 @@ class ClaudeCodeSourceConfig implements SourceConfig
         return [
             new FieldDefinition(
                 name: 'projects_path',
-                type: 'text',
+                type: 'folder-path',
                 label: 'Projects path',
                 hint: 'Path to your Claude Code projects directory (default: ~/.claude/projects)',
                 placeholder: '~/.claude/projects',
