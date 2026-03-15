@@ -32,9 +32,11 @@ Run `git branch --show-current` to determine the workflow:
 Review uncommitted files for code quality issues before committing: duplication, missed reuse of existing utilities, redundant logic, efficiency problems (N+1, O(n×m) loops, etc.).
 Fix any real issues found.
 
-### 4. Update Readme
+### 4. Update README.md
 
-If necessary and if it is a user feature, update the Readme to reflect the changes.
+Read `README.md` and update it if the feature adds user-visible functionality worth documenting (new capability, keyboard shortcut, integration, etc.). Skip for internal refactors, bug fixes, or developer-only changes.
+
+If updating, add the feature under the most relevant existing section (e.g. **Key Features**, **Deep Linking**). Keep the same tone and style as the existing entries — concise, emoji-prefixed bullet points for features.
 
 ### 5. Commit
 
