@@ -15,12 +15,23 @@ Update plans and create a commit for the completed feature.
 
 ## Steps
 
-### 1. Update plans
+### 1. Check current branch
+
+Run `git branch --show-current` to determine the workflow:
+
+- **On a feature branch**: full flow — update plans, simplify, commit, then suggest running `/create-pr`
+- **On `main`**: skip plan updates and PR suggestion — just simplify and commit directly
+
+### 2. Update plans *(feature branch only)*
 
 - If `.ai/PLAN.md` contains the feature, mark it as done
 - Delete the temporary plan file `.ai/plans/<feature>.md` if it exists
 
-### 2. Commit
+### 3. Simplify
+
+Review uncommitted files for code quality issues before committing: duplication, missed reuse of existing utilities, redundant logic, efficiency problems (N+1, O(n×m) loops, etc.). Fix any real issues found.
+
+### 4. Commit
 
 1. `git status` to review all changes
 2. `git diff` to review staged and unstaged changes
@@ -29,3 +40,7 @@ Update plans and create a commit for the completed feature.
    - `feat: <description>` for a new feature
    - `fix: <description>` for a bugfix
    - `refactor: <description>` for refactoring
+
+### 5. Next step *(feature branch only)*
+
+Remind the user to run `/create-pr` when ready to open a pull request.
