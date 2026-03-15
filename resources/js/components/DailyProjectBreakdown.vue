@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { usePage } from '@inertiajs/vue3';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed } from 'vue';
 import { Item, ItemContent, ItemTitle } from '@/components/ui/item';
+import { useNow } from '@/composables/useNow';
+import { formatMinutes } from '@/lib/utils';
 import type { Session } from '@/types';
 
 const props = defineProps<{
@@ -9,31 +11,12 @@ const props = defineProps<{
     date?: string;
 }>();
 
-const now = ref(new Date());
-let timer: any;
+const { now, isToday: isTodayFn } = useNow();
 
 const page = usePage();
 const globalActiveSession = computed(() => page.props.activeSession as Session | null);
 
-onMounted(() => {
-    timer = setInterval(() => {
-        now.value = new Date();
-    }, 30000);
-});
-
-onUnmounted(() => {
-    clearInterval(timer);
-});
-
-const isToday = computed(() => {
-    if (!props.date) {
-        return true;
-    }
-
-    const d = new Date(props.date + 'T00:00:00');
-
-    return now.value.toDateString() === d.toDateString();
-});
+const isToday = computed(() => !props.date || isTodayFn(props.date));
 
 const allSessions = computed(() => {
     const sessions = [...props.sessions];
@@ -79,21 +62,6 @@ const projectSummary = computed(() => {
 
     return Object.values(summary).sort((a, b) => b.minutes - a.minutes);
 });
-
-function formatMinutes(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-
-    if (h === 0) {
-        return `${m}m`;
-    }
-
-    if (m === 0) {
-        return `${h}h`;
-    }
-
-    return `${h}h${String(m).padStart(2, '0')}m`;
-}
 
 const totalMinutes = computed(() => projectSummary.value.reduce((sum, p) => sum + p.minutes, 0) || 1);
 </script>

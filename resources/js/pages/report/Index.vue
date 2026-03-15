@@ -9,6 +9,7 @@ import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as reportRoutes from '@/routes/reports';
+import { formatMinutes, formatPeriod } from '@/lib/utils';
 import type { ActivityReport, ActivityReportProgressPayload, AiSettings, Client, Paginator } from '@/types';
 
 defineProps<{
@@ -16,27 +17,6 @@ defineProps<{
     clients: Client[];
     aiSettings: AiSettings;
 }>();
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function formatPeriod(report: ActivityReport): string {
-    return `${MONTHS[report.month - 1]} ${report.year}`;
-}
-
-function formatMinutes(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-
-    if (h === 0) {
-        return `${m}m`;
-    }
-
-    if (m === 0) {
-        return `${h}h`;
-    }
-
-    return `${h}h${String(m).padStart(2, '0')}m`;
-}
 
 function statusVariant(status: ActivityReport['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
     if (status.value === 5) {
@@ -90,7 +70,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                     <FileTextIcon class="size-4 shrink-0 text-muted-foreground" />
                     <div>
                         <p class="text-sm font-medium">{{ report.client?.name }}</p>
-                        <p class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">{{ formatPeriod(report) }}</p>
+                        <p class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">{{ formatPeriod(report.month, report.year) }}</p>
                     </div>
                 </div>
 

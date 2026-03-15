@@ -14,6 +14,7 @@ import { useNativeEvent } from '@/composables/useNativeEvent';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
+import { formatMinutes, formatPeriod } from '@/lib/utils';
 import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
 
 const props = defineProps<{
@@ -22,27 +23,6 @@ const props = defineProps<{
     reportSteps: ActivityReportStep[];
     reportStatuses: ActivityReportStatus[];
 }>();
-
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function formatPeriod(report: ActivityReport): string {
-    return `${MONTHS[report.month - 1]} ${report.year}`;
-}
-
-function formatMinutes(minutes: number): string {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-
-    if (h === 0) {
-        return `${m}m`;
-    }
-
-    if (m === 0) {
-        return `${h}h`;
-    }
-
-    return `${h}h${String(m).padStart(2, '0')}m`;
-}
 
 const currentStep = ref<string | null>(props.report.status.label === 'Generating' ? props.reportSteps[0].value : null);
 
@@ -80,9 +60,9 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 </script>
 
 <template>
-    <AppLayout :title="`Report — ${formatPeriod(report)}`" :breadcrumb="['Reports', report.client?.name ?? '', formatPeriod(report)].filter(Boolean)">
+    <AppLayout :title="`Report — ${formatPeriod(report.month, report.year)}`" :breadcrumb="['Reports', report.client?.name ?? '', formatPeriod(report.month, report.year)].filter(Boolean)">
         <template #header>
-            <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report)">
+            <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report.month, report.year)">
                 <template #breadcrumb>
                     <Breadcrumb>
                         <BreadcrumbList>
@@ -99,7 +79,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
                             <BreadcrumbItem>
-                                <BreadcrumbPage>{{ formatPeriod(report) }}</BreadcrumbPage>
+                                <BreadcrumbPage>{{ formatPeriod(report.month, report.year) }}</BreadcrumbPage>
                             </BreadcrumbItem>
                         </BreadcrumbList>
                     </Breadcrumb>

@@ -8,6 +8,7 @@ use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Concerns\ResolvesHomePath;
 use App\Services\ActivitySources\Contracts\ActivitySource;
 use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
@@ -17,6 +18,8 @@ use Throwable;
 
 class GeminiActivitySource implements ActivitySource
 {
+    use ResolvesHomePath;
+
     public function __construct(private readonly ActivitySourceSettings $settings) {}
 
     public function identifier(): ActivityEventSourceType
@@ -46,10 +49,7 @@ class GeminiActivitySource implements ActivitySource
                 continue;
             }
 
-            $matchedRepo = $repos
-                ->filter(fn (ProjectRepository $repo) => str_starts_with($localPath, $repo->local_path))
-                ->sortByDesc(fn (ProjectRepository $repo) => mb_strlen($repo->local_path))
-                ->first();
+            $matchedRepo = ProjectRepository::findBestMatchForPath($repos, $localPath);
 
             if ($matchedRepo === null) {
                 continue;
@@ -179,7 +179,7 @@ class GeminiActivitySource implements ActivitySource
         $projectsFile = dirname($this->projectsPath()).'/projects.json';
 
         if (! file_exists($projectsFile)) {
-            $projectsFile = $this->homePath().'/.gemini/projects.json';
+            $projectsFile = $this->expandTilde('~').'/.gemini/projects.json';
         }
 
         if (! file_exists($projectsFile)) {
@@ -198,17 +198,6 @@ class GeminiActivitySource implements ActivitySource
 
     protected function projectsPath(): string
     {
-        $path = $this->settings->gemini->projects_path;
-
-        if (str_starts_with($path, '~')) {
-            $path = $this->homePath().mb_substr($path, 1);
-        }
-
-        return $path;
-    }
-
-    protected function homePath(): string
-    {
-        return $_SERVER['HOME'] ?? getenv('HOME');
+        return $this->expandTilde($this->settings->gemini->projects_path);
     }
 }

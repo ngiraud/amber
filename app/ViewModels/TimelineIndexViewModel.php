@@ -25,13 +25,13 @@ class TimelineIndexViewModel implements ProvidesInertiaProperties
             ->whereBetween('date', [$startOfMonth->toDateString(), $endOfMonth->toDateString()])
             ->get();
 
+        $sessionsByDate = $sessions->groupBy(fn (Session $s) => $s->date?->toDateString());
+
         $days = collect();
         $current = $startOfMonth;
 
         while ($current->lte($endOfMonth)) {
-            $daySessions = $sessions->filter(
-                fn (Session $s) => $s->date?->isSameDay($current)
-            )->values();
+            $daySessions = $sessionsByDate->get($current->toDateString(), collect());
 
             $days->push([
                 'date' => $current->toDateString(),

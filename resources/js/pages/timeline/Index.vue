@@ -8,6 +8,7 @@ import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as timelineRoutes from '@/routes/timeline';
+import { formatPeriod } from '@/lib/utils';
 import type { TimelineDay } from '@/types';
 
 const props = defineProps<{
@@ -16,9 +17,7 @@ const props = defineProps<{
     days: TimelineDay[];
 }>();
 
-const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-const monthLabel = computed(() => `${MONTHS[props.month - 1]} ${props.year}`);
+const monthLabel = computed(() => formatPeriod(props.month, props.year));
 
 function navigate(direction: -1 | 1): void {
     let month = props.month + direction;

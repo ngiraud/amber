@@ -11,9 +11,16 @@ class BuildLineDescription extends Action
 {
     public function handle(DayContext $context): string
     {
-        return collect([])
-            ->when(! empty($context->labels), fn ($c) => $c->push(implode(', ', array_unique($context->labels))))
-            ->when(! empty($context->details), fn ($c) => $c->push(implode(' | ', $context->details)))
-            ->implode(' | ');
+        $parts = [];
+
+        if (! empty($context->labels)) {
+            $parts[] = implode(', ', array_unique($context->labels));
+        }
+
+        if (! empty($context->details)) {
+            $parts[] = implode(' | ', $context->details);
+        }
+
+        return implode(' | ', $parts);
     }
 }

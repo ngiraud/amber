@@ -8,6 +8,7 @@ use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Concerns\ResolvesHomePath;
 use App\Services\ActivitySources\Contracts\ActivitySource;
 use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
@@ -17,6 +18,8 @@ use Throwable;
 
 class OpencodeActivitySource implements ActivitySource
 {
+    use ResolvesHomePath;
+
     public function __construct(private readonly ActivitySourceSettings $settings) {}
 
     public function identifier(): ActivityEventSourceType
@@ -65,10 +68,7 @@ class OpencodeActivitySource implements ActivitySource
                     continue;
                 }
 
-                $matchedRepo = $repos
-                    ->filter(fn (ProjectRepository $repo) => str_starts_with($localPath, $repo->local_path))
-                    ->sortByDesc(fn (ProjectRepository $repo) => mb_strlen($repo->local_path))
-                    ->first();
+                $matchedRepo = ProjectRepository::findBestMatchForPath($repos, $localPath);
 
                 if ($matchedRepo === null) {
                     continue;
@@ -165,13 +165,6 @@ class OpencodeActivitySource implements ActivitySource
 
     protected function dbPath(): string
     {
-        $path = $this->settings->opencode->projects_path;
-
-        if (str_starts_with($path, '~')) {
-            $home = $_SERVER['HOME'] ?? getenv('HOME');
-            $path = $home.mb_substr($path, 1);
-        }
-
-        return mb_rtrim($path, '/').'/opencode.db';
+        return mb_rtrim($this->expandTilde($this->settings->opencode->projects_path), '/').'/opencode.db';
     }
 }

@@ -56,15 +56,11 @@ class SummarizeReportLines extends Action
         /** @var array<int, array{id: string, summary: string}> $summaries */
         $summaries = $response['summaries'] ?? [];
 
-        $lineIds = $lines->pluck('id')->all();
+        $linesById = $lines->keyBy('id');
 
-        DB::transaction(function () use ($summaries, $lines, $lineIds) {
+        DB::transaction(function () use ($summaries, $linesById) {
             foreach ($summaries as $item) {
-                if (! in_array($item['id'], $lineIds)) {
-                    continue;
-                }
-
-                $lines->firstWhere('id', $item['id'])?->update(['summary' => $item['summary']]);
+                $linesById->get($item['id'])?->update(['summary' => $item['summary']]);
             }
         });
     }

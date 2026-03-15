@@ -8,6 +8,7 @@ use App\Data\ActivityEventData;
 use App\Enums\ActivityEventSourceType;
 use App\Enums\ActivityEventType;
 use App\Models\ProjectRepository;
+use App\Services\ActivitySources\Concerns\ResolvesHomePath;
 use App\Services\ActivitySources\Contracts\ActivitySource;
 use App\Settings\ActivitySourceSettings;
 use Carbon\CarbonImmutable;
@@ -17,6 +18,8 @@ use Throwable;
 
 class ClaudeCodeActivitySource implements ActivitySource
 {
+    use ResolvesHomePath;
+
     public function __construct(private readonly ActivitySourceSettings $settings) {}
 
     public function identifier(): ActivityEventSourceType
@@ -68,10 +71,7 @@ class ClaudeCodeActivitySource implements ActivitySource
             return collect();
         }
 
-        $matched = $repos
-            ->filter(fn (ProjectRepository $repo) => str_starts_with($cwd, $repo->local_path))
-            ->sortByDesc(fn (ProjectRepository $repo) => mb_strlen($repo->local_path))
-            ->first();
+        $matched = ProjectRepository::findBestMatchForPath($repos, $cwd);
 
         if ($matched === null) {
             return collect();
@@ -200,13 +200,6 @@ class ClaudeCodeActivitySource implements ActivitySource
 
     protected function projectsPath(): string
     {
-        $path = $this->settings->claude_code->projects_path;
-
-        if (str_starts_with($path, '~')) {
-            $home = $_SERVER['HOME'] ?? getenv('HOME');
-            $path = $home.mb_substr($path, 1);
-        }
-
-        return $path;
+        return $this->expandTilde($this->settings->claude_code->projects_path);
     }
 }
