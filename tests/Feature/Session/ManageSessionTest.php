@@ -145,7 +145,36 @@ describe('UpdateSession action', function () {
         expect($updated->description)->toBe('New description')
             ->and($updated->duration_minutes)->toBe($session->duration_minutes);
     });
+
+    it('updates notes on an active session', function () {
+        $session = Session::factory()->create(['ended_at' => null]);
+
+        $updated = UpdateSession::make()->handle($session, new SessionData(
+            notes: 'Working on the dashboard feature',
+        ));
+
+        expect($updated->notes)->toBe('Working on the dashboard feature');
+    });
 })->group('actions');
+
+describe('update session controller with notes', function () {
+    it('accepts notes field and delegates to UpdateSession', function () {
+        $session = Session::factory()->create(['ended_at' => null]);
+
+        UpdateSession::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->with(
+                Mockery::on(fn ($s) => $s->id === $session->id),
+                Mockery::type(SessionData::class)
+            )
+            ->andReturn($session);
+
+        $this->patch(route('sessions.update', $session), [
+            'notes' => 'Working on the dashboard feature',
+        ])->assertRedirect();
+    });
+})->group('controllers');
 
 describe('DeleteSession action', function () {
     it('deletes the session from the database', function () {
