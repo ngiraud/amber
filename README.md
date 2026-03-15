@@ -21,12 +21,13 @@ activity reports.
 ## ✨ Key Features
 
 - **🛡️ Privacy First:** All activity data is stored locally in a SQLite database. No tracking, no external servers.
-- **🤖 AI-Powered Reports:** Automatically summarize your activity events into clear, concise reports using the Laravel AI SDK.
-- **⏱️ Smart Session Tracking:** Start, stop, and switch between projects directly from your macOS/Windows menu bar.
+- **⏱️ Smart Session Tracking:** Start, stop, and switch between projects directly from your macOS menu bar.
 - **📁 Project & Client Management:** Organize your work by client and project for precise billing or personal tracking.
-- **📊 Export Options:** Generate activity reports in multiple formats (PDF, CSV) ready for your clients or team.
-- **🔔 Native Integration:** Get real-time feedback via system notifications, dock badge updates, and a dedicated menu bar interface.
-- **🔍 File Watcher:** (Optional) Automatically detect activity based on file system changes in your development folders.
+- **🔍 Multi-Source Activity Detection:** Automatically capture activity from Git commits, GitHub PRs, Claude Code sessions, file system changes (fswatch), Gemini, Mistral Vibe, and Opencode.
+- **📅 Timeline & Time Entries:** Review, edit, and reconstruct your work sessions day by day with intelligent gap detection and rounding strategies.
+- **🤖 AI-Powered Reports:** Automatically summarize your activity into professional monthly reports (CRA) using the Laravel AI SDK — supports Mistral, OpenAI, Anthropic, and Ollama.
+- **📊 Export Options:** Generate activity reports in PDF and Excel formats, ready to send to clients.
+- **🔔 Native Integration:** System notifications and a dedicated menu bar interface with real-time session status.
 - **🔗 Deep Link Support:** Trigger session actions from external tools (Raycast, Alfred, scripts) using `amber://` URLs.
 
 ## 🖼 Screenshots

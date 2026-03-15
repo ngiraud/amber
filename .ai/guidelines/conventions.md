@@ -55,6 +55,33 @@
 
 - Use Contextual Attributes whenever possible: `#[CurrentUser]`, etc.
 
+## DTOs
+
+- DTOs live in `app/Data/` (e.g., `app/Data/ProjectData.php`)
+- Use readonly constructor property promotion: `public readonly string $name`
+- DTOs are plain PHP objects — no Spatie Data dependency
+
+## Settings
+
+- App settings use `spatie/laravel-settings`; classes extend `Spatie\LaravelSettings\Settings`
+- Settings classes live in `app/Settings/` and define a `group()` method returning a snake_case string
+- Inject settings via dependency injection — never instantiate directly
+- Each settings domain has its own class: `GeneralSettings`, `ActivitySettings`, `AiSettings`, `ActivitySourceSettings`
+
+## Enums
+
+- Enums that need frontend serialization use the `EnhanceEnum` trait (`app/Enums/Concerns/EnhanceEnum.php`)
+- Enums using `EnhanceEnum` MUST implement a `label(): string` method — the trait requires it
+- The trait provides `toArray()`, `collect()`, `options()` for free
+- Use `options()` to pass enum choices to Vue/Inertia
+
+## Activity Sources
+
+- New activity sources implement `App\Services\ActivitySources\Contracts\ActivitySource`
+- Source classes live in `app/Services/ActivitySources/` and are named `{Name}ActivitySource`
+- Register the source by adding a case to `ActivityEventSourceType` enum — the source class is auto-discovered by convention via `guessActivitySource()`
+- Each source also needs a `SourceConfig` class in `app/Data/ActivitySourceConfigs/` (named `{Name}SourceConfig`) and a corresponding property in `ActivitySourceSettings`
+
 ## Finalization
 
 - Before considering a feature complete, run `composer test:all`
