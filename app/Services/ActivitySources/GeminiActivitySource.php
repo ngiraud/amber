@@ -179,7 +179,7 @@ class GeminiActivitySource implements ActivitySource
         $projectsFile = dirname($this->projectsPath()).'/projects.json';
 
         if (! file_exists($projectsFile)) {
-            $projectsFile = $this->expandTilde('~').'/.gemini/projects.json';
+            $projectsFile = $this->expandTilde('~/.gemini/projects.json');
         }
 
         if (! file_exists($projectsFile)) {
