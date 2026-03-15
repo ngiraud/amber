@@ -29,18 +29,23 @@ Run `git branch --show-current` to determine the workflow:
 
 ### 3. Simplify
 
-Review uncommitted files for code quality issues before committing: duplication, missed reuse of existing utilities, redundant logic, efficiency problems (N+1, O(n×m) loops, etc.). Fix any real issues found.
+Review uncommitted files for code quality issues before committing: duplication, missed reuse of existing utilities, redundant logic, efficiency problems (N+1, O(n×m) loops, etc.).
+Fix any real issues found.
 
-### 4. Commit
+### 4. Update Readme
+
+If necessary and if it is a user feature, update the Readme to reflect the changes.
+
+### 5. Commit
 
 1. `git status` to review all changes
 2. `git diff` to review staged and unstaged changes
 3. Stage relevant files (never `.env`, credentials, etc.)
 4. Create commit with conventional message:
-   - `feat: <description>` for a new feature
-   - `fix: <description>` for a bugfix
-   - `refactor: <description>` for refactoring
+    - `feat: <description>` for a new feature
+    - `fix: <description>` for a bugfix
+    - `refactor: <description>` for refactoring
 
-### 5. Next step *(feature branch only)*
+### 6. Next step *(feature branch only)*
 
 Remind the user to run `/create-pr` when ready to open a pull request.

@@ -35,6 +35,7 @@ declare module '@inertiajs/core' {
             generalSettings: GeneralSettings;
             activeSession: Session | null;
             projects?: Project[];
+            hotkeys: Array<{ value: string; label: string }>;
             [key: string]: unknown;
         };
     }

@@ -5,15 +5,20 @@ import { computed, ref, watch } from 'vue';
 import { toast } from 'vue-sonner';
 import SessionTimer from '@/components/SessionTimer.vue';
 import { Button } from '@/components/ui/button';
+import { Kbd } from '@/components/ui/kbd';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { useCommandPalette } from '@/composables/useCommandPalette';
 import { useNativeEvent } from '@/composables/useNativeEvent';
+import { formatHotkey } from '@/composables/useOs';
 import * as sessionRoutes from '@/routes/sessions';
 
 defineProps<{
     title?: string;
     breadcrumb?: string[];
 }>();
+
+const { isOpen: commandPaletteOpen } = useCommandPalette();
 
 useNativeEvent('App\\Events\\SessionStarted', () => router.reload({ only: ['activeSession'] }));
 useNativeEvent('App\\Events\\SessionStopped', () => router.reload({ only: ['activeSession'] }));
@@ -55,6 +60,18 @@ function saveNotes() {
     <div class="relative flex h-9 w-full shrink-0 items-center bg-sidebar select-none" style="-webkit-app-region: drag">
         <!-- Left: spacer for macOS traffic lights -->
         <div class="w-[70px] shrink-0" />
+
+        <!-- Left: spacer for macOS traffic lights + command palette trigger -->
+        <div class="ml-3 flex shrink-0 items-center justify-end pr-1" style="-webkit-app-region: no-drag">
+            <button
+                class="flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground"
+                @click="commandPaletteOpen = true"
+            >
+                <span>Use</span>
+                <Kbd class="opacity-60">{{ formatHotkey('CmdOrCtrl+K') }}</Kbd>
+                <span>to search</span>
+            </button>
+        </div>
 
         <!-- Center: always shows breadcrumb/title -->
         <div class="pointer-events-none absolute inset-0 flex items-center justify-center">

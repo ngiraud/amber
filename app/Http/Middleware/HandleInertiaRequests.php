@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Middleware;
 
+use App\Enums\ApplicationHotkey;
 use App\Http\InertiaProps\ActiveProjectsProps;
 use App\Http\Resources\SessionResource;
 use App\Models\Session;
@@ -50,6 +51,7 @@ class HandleInertiaRequests extends Middleware
             'activeSession' => fn () => ($s = Session::findActive(['project.client']))
                 ? SessionResource::make($s)
                 : null,
+            'hotkeys' => ApplicationHotkey::options(),
             new ActiveProjectsProps,
         ];
     }

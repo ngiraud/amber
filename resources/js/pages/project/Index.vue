@@ -7,11 +7,13 @@ import ProjectSheet from '@/components/ProjectSheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
+import { useOpenProjectSheet } from '@/composables/useOpenProjectSheet';
 import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Client, Paginator, Project } from '@/types';
 
 const { spotlightClass } = useSpotlight();
+const { shouldOpen } = useOpenProjectSheet();
 
 defineProps<{
     projects: Paginator<Project & { repositories_count: number }>;
@@ -24,7 +26,7 @@ defineProps<{
         <template #header>
             <PageHeader title="Projects">
                 <template #actions>
-                    <ProjectSheet :clients="clients">
+                    <ProjectSheet :clients="clients" v-model:open="shouldOpen">
                         <Button size="sm" :class="spotlightClass('new-project')">New project</Button>
                     </ProjectSheet>
                 </template>
@@ -34,7 +36,7 @@ defineProps<{
         <Empty v-if="projects.data.length === 0" class="mt-6">
             <EmptyTitle>No projects yet</EmptyTitle>
             <EmptyDescription>Create your first project to start tracking time.</EmptyDescription>
-            <ProjectSheet :clients="clients">
+            <ProjectSheet :clients="clients" v-model:open="shouldOpen">
                 <Button size="sm" :class="spotlightClass('new-project')">New project</Button>
             </ProjectSheet>
         </Empty>

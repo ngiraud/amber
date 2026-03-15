@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,7 @@ const props = defineProps<{
     client?: Client;
 }>();
 
-const open = ref(false);
+const open = defineModel<boolean>('open', { default: false });
 const isEditing = computed(() => !!props.client);
 const action = computed(() => (isEditing.value ? clientRoutes.update(props.client!) : clientRoutes.store()));
 </script>

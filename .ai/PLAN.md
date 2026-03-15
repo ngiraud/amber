@@ -316,14 +316,13 @@ Goal: capture enough semantic context to describe **what was done** (not just wh
    `ProjectSheet` (inline repos) and `SourceConfigurationSheet` (via new `folder-path` field type). Reusable `FolderPathInput.vue` component.
 2. ✅ **Quick note during active session** — note field accessible from the session banner or sidebar, saved to `Session.notes`
 3. ✅ **Recent projects** in `StartSessionDialog` — show last-used projects first
-4. **Skeletons / deferred props** — loading states for heavy lists (activity events, timeline)
+4. ✅ **Command palette** — Go to navigation, creation, updates, start session, stop session, ...
 
 #### To do — Native macOS
 
 1. **Global shortcuts** — `Cmd+Shift+T` toggle session, `Cmd+Shift+S` switch project (NativePHP `GlobalShortcut`)
-2. **Dock badge** with active session timer (updated every minute)
-3. **System notification for long sessions** — alert after N hours without a break (configurable in Settings)
-4. **System notification when a background sync completes**
+2. **System notification for long sessions** — alert after N hours without a break (configurable in Settings)
+3. **System notification when a background sync completes**
 
 #### To do — Robustness
 

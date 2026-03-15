@@ -29,7 +29,7 @@ const ROUNDING_OPTIONS = [
     { value: 60, label: '1 hour' },
 ];
 
-const open = ref(false);
+const open = defineModel<boolean>('open', { default: false });
 const isEditing = computed(() => !!props.project);
 const action = computed(() => (isEditing.value ? projectRoutes.update(props.project!) : projectRoutes.store()));
 const selectedClientId = computed(() => props.project?.client_id ?? props.client?.id);

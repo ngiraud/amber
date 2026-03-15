@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useNativeEvent } from '@/composables/useNativeEvent';
+import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
 import * as reportRoutes from '@/routes/reports';
@@ -34,6 +35,8 @@ function statusVariant(status: ActivityReport['status']): 'default' | 'secondary
     return 'default'; // Sent
 }
 
+const { spotlightClass } = useSpotlight();
+
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', () => {
     router.reload({ only: ['reports'] });
 });
@@ -45,7 +48,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
             <PageHeader title="Reports">
                 <template #actions>
                     <ReportSheet :clients="clients" :ai-settings="aiSettings">
-                        <Button size="sm">New report</Button>
+                        <Button size="sm" :class="spotlightClass('new-report')">New report</Button>
                     </ReportSheet>
                 </template>
             </PageHeader>
