@@ -42,7 +42,7 @@ If updating, add the feature under the most relevant existing section (e.g. **Ke
 
 1. `git status` to review all changes
 2. `git diff` to review staged and unstaged changes
-3. Stage relevant files (never `.env`, credentials, etc.)
+3. Stage only the files directly related to the feature — never `.env`, credentials, or unrelated changes. If unsure about a file, ask the user.
 4. Create commit with conventional message:
     - `feat: <description>` for a new feature
     - `fix: <description>` for a bugfix
