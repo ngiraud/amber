@@ -2,43 +2,37 @@
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { CalendarDaysIcon, ClockIcon, LayersIcon, RadioIcon, RefreshCwIcon, TargetIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import { useDateFormat } from '@/composables/useDateFormat';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
+import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
+import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { StatItem, StatItemLabel, StatItemValue } from '@/components/stat';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useNow } from '@/composables/useNow';
-import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
-import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes } from '@/lib/utils';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
-import type { OnboardingState, Session } from '@/types';
+import type { OnboardingState, Session, SessionStats } from '@/types';
 
 const props = defineProps<{
     date: string;
     sessions: Session[];
-    total_minutes: number;
+    session_stats: SessionStats;
     week_minutes: number;
     month_minutes: number;
-    session_count: number;
-    avg_session_minutes: number;
-    first_started_at: string | null;
-    last_ended_at: string | null;
 }>();
 
 const page = usePage();
 const onboarding = computed(() => page.props.onboarding as OnboardingState);
 const showChecklist = computed(() => !onboarding.value?.dismissed && !onboarding.value?.all_complete);
 
-const { spotlightClass } = useSpotlight();
 const logSessionOpen = ref(false);
 const { now, isToday: isTodayFn } = useNow();
 const { formatTime } = useDateFormat();
@@ -68,11 +62,11 @@ const dateLabel = computed(() => {
 });
 
 const workRange = computed(() => {
-    if (!props.first_started_at || !props.last_ended_at) {
+    if (!props.session_stats.first_started_at || !props.session_stats.last_ended_at) {
         return null;
     }
 
-    return `${formatTime(props.first_started_at)} → ${formatTime(props.last_ended_at)}`;
+    return `${formatTime(props.session_stats.first_started_at)} → ${formatTime(props.session_stats.last_ended_at)}`;
 });
 </script>
 
@@ -95,7 +89,6 @@ const workRange = computed(() => {
                                 Reconstruct today
                             </Button>
                         </ReconstructDialog>
-
                     </div>
                 </template>
             </PageHeader>
@@ -107,10 +100,10 @@ const workRange = computed(() => {
                 <div class="flex items-center gap-10">
                     <StatItem>
                         <StatItemLabel>
-                            <template #icon><ClockIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            <StatItemIcon><ClockIcon /></StatItemIcon>
                             Today
                         </StatItemLabel>
-                        <StatItemValue :value="formatMinutes(total_minutes + activeSessionMinutes)" :active="!!activeSession">
+                        <StatItemValue :value="formatMinutes(session_stats.total_minutes + activeSessionMinutes)" :active="!!activeSession">
                             <Badge v-if="activeSession" class="animate-pulse">
                                 <RadioIcon class="size-3" />
                                 <span class="text-[9px] font-black tracking-tighter tabular-nums"> LIVE </span>
@@ -122,7 +115,7 @@ const workRange = computed(() => {
 
                     <StatItem>
                         <StatItemLabel>
-                            <template #icon><TargetIcon class="-mt-px size-3 text-muted-foreground" /></template>
+                            <StatItemIcon class="-mt-px"><TargetIcon /></StatItemIcon>
                             This Week
                         </StatItemLabel>
                         <StatItemValue :value="formatMinutes(week_minutes + (isToday ? activeSessionMinutes : 0))" muted />
@@ -132,7 +125,7 @@ const workRange = computed(() => {
 
                     <StatItem>
                         <StatItemLabel>
-                            <template #icon><CalendarDaysIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            <StatItemIcon><CalendarDaysIcon /></StatItemIcon>
                             This Month
                         </StatItemLabel>
                         <StatItemValue :value="formatMinutes(month_minutes + (isToday ? activeSessionMinutes : 0))" muted />
@@ -142,20 +135,20 @@ const workRange = computed(() => {
 
                     <StatItem>
                         <StatItemLabel>
-                            <template #icon><LayersIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            <StatItemIcon><LayersIcon /></StatItemIcon>
                             Sessions
                         </StatItemLabel>
-                        <StatItemValue :value="String(session_count + (activeSession ? 1 : 0))" muted />
+                        <StatItemValue :value="String(session_stats.session_count + (activeSession ? 1 : 0))" muted />
                     </StatItem>
 
-                    <template v-if="avg_session_minutes > 0">
+                    <template v-if="session_stats.avg_session_minutes > 0">
                         <Separator orientation="vertical" class="h-8 opacity-0" />
                         <StatItem>
                             <StatItemLabel>
-                                <template #icon><TimerIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                                <StatItemIcon><TimerIcon /></StatItemIcon>
                                 Avg session
                             </StatItemLabel>
-                            <StatItemValue :value="formatMinutes(avg_session_minutes)" muted />
+                            <StatItemValue :value="formatMinutes(session_stats.avg_session_minutes)" muted />
                         </StatItem>
                     </template>
 
@@ -163,7 +156,7 @@ const workRange = computed(() => {
                         <Separator orientation="vertical" class="h-8 opacity-0" />
                         <StatItem>
                             <StatItemLabel>
-                                <template #icon><TimerResetIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                                <StatItemIcon><TimerResetIcon /></StatItemIcon>
                                 Work hours
                             </StatItemLabel>
                             <StatItemValue :value="workRange" muted />

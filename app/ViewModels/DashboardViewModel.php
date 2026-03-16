@@ -28,21 +28,23 @@ class DashboardViewModel implements ProvidesInertiaProperties
 
         $weekMinutes = (int) Session::query()
             ->whereNotNull('ended_at')
-            ->whereBetween('date', [$today->startOfWeek()->toDateString(), $today->toDateString()])
+            ->whereDate('date', '>=', $today->startOfWeek()->toDateString())
+            ->whereDate('date', '<=', $today->toDateString())
             ->sum('rounded_minutes');
 
         $monthMinutes = (int) Session::query()
             ->whereNotNull('ended_at')
-            ->whereBetween('date', [$today->startOfMonth()->toDateString(), $today->toDateString()])
+            ->whereDate('date', '>=', $today->startOfMonth()->toDateString())
+            ->whereDate('date', '<=', $today->toDateString())
             ->sum('rounded_minutes');
 
         return [
             'date' => $today->toDateString(),
             'sessions' => SessionResource::collection($sessions),
-            'total_minutes' => $sessions->sum('rounded_minutes'),
             'week_minutes' => $weekMinutes,
             'month_minutes' => $monthMinutes,
             'onboarding' => fn () => $this->getOnboardingState->handle(),
+            'session_stats' => new SessionStatsViewModel($sessions),
         ];
     }
 }

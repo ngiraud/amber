@@ -11,6 +11,41 @@ export type TimelineDay = {
     }[];
 };
 
+export type ProjectBreakdown = {
+    id: string | null;
+    name: string | null;
+    color: string | null;
+    minutes: number;
+    percentage: number;
+};
+
+export type TimelineMonthStats = {
+    month_total_minutes: number;
+    month_worked_days: number;
+    month_avg_minutes_per_day: number;
+    month_avg_minutes_per_week: number;
+    current_week_total_minutes: number | null;
+    month_project_breakdown: ProjectBreakdown[];
+};
+
+export type SessionStats = {
+    total_minutes: number;
+    session_count: number;
+    avg_session_minutes: number;
+    first_started_at: string | null;
+    last_ended_at: string | null;
+};
+
+export type WeekStats = {
+    label: string;
+    start_date: string;
+    end_date: string;
+    total_minutes: number;
+    worked_days: number;
+    avg_minutes_per_day: number;
+    project_breakdown: ProjectBreakdown[];
+};
+
 export type SourceFieldDefinition = {
     name: string;
     type: 'text' | 'number' | 'textarea' | 'email-list' | 'string-list' | 'folder-path';

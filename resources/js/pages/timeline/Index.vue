@@ -5,16 +5,19 @@ import { computed, onMounted, onUnmounted, ref } from 'vue';
 import MonthCalendar from '@/components/MonthCalendar.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
+import TimelineStatsBar from '@/components/TimelineStatsBar.vue';
 import { Button } from '@/components/ui/button';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatPeriod } from '@/lib/utils';
 import * as timelineRoutes from '@/routes/timeline';
-import type { TimelineDay } from '@/types';
+import type { TimelineDay, TimelineMonthStats, WeekStats } from '@/types';
 
 const props = defineProps<{
     year: number;
     month: number;
     days: TimelineDay[];
+    stats: TimelineMonthStats;
+    weeks: WeekStats[];
 }>();
 
 const monthLabel = computed(() => formatPeriod(props.month, props.year));
@@ -94,6 +97,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
             </PageHeader>
         </template>
 
-        <MonthCalendar :year="year" :month="month" :days="days" class="mt-2" @select="selectDay" />
+        <div class="flex flex-col gap-6">
+            <TimelineStatsBar
+                :total-minutes="stats.month_total_minutes"
+                :worked-days="stats.month_worked_days"
+                :avg-minutes-per-day="stats.month_avg_minutes_per_day"
+                :avg-minutes-per-week="stats.month_avg_minutes_per_week"
+                :current-week-minutes="stats.current_week_total_minutes"
+                :project-breakdown="stats.month_project_breakdown"
+                class="mt-2"
+            />
+
+            <MonthCalendar :year="year" :month="month" :days="days" :weeks="weeks" @select="selectDay" />
+        </div>
     </AppLayout>
 </template>

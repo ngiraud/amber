@@ -1,36 +1,42 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { ChevronLeftIcon, ChevronRightIcon, ClockIcon, LayersIcon, RadioIcon, RefreshCwIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
+import {
+    ChevronLeftIcon,
+    ChevronRightIcon,
+    ClockIcon,
+    LayersIcon,
+    RadioIcon,
+    RefreshCwIcon,
+    TimerIcon,
+    TimerResetIcon,
+    CalendarDaysIcon,
+} from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
-import { useDateFormat } from '@/composables/useDateFormat';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
+import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
+import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
-import { StatItem, StatItemLabel, StatItemValue } from '@/components/stat';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useNow } from '@/composables/useNow';
-import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes } from '@/lib/utils';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
-import type { Session } from '@/types';
+import type { Session, SessionStats } from '@/types';
 
 const props = defineProps<{
     date: string;
     previous_date: string;
     next_date: string;
     sessions: Session[];
-    total_minutes: number;
-    session_count: number;
-    avg_session_minutes: number;
-    first_started_at: string | null;
-    last_ended_at: string | null;
+    session_stats: SessionStats;
 }>();
 
 const page = usePage();
@@ -69,11 +75,11 @@ const timelineMonthUrl = computed(() => {
 });
 
 const workRange = computed(() => {
-    if (!props.first_started_at || !props.last_ended_at) {
+    if (!props.session_stats.first_started_at || !props.session_stats.last_ended_at) {
         return null;
     }
 
-    return `${formatTime(props.first_started_at)} → ${formatTime(props.last_ended_at)}`;
+    return `${formatTime(props.session_stats.first_started_at)} → ${formatTime(props.session_stats.last_ended_at)}`;
 });
 
 function navigate(direction: -1 | 1): void {
@@ -120,6 +126,13 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
                 </template>
                 <template #actions>
                     <div class="flex items-center gap-2">
+                        <Button variant="outline" size="sm" as-child>
+                            <Link :href="timelineMonthUrl">
+                                <CalendarDaysIcon class="mr-1.5 size-3.5" />
+                                Timeline
+                            </Link>
+                        </Button>
+
                         <ReconstructDialog :date="date" :has-sessions="sessions.length > 0">
                             <Button variant="outline" size="sm">
                                 <RefreshCwIcon class="mr-1.5 size-3.5" />
@@ -144,10 +157,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
             <div class="flex items-center gap-10 rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-border/5 ring-inset">
                 <StatItem>
                     <StatItemLabel>
-                        <template #icon><ClockIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                        <StatItemIcon><ClockIcon /></StatItemIcon>
                         Total
                     </StatItemLabel>
-                    <StatItemValue :value="formatMinutes(total_minutes + activeSessionMinutes)" :active="!!activeSession">
+                    <StatItemValue :value="formatMinutes(session_stats.total_minutes + activeSessionMinutes)" :active="!!activeSession">
                         <Badge v-if="activeSession" class="animate-pulse">
                             <RadioIcon class="size-3" />
                             <span class="text-[9px] font-black tracking-tighter tabular-nums"> LIVE </span>
@@ -159,20 +172,20 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 
                 <StatItem>
                     <StatItemLabel>
-                        <template #icon><LayersIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                        <StatItemIcon><LayersIcon /></StatItemIcon>
                         Sessions
                     </StatItemLabel>
-                    <StatItemValue :value="String(session_count + (activeSession ? 1 : 0))" muted />
+                    <StatItemValue :value="String(session_stats.session_count + (activeSession ? 1 : 0))" muted />
                 </StatItem>
 
-                <template v-if="avg_session_minutes > 0">
+                <template v-if="session_stats.avg_session_minutes > 0">
                     <Separator orientation="vertical" class="h-8 opacity-0" />
                     <StatItem>
                         <StatItemLabel>
-                            <template #icon><TimerIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            <StatItemIcon><TimerIcon /></StatItemIcon>
                             Avg session
                         </StatItemLabel>
-                        <StatItemValue :value="formatMinutes(avg_session_minutes)" muted />
+                        <StatItemValue :value="formatMinutes(session_stats.avg_session_minutes)" muted />
                     </StatItem>
                 </template>
 
@@ -180,7 +193,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
                     <Separator orientation="vertical" class="h-8 opacity-0" />
                     <StatItem>
                         <StatItemLabel>
-                            <template #icon><TimerResetIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            <StatItemIcon><TimerResetIcon /></StatItemIcon>
                             Work hours
                         </StatItemLabel>
                         <StatItemValue :value="workRange" muted />

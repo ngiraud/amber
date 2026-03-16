@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Http\InertiaProps;
+namespace App\ViewModels;
 
 use App\Http\Resources\ProjectResource;
 use App\Models\Project;
@@ -10,7 +10,7 @@ use Inertia\Inertia;
 use Inertia\ProvidesInertiaProperties;
 use Inertia\RenderContext;
 
-class ActiveProjectsProps implements ProvidesInertiaProperties
+class ActiveProjectsViewModel implements ProvidesInertiaProperties
 {
     /**
      * @return array<string, mixed>
