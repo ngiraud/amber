@@ -18,7 +18,9 @@ Create a branch and write a detailed plan for a new feature. Implementation happ
 ### 1. Setup
 
 - Ensure you are on the Opus model for planning (`/model` to check/switch)
-- Create the branch: `git checkout -b feature/<feature-name>`
+- Ask the user: **"Should I create a new feature branch, or work directly on `main`?"**
+  - **New branch**: `git checkout -b feature/<feature-name>`
+  - **Stay on `main`**: skip branch creation
 
 > **PAUSE**: Ensure you are on the Opus model for planning (`/model` to check/switch). Wait for OK.
 

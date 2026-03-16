@@ -19,7 +19,7 @@ Implement a feature from an existing plan created by `/create-feature`. Ensure y
 
 - Run `git branch --show-current` to check the current branch
 - **On a feature branch**: read the matching plan from `.ai/plans/<feature-name>.md`
-- **On `main`**: if no plan file is referenced, proceed without one — implement based on the user's instructions directly
+- **On `main`**: check if a plan file exists in `.ai/plans/` matching the feature name — if found, use it; otherwise implement based on the user's instructions directly
 - If on a feature branch but no plan exists, stop and ask the user to run `/create-feature <name>` first
 
 ### 2. Backend (in this order)

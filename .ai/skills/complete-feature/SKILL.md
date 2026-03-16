@@ -22,10 +22,10 @@ Run `git branch --show-current` to determine the workflow:
 - **On a feature branch**: full flow — update plans, simplify, commit, then suggest running `/create-pr`
 - **On `main`**: skip plan updates and PR suggestion — just simplify and commit directly
 
-### 2. Update plans *(feature branch only)*
+### 2. Update plans
 
-- If `.ai/PLAN.md` contains the feature, mark it as done
-- Delete the temporary plan file `.ai/plans/<feature>.md` if it exists
+- **Always**: if `.ai/PLAN.md` contains the feature, mark it as done
+- **Always**: delete the temporary plan file `.ai/plans/<feature>.md` if it exists
 
 ### 3. Simplify
 
