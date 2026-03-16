@@ -3,7 +3,6 @@ import { Head } from '@inertiajs/vue3';
 import AppSidebar from '@/components/AppSidebar.vue';
 import CommandPalette from '@/components/CommandPalette.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
-import StartSessionDialog from '@/components/StartSessionDialog.vue';
 import TitleBar from '@/components/TitleBar.vue';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
@@ -36,7 +35,6 @@ useNativeMenuEvents();
         </SidebarProvider>
     </div>
 
-    <StartSessionDialog />
     <CommandPalette />
     <Toaster richColors />
     <FlashMessage />
