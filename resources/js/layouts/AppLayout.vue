@@ -6,14 +6,14 @@ import FlashMessage from '@/components/FlashMessage.vue';
 import TitleBar from '@/components/TitleBar.vue';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
-import { useNativeMenuEvents } from '@/composables/useNativeMenuEvents';
+import { useNativeAppEvents } from '@/composables/useNativeAppEvents';
 
 defineProps<{
     title?: string;
     breadcrumb?: string[];
 }>();
 
-useNativeMenuEvents();
+useNativeAppEvents();
 </script>
 
 <template>

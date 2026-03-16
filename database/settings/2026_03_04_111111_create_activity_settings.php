@@ -12,5 +12,6 @@ return new class extends SettingsMigration
         $this->migrator->add('activity.scan_interval_minutes', 2);
         $this->migrator->add('activity.block_end_padding_minutes', 15);
         $this->migrator->add('activity.manual_session_reminder_minutes', 60);
+        $this->migrator->add('activity.last_scan_completed_at', null);
     }
 };
