@@ -165,15 +165,8 @@ const indicatorClass = computed(() => {
             <p class="leading-relaxed">{{ source.requirements }}</p>
 
             <div class="mt-1.5 flex flex-col gap-1.5">
-                <div
-                    v-for="(instruction, i) in source.installation_instructions"
-                    :key="i"
-                    class="flex flex-col gap-0.5"
-                >
-                    <span
-                        v-if="instruction.label"
-                        class="text-[9px] font-semibold tracking-wide uppercase opacity-60"
-                    >
+                <div v-for="(instruction, i) in source.installation_instructions" :key="i" class="flex flex-col gap-0.5">
+                    <span v-if="instruction.label" class="text-[9px] font-semibold tracking-wide uppercase opacity-60">
                         {{ instruction.label }}
                     </span>
                     <code
