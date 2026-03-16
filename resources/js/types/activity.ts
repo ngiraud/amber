@@ -58,12 +58,18 @@ export type SourceFieldDefinition = {
     separator?: string;
 };
 
+export type SourceInstallationInstruction = {
+    label?: string;
+    command: string;
+};
+
 export type SourceDefinition = {
     value: string;
     label: string;
     color: string;
     description: string;
     requirements: string;
+    installation_instructions: SourceInstallationInstruction[];
     fields: SourceFieldDefinition[];
     config: {
         enabled: boolean;

@@ -10,6 +10,7 @@ use App\Enums\Concerns\EnhanceEnum;
 use App\Services\ActivitySources\Contracts\ActivitySource;
 use App\Settings\ActivitySourceSettings;
 use Illuminate\Support\Str;
+use Native\Desktop\Support\Environment;
 
 enum ActivityEventSourceType: string
 {
@@ -68,13 +69,56 @@ enum ActivityEventSourceType: string
     public function requirements(): string
     {
         return match ($this) {
-            self::Git => 'Requires git<code>brew install git</code>',
-            self::GitHub => 'Requires GitHub CLI authenticated<code>brew install gh && gh auth login</code>',
-            self::ClaudeCode => 'Requires Claude Code CLI<code>npm install -g @anthropic-ai/claude-code</code>',
-            self::Gemini => 'Requires Gemini CLI<code>npm install -g @google/gemini-cli</code>',
-            self::MistralVibe => 'Requires Mistral Vibe<code>curl -LsSf https://mistral.ai/vibe/install.sh | bash</code>',
-            self::Opencode => 'Requires Opencode<code>curl -fsSL https://opencode.ai/install | bash</code>',
-            self::Fswatch => 'Requires fswatch<code>brew install fswatch</code>',
+            self::Git => 'Requires git',
+            self::GitHub => 'Requires GitHub CLI authenticated',
+            self::ClaudeCode => 'Requires Claude Code CLI',
+            self::Gemini => 'Requires Gemini CLI',
+            self::MistralVibe => 'Requires Mistral Vibe',
+            self::Opencode => 'Requires Opencode',
+            self::Fswatch => 'Requires fswatch',
+        };
+    }
+
+    /**
+     * @return array<array{label?: string, command: string}>
+     */
+    public function installationInstructions(): array
+    {
+        $npm = fn (string $package): array => [['command' => "npm install -g {$package}"]];
+        $curl = fn (string $url): array => [['command' => "curl -LsSf {$url} | bash"]];
+
+        if (Environment::isMac()) {
+            return match ($this) {
+                self::Git => [['command' => 'brew install git']],
+                self::GitHub => [['command' => 'brew install gh && gh auth login']],
+                self::Fswatch => [['command' => 'brew install fswatch']],
+                self::ClaudeCode => $npm('@anthropic-ai/claude-code'),
+                self::Gemini => $npm('@google/gemini-cli'),
+                self::MistralVibe => $curl('https://mistral.ai/vibe/install.sh'),
+                self::Opencode => $curl('https://opencode.ai/install'),
+            };
+        }
+
+        return match ($this) {
+            self::Git => [
+                ['label' => 'Debian/Ubuntu', 'command' => 'sudo apt install git'],
+                ['label' => 'Fedora', 'command' => 'sudo dnf install git'],
+                ['label' => 'Arch', 'command' => 'sudo pacman -S git'],
+            ],
+            self::GitHub => [
+                ['label' => 'Debian/Ubuntu', 'command' => 'sudo apt install gh && gh auth login'],
+                ['label' => 'Fedora', 'command' => 'sudo dnf install gh && gh auth login'],
+                ['label' => 'Arch', 'command' => 'sudo pacman -S github-cli && gh auth login'],
+            ],
+            self::Fswatch => [
+                ['label' => 'Debian/Ubuntu', 'command' => 'sudo apt install fswatch'],
+                ['label' => 'Fedora', 'command' => 'sudo dnf install fswatch'],
+                ['label' => 'Arch', 'command' => 'sudo pacman -S fswatch'],
+            ],
+            self::ClaudeCode => $npm('@anthropic-ai/claude-code'),
+            self::Gemini => $npm('@google/gemini-cli'),
+            self::MistralVibe => $curl('https://mistral.ai/vibe/install.sh'),
+            self::Opencode => $curl('https://opencode.ai/install'),
         };
     }
 
@@ -101,6 +145,7 @@ enum ActivityEventSourceType: string
             'color' => $this->color(),
             'description' => $this->description(),
             'requirements' => $this->requirements(),
+            'installation_instructions' => $this->installationInstructions(),
             'category' => $this->category()->toArray(),
             'fields' => array_map(fn (FieldDefinition $f) => $f->toArray(), $this->configClass()::fieldDefinitions()),
         ];

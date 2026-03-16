@@ -53,14 +53,9 @@ function onToggle(val: boolean): void {
 
 const { copy } = useClipboard();
 
-function handleCopy(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    const codeElement = target.closest('code');
-
-    if (codeElement) {
-        copy(codeElement.innerText);
-        toast.info('Command copied to clipboard');
-    }
+function handleCopy(command: string): void {
+    copy(command);
+    toast.info('Command copied to clipboard');
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -167,24 +162,42 @@ const indicatorClass = computed(() => {
                 {{ hasError ? 'Tool Not Found' : 'Setup Requirements' }}
             </div>
 
-            <div
-                class="relative leading-relaxed [&_code]:relative [&_code]:mt-1.5 [&_code]:block [&_code]:cursor-pointer [&_code]:rounded [&_code]:border [&_code]:px-2 [&_code]:py-1.5 [&_code]:font-mono [&_code]:text-[10px] [&_code]:shadow-xs [&_code]:transition-all [&_code]:duration-200 [&_code::after]:absolute [&_code::after]:top-1/2 [&_code::after]:right-2 [&_code::after]:size-3 [&_code::after]:-translate-y-1/2 [&_code::after]:bg-contain [&_code::after]:bg-no-repeat [&_code::after]:opacity-0 [&_code::after]:brightness-50 [&_code::after]:grayscale [&_code::after]:transition-opacity [&_code::after]:duration-200 dark:[&_code::after]:brightness-150 dark:[&_code::after]:grayscale-0 dark:[&_code::after]:invert [&_code:hover::after]:opacity-40"
-                :class="
-                    cn(
-                        hasError
-                            ? '[&_code]:border-destructive/20 [&_code]:bg-destructive/10 [&_code]:text-destructive'
-                            : '[&_code]:bg-background/80 [&_code]:text-foreground dark:[&_code]:bg-background/40',
-                    )
-                "
-                @click="handleCopy"
-                v-html="source.requirements"
-            />
+            <p class="leading-relaxed">{{ source.requirements }}</p>
+
+            <div class="mt-1.5 flex flex-col gap-1.5">
+                <div
+                    v-for="(instruction, i) in source.installation_instructions"
+                    :key="i"
+                    class="flex flex-col gap-0.5"
+                >
+                    <span
+                        v-if="instruction.label"
+                        class="text-[9px] font-semibold tracking-wide uppercase opacity-60"
+                    >
+                        {{ instruction.label }}
+                    </span>
+                    <code
+                        :class="
+                            cn(
+                                'relative block cursor-pointer rounded border px-2 py-1.5 font-mono text-[10px] shadow-xs transition-all duration-200',
+                                'after:absolute after:top-1/2 after:right-2 after:size-3 after:-translate-y-1/2 after:bg-contain after:bg-no-repeat after:opacity-0 after:brightness-50 after:grayscale after:transition-opacity after:duration-200 hover:after:opacity-40 dark:after:brightness-150 dark:after:grayscale-0 dark:after:invert',
+                                hasError
+                                    ? 'border-destructive/20 bg-destructive/10 text-destructive'
+                                    : 'bg-background/80 text-foreground dark:bg-background/40',
+                            )
+                        "
+                        @click="() => handleCopy(instruction.command)"
+                    >
+                        {{ instruction.command }}
+                    </code>
+                </div>
+            </div>
         </div>
     </Item>
 </template>
 
 <style scoped>
-:deep(code::after) {
+code::after {
     content: '';
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect width='14' height='14' x='8' y='8' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2'%3E%3C/path%3E%3C/svg%3E");
 }
