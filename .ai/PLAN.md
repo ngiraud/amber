@@ -4,14 +4,23 @@ macOS activity tracker that automatically tracks development work and generates 
 
 ---
 
-## Native macOS
-
-1. **System notification for long sessions** — alert after N hours without a break (configurable in Settings)
-2. **System notification when a background sync completes**
-
 ## Robustness
 
 1. **Auto-sync on startup** — optional toggle in Settings > Sources, triggers a source scan when the app launches
 2. **Error handling** — missing repo, fswatch not found: clear UI error messages instead of silent failures
 3. **SQLite backup/restore** — manual export/import of the database
-4. **Auto-updater**
+
+## Future
+
+- **Auto-updater**
+- **OAuth Activity Sources** — extend the existing `ActivitySource` pattern with an OAuth connection step (one-time auth, token stored locally/encrypted), then sync via API using the same interface as current sources. Target apps:
+  - **Slack** — sent messages, active channels
+  - **Linear** — assigned issues, status changes, comments
+  - **Notion** — edited pages
+  - **Jira** — issues and transitions
+  - **Zoom** — past meetings
+  - **Microsoft Teams** — past meetings
+  - **Figma** — edited files, comments
+  - **Google Calendar** — past events (Linux + macOS fallback)
+  - **Harvest / Toggl** — import from existing timers
+  - OAuth callback via custom URL scheme (`amber://oauth/callback`) or temporary local HTTP server
