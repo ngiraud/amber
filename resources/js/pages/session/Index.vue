@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { InfiniteScroll, router } from '@inertiajs/vue3';
 import { ref } from 'vue';
+import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
-import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
 import AppLayout from '@/layouts/AppLayout.vue';

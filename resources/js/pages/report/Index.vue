@@ -56,7 +56,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 
         <Empty v-if="reports.data.length === 0" class="mt-6">
             <EmptyTitle>No reports yet</EmptyTitle>
-            <EmptyDescription>Generate your first CRA by clicking the button above.</EmptyDescription>
+            <EmptyDescription>Generate your first Activity report by clicking the button above.</EmptyDescription>
             <ReportSheet :clients="clients" :ai-settings="aiSettings">
                 <Button size="sm">New report</Button>
             </ReportSheet>

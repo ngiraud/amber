@@ -74,9 +74,12 @@ const totalMinutes = computed(() => projectSummary.value.reduce((sum, p) => sum 
                     <ItemTitle class="truncate text-[10px] font-black tracking-widest uppercase">
                         {{ project.name }}
                     </ItemTitle>
-                    <span class="font-mono text-xs font-bold tabular-nums">
-                        {{ formatMinutes(project.minutes) }}
-                    </span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] text-muted-foreground/60"> {{ Math.round((project.minutes / totalMinutes) * 100) }}% </span>
+                        <span class="font-mono text-xs font-bold tabular-nums">
+                            {{ formatMinutes(project.minutes) }}
+                        </span>
+                    </div>
                 </div>
 
                 <div class="relative mt-1.5 h-1 w-full overflow-hidden rounded-full bg-muted/50">

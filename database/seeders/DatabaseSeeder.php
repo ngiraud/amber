@@ -5,11 +5,9 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use App\Enums\RoundingStrategy;
-use App\Models\ActivityEvent;
 use App\Models\Client;
 use App\Models\Project;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -76,21 +74,7 @@ class DatabaseSeeder extends Seeder
 
         $thisProject->repositories()->createMany([
             ['local_path' => '/Users/nico/code/amber', 'name' => 'Amber', 'id' => '01kj5qc6agq8dw5z7pqg6xqg0v'],
+            ['local_path' => '/Users/nico/code/activity-record-desktop', 'name' => 'Old repo'],
         ]);
-
-        //        $this->pushActivityEvents();
-    }
-
-    protected function pushActivityEvents(): void
-    {
-        $json = file_get_contents(storage_path('sample-data/activity_events.json'));
-
-        collect(json_decode($json, true))
-            ->chunk(100)
-            ->each(function ($chunk) {
-                ActivityEvent::insert($chunk->all());
-            });
-
-        DB::table('activity_events')->update(['session_id' => null]);
     }
 }

@@ -19,7 +19,7 @@ enum ActivityReportExportFormat: string
     {
         $report->loadMissing('client');
 
-        return sprintf('reports/cra-%s-%d-%d.%s', Str::slug($report->client->name), $report->year, $report->month, $this->value);
+        return sprintf('reports/report-%s-%d-%d.%s', Str::slug($report->client->name), $report->year, $report->month, $this->value);
     }
 
     public function exportAction(): ExportActivityReport

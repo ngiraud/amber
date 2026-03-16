@@ -29,6 +29,7 @@ watch(
 
 watch(open, (val) => {
     emit('update:open', val);
+
     if (val) {
         router.reload({ only: ['projects'] });
     }
@@ -77,13 +78,7 @@ function submit(): void {
 
                 <div class="grid grid-cols-2 gap-3">
                     <InputField label="Start" :error="form.errors.started_at">
-                        <Input
-                            id="past-started_at"
-                            v-model="form.started_at"
-                            type="datetime-local"
-                            class="dark:[color-scheme:dark]"
-                            required
-                        />
+                        <Input id="past-started_at" v-model="form.started_at" type="datetime-local" class="dark:[color-scheme:dark]" required />
                     </InputField>
 
                     <InputField label="End" :error="form.errors.ended_at">
