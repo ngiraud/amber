@@ -58,6 +58,7 @@ class ScanActivitySourcesCommand extends Command
             Event::dispatch(new ActivityBackfillCompleted(
                 eventsCount: $events->count(),
                 period: $since->diffAsCarbonInterval($until)->cascade()->forHumans(),
+                since: $since->toDateString(),
             ));
         }
     }

@@ -157,6 +157,38 @@
     }
 }
 
+/* Sonner toast action button */
+[data-sonner-toast] [data-button][data-action] {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    font-size: 0.75rem;
+    padding: 0.25rem 0.625rem;
+    border-radius: calc(var(--radius) * 0.6);
+    transition: background 150ms ease;
+}
+
+[data-sonner-toast] [data-button][data-action]:hover {
+    background: var(--muted);
+}
+
+/* Sonner toast icon colors – theme-aware, no rich color backgrounds */
+[data-sonner-toast][data-type='success'] [data-icon] {
+    color: var(--color-green-600);
+}
+
+[data-sonner-toast][data-type='error'] [data-icon] {
+    color: var(--destructive);
+}
+
+[data-sonner-toast][data-type='warning'] [data-icon] {
+    color: var(--primary);
+}
+
+[data-sonner-toast][data-type='info'] [data-icon] {
+    color: var(--color-blue-600);
+}
+
 @layer utilities {
     .log-entry-enter-active {
         @apply transition-opacity duration-300 ease-in-out;

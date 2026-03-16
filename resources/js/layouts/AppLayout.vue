@@ -36,6 +36,6 @@ useNativeAppEvents();
     </div>
 
     <CommandPalette />
-    <Toaster richColors />
+    <Toaster />
     <FlashMessage />
 </template>
