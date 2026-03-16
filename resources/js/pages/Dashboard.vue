@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { CalendarDaysIcon, ClockIcon, RadioIcon, RefreshCwIcon, TargetIcon } from 'lucide-vue-next';
-import { computed } from 'vue';
+import { CalendarDaysIcon, ClockIcon, LayersIcon, RadioIcon, RefreshCwIcon, TargetIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import { useDateFormat } from '@/composables/useDateFormat';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -11,11 +12,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
+import { StatItem, StatItemLabel, StatItemValue } from '@/components/stat';
 import { useNow } from '@/composables/useNow';
-import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
+import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import { useSpotlight } from '@/composables/useSpotlight';
 import AppLayout from '@/layouts/AppLayout.vue';
-import { cn, formatMinutes } from '@/lib/utils';
+import { formatMinutes } from '@/lib/utils';
 import * as sessionRoutes from '@/routes/sessions';
 import * as timelineRoutes from '@/routes/timeline';
 import type { OnboardingState, Session } from '@/types';
@@ -26,6 +28,10 @@ const props = defineProps<{
     total_minutes: number;
     week_minutes: number;
     month_minutes: number;
+    session_count: number;
+    avg_session_minutes: number;
+    first_started_at: string | null;
+    last_ended_at: string | null;
 }>();
 
 const page = usePage();
@@ -33,8 +39,9 @@ const onboarding = computed(() => page.props.onboarding as OnboardingState);
 const showChecklist = computed(() => !onboarding.value?.dismissed && !onboarding.value?.all_complete);
 
 const { spotlightClass } = useSpotlight();
-const { shouldOpen } = useOpenSessionDialog();
+const logSessionOpen = ref(false);
 const { now, isToday: isTodayFn } = useNow();
+const { formatTime } = useDateFormat();
 
 const isToday = computed(() => isTodayFn(props.date));
 const activeSession = computed(() => (isToday.value ? (page.props.activeSession as Session | null) : null));
@@ -59,6 +66,14 @@ const dateLabel = computed(() => {
 
     return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 });
+
+const workRange = computed(() => {
+    if (!props.first_started_at || !props.last_ended_at) {
+        return null;
+    }
+
+    return `${formatTime(props.first_started_at)} → ${formatTime(props.last_ended_at)}`;
+});
 </script>
 
 <template>
@@ -81,7 +96,6 @@ const dateLabel = computed(() => {
                             </Button>
                         </ReconstructDialog>
 
-                        <Button size="sm" :class="spotlightClass('start-session')" @click="shouldOpen = true"> Add Session </Button>
                     </div>
                 </template>
             </PageHeader>
@@ -91,42 +105,70 @@ const dateLabel = computed(() => {
             <!-- Compact Quick Stats -->
             <div class="flex items-center justify-between rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-border/5 ring-inset">
                 <div class="flex items-center gap-10">
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-1.5">
-                            <ClockIcon class="-mt-0.5 size-3 text-muted-foreground" />
-                            <span class="text-[9px] font-black tracking-widest text-muted-foreground/80 uppercase">Today</span>
-                        </div>
-                        <div class="flex items-baseline gap-2.5">
-                            <p :class="cn('font-mono text-2xl font-black tracking-tighter', activeSession ? 'text-primary' : '')">
-                                {{ formatMinutes(total_minutes + activeSessionMinutes) }}
-                            </p>
-
+                    <StatItem>
+                        <StatItemLabel>
+                            <template #icon><ClockIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            Today
+                        </StatItemLabel>
+                        <StatItemValue :value="formatMinutes(total_minutes + activeSessionMinutes)" :active="!!activeSession">
                             <Badge v-if="activeSession" class="animate-pulse">
                                 <RadioIcon class="size-3" />
                                 <span class="text-[9px] font-black tracking-tighter tabular-nums"> LIVE </span>
                             </Badge>
-                        </div>
-                    </div>
-                    <Separator orientation="vertical" class="h-8 opacity-20" />
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-1.5">
-                            <TargetIcon class="-mt-px size-3 text-muted-foreground" />
-                            <span class="text-[9px] font-black tracking-widest text-muted-foreground/80 uppercase">This Week</span>
-                        </div>
-                        <p class="font-mono text-2xl font-black tracking-tighter opacity-70">
-                            {{ formatMinutes(week_minutes + (isToday ? activeSessionMinutes : 0)) }}
-                        </p>
-                    </div>
-                    <Separator orientation="vertical" class="h-8 opacity-20" />
-                    <div class="space-y-1">
-                        <div class="flex items-center gap-1.5">
-                            <CalendarDaysIcon class="-mt-0.5 size-3 text-muted-foreground" />
-                            <span class="text-[9px] font-black tracking-widest text-muted-foreground/80 uppercase">This Month</span>
-                        </div>
-                        <p class="font-mono text-2xl font-black tracking-tighter opacity-70">
-                            {{ formatMinutes(month_minutes + (isToday ? activeSessionMinutes : 0)) }}
-                        </p>
-                    </div>
+                        </StatItemValue>
+                    </StatItem>
+
+                    <Separator orientation="vertical" class="h-8 opacity-0" />
+
+                    <StatItem>
+                        <StatItemLabel>
+                            <template #icon><TargetIcon class="-mt-px size-3 text-muted-foreground" /></template>
+                            This Week
+                        </StatItemLabel>
+                        <StatItemValue :value="formatMinutes(week_minutes + (isToday ? activeSessionMinutes : 0))" muted />
+                    </StatItem>
+
+                    <Separator orientation="vertical" class="h-8 opacity-0" />
+
+                    <StatItem>
+                        <StatItemLabel>
+                            <template #icon><CalendarDaysIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            This Month
+                        </StatItemLabel>
+                        <StatItemValue :value="formatMinutes(month_minutes + (isToday ? activeSessionMinutes : 0))" muted />
+                    </StatItem>
+
+                    <Separator orientation="vertical" class="h-8 opacity-0" />
+
+                    <StatItem>
+                        <StatItemLabel>
+                            <template #icon><LayersIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                            Sessions
+                        </StatItemLabel>
+                        <StatItemValue :value="String(session_count + (activeSession ? 1 : 0))" muted />
+                    </StatItem>
+
+                    <template v-if="avg_session_minutes > 0">
+                        <Separator orientation="vertical" class="h-8 opacity-0" />
+                        <StatItem>
+                            <StatItemLabel>
+                                <template #icon><TimerIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                                Avg session
+                            </StatItemLabel>
+                            <StatItemValue :value="formatMinutes(avg_session_minutes)" muted />
+                        </StatItem>
+                    </template>
+
+                    <template v-if="workRange">
+                        <Separator orientation="vertical" class="h-8 opacity-0" />
+                        <StatItem>
+                            <StatItemLabel>
+                                <template #icon><TimerResetIcon class="-mt-0.5 size-3 text-muted-foreground" /></template>
+                                Work hours
+                            </StatItemLabel>
+                            <StatItemValue :value="workRange" muted />
+                        </StatItem>
+                    </template>
                 </div>
                 <div class="text-right">
                     <p class="text-[10px] font-black tracking-widest text-muted-foreground/60 uppercase">{{ dateLabel }}</p>
@@ -168,9 +210,11 @@ const dateLabel = computed(() => {
                 <EmptyTitle>No activity recorded yet.</EmptyTitle>
                 <EmptyDescription>Start tracking your work by adding a session.</EmptyDescription>
                 <div class="mt-4">
-                    <Button size="sm" @click="shouldOpen = true">Add Session</Button>
+                    <Button size="sm" @click="logSessionOpen = true">Log session</Button>
                 </div>
             </Empty>
         </div>
     </AppLayout>
+
+    <LogPastSessionSheet v-model:open="logSessionOpen" />
 </template>

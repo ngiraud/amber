@@ -168,7 +168,7 @@ function saveNotes() {
                 <DropdownMenuContent align="end" class="w-52 text-xs">
                     <DropdownMenuItem class="text-xs" @click="logPastSessionOpen = true">
                         <ClockIcon class="size-3" />
-                        Log past session
+                        Log session
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem class="text-xs" @click="clientSheetOpen = true">

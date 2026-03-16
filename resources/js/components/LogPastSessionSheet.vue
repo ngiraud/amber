@@ -13,7 +13,7 @@ import * as sessionRoutes from '@/routes/sessions';
 const page = usePage();
 const projects = computed(() => page.props.projects ?? []);
 
-const props = defineProps<{ open?: boolean }>();
+const props = defineProps<{ open?: boolean; date?: string }>();
 const emit = defineEmits<{ 'update:open': [value: boolean] }>();
 
 const open = ref(props.open ?? false);
@@ -36,8 +36,8 @@ watch(open, (val) => {
 
 const form = useForm({
     project_id: '',
-    started_at: '',
-    ended_at: '',
+    started_at: props.date ? `${props.date}T09:00` : '',
+    ended_at: props.date ? `${props.date}T10:00` : '',
     description: '',
     notes: '',
 });

@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { InfiniteScroll, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
+import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
-import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Paginator, Session } from '@/types';
@@ -13,7 +14,7 @@ defineProps<{
     sessions: Paginator<Session>;
 }>();
 
-const { shouldOpen } = useOpenSessionDialog();
+const logSessionOpen = ref(false);
 </script>
 
 <template>
@@ -21,7 +22,7 @@ const { shouldOpen } = useOpenSessionDialog();
         <template #header>
             <PageHeader title="Sessions">
                 <template #actions>
-                    <Button size="sm" @click="shouldOpen = true">Add Session</Button>
+                    <Button size="sm" @click="logSessionOpen = true">Log session</Button>
                 </template>
             </PageHeader>
         </template>
@@ -47,4 +48,6 @@ const { shouldOpen } = useOpenSessionDialog();
             </div>
         </InfiniteScroll>
     </AppLayout>
+
+    <LogPastSessionSheet v-model:open="logSessionOpen" />
 </template>
