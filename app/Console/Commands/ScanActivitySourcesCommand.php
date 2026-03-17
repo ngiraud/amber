@@ -47,16 +47,16 @@ class ScanActivitySourcesCommand extends Command
         $this->info("Scanning activity since {$since->toDateTimeString()}...");
 
         $sources = $sourceType ? collect([$sourceType]) : null;
-        $events = $scanActivitySources->handle($since, $until, $sources);
+        $result = $scanActivitySources->handle($since, $until, $sources);
 
         $settings->last_scan_completed_at = $until;
         $settings->save();
 
-        $this->info("Recorded {$events->count()} activity event(s).");
+        $this->info("Recorded {$result->count()} activity event(s).");
 
-        if ($isBackfill && $events->isNotEmpty()) {
+        if ($isBackfill && $result->isNotEmpty()) {
             Event::dispatch(new ActivityBackfillCompleted(
-                eventsCount: $events->count(),
+                eventsCount: $result->count(),
                 period: $since->diffAsCarbonInterval($until)->cascade()->forHumans(),
                 since: $since->toDateString(),
             ));

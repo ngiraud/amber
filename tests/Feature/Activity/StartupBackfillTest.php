@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Activity\ScanActivitySources;
+use App\Data\ScanActivityResult;
 use App\Events\ActivityBackfillCompleted;
 use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
@@ -14,7 +15,7 @@ beforeEach(function () {
     Event::fake();
     ScanActivitySources::fake()
         ->shouldReceive('handle')
-        ->andReturn(collect());
+        ->andReturn(new ScanActivityResult(collect(), collect()));
 });
 
 it('uses default interval when last_scan_completed_at is null', function () {
@@ -33,7 +34,7 @@ it('uses default interval when last_scan_completed_at is null', function () {
             Mockery::any(),
             Mockery::any(),
         )
-        ->andReturn(collect());
+        ->andReturn(new ScanActivityResult(collect(), collect()));
 
     $this->artisan('activity:scan');
 });
@@ -54,7 +55,7 @@ it('uses default interval when gap does not exceed scan_interval_minutes', funct
             Mockery::any(),
             Mockery::any(),
         )
-        ->andReturn(collect());
+        ->andReturn(new ScanActivityResult(collect(), collect()));
 
     $this->artisan('activity:scan');
 });
@@ -75,7 +76,7 @@ it('uses last_scan_completed_at as since when gap exceeds scan_interval_minutes'
             Mockery::any(),
             Mockery::any(),
         )
-        ->andReturn(collect());
+        ->andReturn(new ScanActivityResult(collect(), collect()));
 
     $this->artisan('activity:scan');
 });
@@ -105,7 +106,7 @@ it('dispatches ActivityBackfillCompleted when backfill finds events', function (
 
     ScanActivitySources::fake()
         ->shouldReceive('handle')
-        ->andReturn(collect(range(1, 7)));
+        ->andReturn(new ScanActivityResult(collect(range(1, 7)), collect()));
 
     $this->artisan('activity:scan');
 
@@ -124,7 +125,7 @@ it('does not dispatch ActivityBackfillCompleted when backfill finds no events', 
 
     ScanActivitySources::fake()
         ->shouldReceive('handle')
-        ->andReturn(collect());
+        ->andReturn(new ScanActivityResult(collect(), collect()));
 
     $this->artisan('activity:scan');
 
@@ -139,7 +140,7 @@ it('does not dispatch ActivityBackfillCompleted for a normal scan', function () 
 
     ScanActivitySources::fake()
         ->shouldReceive('handle')
-        ->andReturn(collect(range(1, 5)));
+        ->andReturn(new ScanActivityResult(collect(range(1, 5)), collect()));
 
     $this->artisan('activity:scan');
 

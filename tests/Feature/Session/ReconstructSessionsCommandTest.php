@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Session\ReconstructDailySessions;
+use App\Enums\SessionReconstructMode;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
 
@@ -15,7 +16,7 @@ describe('sessions:reconstruct command', function () {
         ReconstructDailySessions::fake()
             ->shouldReceive('handle')
             ->once()
-            ->with(Mockery::on(fn (CarbonImmutable $date) => $date->isToday()))
+            ->with(Mockery::on(fn (CarbonImmutable $date) => $date->isToday()), null, SessionReconstructMode::Replace)
             ->andReturn(collect());
 
         $this->artisan('sessions:reconstruct')->assertSuccessful();
@@ -27,7 +28,7 @@ describe('sessions:reconstruct command', function () {
         ReconstructDailySessions::fake()
             ->shouldReceive('handle')
             ->once()
-            ->with(Mockery::on(fn (CarbonImmutable $d) => $d->toDateString() === $date))
+            ->with(Mockery::on(fn (CarbonImmutable $d) => $d->toDateString() === $date), null, SessionReconstructMode::Replace)
             ->andReturn(collect());
 
         $this->artisan('sessions:reconstruct', ['--date' => $date])->assertSuccessful();

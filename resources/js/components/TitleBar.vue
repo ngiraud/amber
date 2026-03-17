@@ -8,7 +8,14 @@ import SessionTimer from '@/components/SessionTimer.vue';
 import StartTimerSheet from '@/components/StartTimerSheet.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Kbd } from '@/components/ui/kbd';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
@@ -63,6 +70,7 @@ function tickCurrentTimers(): void {
     if (!activity?.length) {
         currentElapsed.value = '';
         currentElapsedMap.value = {};
+
         return;
     }
 
@@ -71,9 +79,11 @@ function tickCurrentTimers(): void {
     }
 
     const map: Record<string, string> = {};
+
     for (const item of activity) {
         map[item.project.id] = formatElapsed(item.since);
     }
+
     currentElapsedMap.value = map;
 }
 
@@ -92,6 +102,7 @@ onUnmounted(() => {
     if (timerInterval) {
         clearInterval(timerInterval);
     }
+
     if (pollInterval) {
         clearInterval(pollInterval);
     }

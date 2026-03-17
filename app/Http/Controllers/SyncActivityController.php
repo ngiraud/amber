@@ -12,12 +12,15 @@ class SyncActivityController extends Controller
 {
     public function __invoke(SyncActivityRequest $request, ScanActivitySources $action): JsonResponse
     {
-        $count = $action->handle(
+        $result = $action->handle(
             $request->getSince(),
             $request->getUntil(),
             collect([$request->getSourceType()]),
-        )->count();
+        );
 
-        return response()->json(['count' => $count]);
+        return response()->json([
+            'count' => $result->count(),
+            'source_errors' => $result->errors->values()->all(),
+        ]);
     }
 }

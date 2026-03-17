@@ -8,6 +8,7 @@ use App\Http\Resources\ProjectResource;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Facades\DB;
 use Inertia\ProvidesInertiaProperties;
 use Inertia\RenderContext;
 
@@ -30,7 +31,7 @@ class CurrentActivityViewModel implements ProvidesInertiaProperties
     {
         $cutoff = CarbonImmutable::now()->subMinutes(config('activity.current_activity_timeout_minutes'));
 
-        $groups = ActivityEvent::query()
+        $groups = DB::table((new ActivityEvent)->getTable())
             ->selectRaw('project_id, MIN(occurred_at) as since')
             ->where('occurred_at', '>=', $cutoff)
             ->groupBy('project_id')
@@ -43,12 +44,11 @@ class CurrentActivityViewModel implements ProvidesInertiaProperties
         $projects = Project::query()
             ->whereIn('id', $groups->pluck('project_id'))
             ->with('client')
-            ->get()
-            ->keyBy('id');
+            ->get();
 
         return $groups
             ->map(fn ($row) => [
-                'project' => ProjectResource::make($projects->get($row->project_id)),
+                'project' => ProjectResource::make($projects->firstWhere('id', $row->project_id)),
                 'since' => CarbonImmutable::parse($row->since)->toIso8601String(),
             ])
             ->values()

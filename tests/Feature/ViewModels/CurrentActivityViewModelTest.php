@@ -21,6 +21,12 @@ function resolveCurrentActivity(): mixed
 }
 
 describe('CurrentActivityViewModel', function () {
+    beforeEach(function () {
+        $this->now = CarbonImmutable::create(2026, 1, 1, 12, 0, 0);
+        $this->timeout = config('activity.current_activity_timeout_minutes');
+        $this->travelTo($this->now);
+    });
+
     it('returns null when there are no recent events', function () {
         $result = resolveCurrentActivity();
 
@@ -32,7 +38,7 @@ describe('CurrentActivityViewModel', function () {
 
         ActivityEvent::factory()->create([
             'project_id' => $project->id,
-            'occurred_at' => CarbonImmutable::now()->subMinutes(11),
+            'occurred_at' => $this->now->subMinutes($this->timeout + 1),
         ]);
 
         $result = resolveCurrentActivity();
@@ -42,7 +48,7 @@ describe('CurrentActivityViewModel', function () {
 
     it('returns project with since when there are recent events', function () {
         $project = Project::factory()->for(Client::factory())->create();
-        $since = CarbonImmutable::now()->subMinutes(5);
+        $since = $this->now->subMinutes($this->timeout - 1);
 
         ActivityEvent::factory()->create([
             'project_id' => $project->id,
@@ -59,8 +65,8 @@ describe('CurrentActivityViewModel', function () {
     it('returns the earliest event occurrence as since within the window', function () {
         $project = Project::factory()->create();
 
-        $earliest = CarbonImmutable::now()->subMinutes(8);
-        $latest = CarbonImmutable::now()->subMinutes(2);
+        $earliest = $this->now->subMinutes($this->timeout - 1);
+        $latest = $this->now->subMinutes(1);
 
         ActivityEvent::factory()->create(['project_id' => $project->id, 'occurred_at' => $latest]);
         ActivityEvent::factory()->create(['project_id' => $project->id, 'occurred_at' => $earliest]);
@@ -77,11 +83,11 @@ describe('CurrentActivityViewModel', function () {
 
         ActivityEvent::factory()->create([
             'project_id' => $projectA->id,
-            'occurred_at' => CarbonImmutable::now()->subMinutes(3),
+            'occurred_at' => $this->now->subMinutes(1),
         ]);
         ActivityEvent::factory()->create([
             'project_id' => $projectB->id,
-            'occurred_at' => CarbonImmutable::now()->subMinutes(7),
+            'occurred_at' => $this->now->subMinutes($this->timeout - 1),
         ]);
 
         $result = resolveCurrentActivity();

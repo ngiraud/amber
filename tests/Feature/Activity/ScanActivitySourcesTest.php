@@ -43,11 +43,11 @@ it('records events from available sources during an active session', function ()
         ),
     ]));
 
-    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
+    $result = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
-    expect($events)->toHaveCount(1)
-        ->and($events->first())->toBeInstanceOf(ActivityEvent::class)
-        ->and($events->first()->session_id)->toBe($session->id);
+    expect($result->events)->toHaveCount(1)
+        ->and($result->events->first())->toBeInstanceOf(ActivityEvent::class)
+        ->and($result->events->first()->session_id)->toBe($session->id);
 });
 
 it('records events with null session_id when no active session exists', function () {
@@ -63,10 +63,10 @@ it('records events with null session_id when no active session exists', function
         ),
     ]));
 
-    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
+    $result = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
-    expect($events)->toHaveCount(1)
-        ->and($events->first()->session_id)->toBeNull();
+    expect($result->events)->toHaveCount(1)
+        ->and($result->events->first()->session_id)->toBeNull();
 });
 
 it('skips unavailable sources', function () {
@@ -74,9 +74,9 @@ it('skips unavailable sources', function () {
 
     mockSource(app(FakeActivitySource::class)->setAvailable(false));
 
-    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
+    $result = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
-    expect($events)->toHaveCount(0);
+    expect($result->events)->toHaveCount(0);
 });
 
 it('discoverSources skips disabled sources', function () {
@@ -105,7 +105,7 @@ it('deduplicates events with the same type, occurred_at, and sourceType', functi
 
     mockSource(app(FakeActivitySource::class)->setEvents([$duplicatedEvent, $duplicatedEvent]));
 
-    $events = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
+    $result = app(ScanActivitySources::class)->handle($now->subMinutes(10), $now);
 
-    expect($events)->toHaveCount(1);
+    expect($result->events)->toHaveCount(1);
 });

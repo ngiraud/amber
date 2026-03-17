@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Actions\Activity\ScanActivitySources;
+use App\Data\ScanActivityResult;
 use App\Enums\ActivityEventSourceType;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
@@ -24,7 +25,7 @@ describe('SyncActivityController', function () {
                 Mockery::on(fn ($arg) => $arg->toIso8601String() === $until->toIso8601String()),
                 Mockery::on(fn ($arg) => $arg->first() === ActivityEventSourceType::Git),
             )
-            ->andReturn(collect(range(1, 3)));
+            ->andReturn(new ScanActivityResult(collect(range(1, 3)), collect()));
 
         $response = $this->postJson(route('activity.sync'), [
             'since' => $since->toIso8601String(),
@@ -32,7 +33,7 @@ describe('SyncActivityController', function () {
             'source_type' => ActivityEventSourceType::Git->value,
         ]);
 
-        $response->assertOk()->assertJson(['count' => 3]);
+        $response->assertOk()->assertJson(['count' => 3, 'source_errors' => []]);
     });
 
     it('returns 422 when source_type is missing', function () {

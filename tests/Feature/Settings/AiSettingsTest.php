@@ -6,6 +6,7 @@ use App\Actions\Settings\TestAiConnection;
 use App\Actions\Settings\UpdateAiSettings;
 use App\Ai\Agents\ReportSummarizer;
 use App\Enums\AiProvider;
+use App\Exceptions\AiConnectionException;
 use App\Settings\AiSettings;
 
 pest()->group('settings', 'ai');
@@ -80,15 +81,15 @@ describe('ai settings', function () {
             ->assertJson(['success' => true]);
     });
 
-    it('returns success false when TestAiConnection fails', function () {
+    it('returns a JSON error when TestAiConnection throws AiConnectionException', function () {
         TestAiConnection::fake()
             ->shouldReceive('handle')
             ->once()
-            ->andReturn(false);
+            ->andThrow(new AiConnectionException('Invalid API key. Please check your AI settings.'));
 
         $this->postJson(route('settings.ai.test'))
-            ->assertSuccessful()
-            ->assertJson(['success' => false]);
+            ->assertStatus(422)
+            ->assertJson(['error' => 'Invalid API key. Please check your AI settings.']);
     });
 })->group('controllers');
 
@@ -127,7 +128,11 @@ describe('UpdateAiSettings action', function () {
 
         ReportSummarizer::fake(fn () => true);
 
-        TestAiConnection::make()->handle();
+        try {
+            TestAiConnection::make()->handle();
+        } catch (AiConnectionException) {
+            // The key is set before the prompt call; ignore connection failures in this test
+        }
 
         expect(config('ai.providers.anthropic.key'))->toBe('sk-test-key');
     });

@@ -36,8 +36,8 @@ class AiSettingsController extends Controller
 
     public function test(TestAiConnection $action): JsonResponse
     {
-        $success = $action->handle();
+        $action->handle();
 
-        return response()->json(['success' => $success]);
+        return response()->json(['success' => true]);
     }
 }

@@ -53,7 +53,7 @@ it('returns empty collection when git log fails', function () {
 });
 
 it('scans commits from a git repository with enriched metadata', function () {
-    $repo = ProjectRepository::factory()->create(['local_path' => '/some/project']);
+    $repo = ProjectRepository::factory()->create(['local_path' => sys_get_temp_dir()]);
 
     Process::fake(function ($process) {
         if (in_array('rev-parse', $process->command)) {
@@ -83,7 +83,7 @@ it('scans commits from a git repository with enriched metadata', function () {
 });
 
 it('aggregates numstat across multiple changed files', function () {
-    ProjectRepository::factory()->create(['local_path' => '/some/project']);
+    ProjectRepository::factory()->create(['local_path' => sys_get_temp_dir()]);
 
     $numstat = "10\t3\tapp/Models/Foo.php\n5\t0\tapp/Models/Bar.php\n-\t-\tassets/image.png";
 
@@ -110,7 +110,7 @@ it('filters commits by configured author emails', function () {
     $settings = app(ActivitySourceSettings::class);
     $settings->git = GitSourceConfig::fromArray(['enabled' => true, 'author_emails' => ['dev@example.com', 'john@example.com']]);
 
-    ProjectRepository::factory()->create(['local_path' => '/some/project']);
+    ProjectRepository::factory()->create(['local_path' => sys_get_temp_dir()]);
 
     $logOutput = implode('---COMMIT---', [
         '',
@@ -133,7 +133,7 @@ it('filters commits by configured author emails', function () {
 });
 
 it('detects branch switches from git reflog', function () {
-    ProjectRepository::factory()->create(['local_path' => '/some/project']);
+    ProjectRepository::factory()->create(['local_path' => sys_get_temp_dir()]);
 
     Process::fake(function ($process) {
         if (in_array('reflog', $process->command)) {
@@ -153,7 +153,7 @@ it('detects branch switches from git reflog', function () {
 });
 
 it('ignores non-checkout reflog entries', function () {
-    ProjectRepository::factory()->create(['local_path' => '/some/project']);
+    ProjectRepository::factory()->create(['local_path' => sys_get_temp_dir()]);
 
     Process::fake(function ($process) {
         if (in_array('reflog', $process->command)) {

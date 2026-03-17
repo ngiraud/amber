@@ -6,7 +6,9 @@ namespace App\Actions\Settings;
 
 use App\Actions\Action;
 use App\Ai\Agents\ReportSummarizer;
+use App\Exceptions\AiConnectionException;
 use App\Settings\AiSettings;
+use Laravel\Ai\Exceptions\AiException;
 use Throwable;
 
 class TestAiConnection extends Action
@@ -16,7 +18,7 @@ class TestAiConnection extends Action
         protected readonly ReportSummarizer $agent,
     ) {}
 
-    public function handle(): bool
+    public function handle(): true
     {
         $this->settings->syncConfigApiKey();
 
@@ -27,8 +29,10 @@ class TestAiConnection extends Action
             );
 
             return true;
-        } catch (Throwable) {
-            return false;
+        } catch (AiException $e) {
+            throw AiConnectionException::fromAiException($e);
+        } catch (Throwable $e) {
+            throw AiConnectionException::fromUnexpected($e);
         }
     }
 }

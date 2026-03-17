@@ -18,6 +18,7 @@ type SourceProgress = {
     label: string;
     status: 'waiting' | 'scanning' | 'done' | 'error';
     count: number | null;
+    errorMessage: string | null;
 };
 type Period = 'today' | 'yesterday' | 'month' | 'custom';
 type Phase = 'config' | 'syncing' | 'done';
@@ -135,7 +136,7 @@ async function startSync(): Promise<void> {
     phase.value = 'syncing';
     totalCount.value = 0;
     syncedSince.value = sinceLocal;
-    progress.value = sources.map((s) => ({ value: s.value, label: s.label, status: 'scanning' as const, count: null }));
+    progress.value = sources.map((s) => ({ value: s.value, label: s.label, status: 'scanning' as const, count: null, errorMessage: null }));
 
     await Promise.all(
         progress.value.map(async (item, i) => {
@@ -150,9 +151,10 @@ async function startSync(): Promise<void> {
                     body: JSON.stringify({ since, until, source_type: item.value }),
                 });
 
-                const data = response.ok ? ((await response.json()) as { count: number }) : null;
+                const data = response.ok ? ((await response.json()) as { count: number; source_errors: string[] }) : null;
                 progress.value[i].status = data !== null ? 'done' : 'error';
                 progress.value[i].count = data?.count ?? null;
+                progress.value[i].errorMessage = data?.source_errors?.[0] ?? null;
 
                 if (data !== null) {
                     totalCount.value += data.count;
@@ -280,8 +282,8 @@ defineExpose({ show });
                                 </span>
                             </template>
                             <template v-else>
-                                <XCircleIcon class="size-3.5 text-destructive" />
-                                <span class="text-destructive">Error</span>
+                                <XCircleIcon class="size-3.5 shrink-0 text-destructive" />
+                                <span class="text-destructive">{{ item.errorMessage ?? 'Error' }}</span>
                             </template>
                         </span>
                     </div>

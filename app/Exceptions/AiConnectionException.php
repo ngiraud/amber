@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Exceptions;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,14 +14,14 @@ use Laravel\Ai\Exceptions\RateLimitedException;
 use RuntimeException;
 use Throwable;
 
-class AiSummarizationException extends RuntimeException
+class AiConnectionException extends RuntimeException
 {
     public static function fromAiException(AiException $e): self
     {
         $message = match (true) {
             $e instanceof RateLimitedException => 'API rate limit reached. Please try again later.',
             $e instanceof ProviderOverloadedException => 'The AI provider is currently overloaded. Please try again later.',
-            default => self::messageFromGenericException($e),
+            default => self::messageFromRaw($e->getMessage()),
         };
 
         return new self($message, previous: $e);
@@ -28,20 +29,22 @@ class AiSummarizationException extends RuntimeException
 
     public static function fromUnexpected(Throwable $e): self
     {
-        return new self('An unexpected error occurred while summarizing with AI.', previous: $e);
+        return new self('Unable to connect to the AI provider. Please check your settings.', previous: $e);
     }
 
-    public function render(Request $request): RedirectResponse
+    public function render(Request $request): RedirectResponse|JsonResponse
     {
+        if ($request->expectsJson()) {
+            return response()->json(['error' => $this->getMessage()], 422);
+        }
+
         Inertia::flash('error', $this->getMessage());
 
         return back();
     }
 
-    private static function messageFromGenericException(AiException $e): string
+    protected static function messageFromRaw(string $raw): string
     {
-        $raw = $e->getMessage();
-
         if (str_contains($raw, '401') || str_contains(mb_strtolower($raw), 'unauthorized') || str_contains(mb_strtolower($raw), 'invalid api key')) {
             return 'Invalid API key. Please check your AI settings.';
         }
