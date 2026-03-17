@@ -19,6 +19,7 @@ declare module 'vite/client' {
     }
 }
 
+import type { CurrentActivity } from './activity';
 import type { GeneralSettings, Project, Session } from './resources';
 
 declare module '@inertiajs/core' {
@@ -34,6 +35,7 @@ declare module '@inertiajs/core' {
             display_locale: string;
             generalSettings: GeneralSettings;
             activeSession: Session | null;
+            currentActivity: CurrentActivity[] | null;
             projects?: Project[];
             hotkeys: Array<{ value: string; label: string }>;
             [key: string]: unknown;

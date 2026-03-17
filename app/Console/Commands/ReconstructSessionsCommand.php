@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Session\ReconstructDailySessions;
+use App\Enums\SessionReconstructMode;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 
@@ -20,7 +21,7 @@ class ReconstructSessionsCommand extends Command
             ? CarbonImmutable::parse($this->option('date'))
             : CarbonImmutable::today();
 
-        $sessions = $action->handle($date);
+        $sessions = $action->handle(date: $date, mode: SessionReconstructMode::Replace);
 
         $this->info("Reconstructed {$sessions->count()} session(s) for {$date->toDateString()}.");
     }

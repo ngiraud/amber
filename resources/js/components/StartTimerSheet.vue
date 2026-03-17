@@ -4,8 +4,7 @@ import { computed, ref, watch } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
-import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Textarea } from '@/components/ui/textarea';
+import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import * as sessionRoutes from '@/routes/sessions';
 
@@ -30,7 +29,6 @@ watch(shouldOpen, (val) => {
 
 const form = useForm({
     project_id: '',
-    notes: '',
 });
 
 function submit(): void {
@@ -51,10 +49,13 @@ function submit(): void {
 
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>Start Session</SheetTitle>
+                <SheetTitle>Live Session</SheetTitle>
+                <SheetDescription>
+                    Track time for work that isn't automatically captured — meetings, code reviews, pair programming, training.
+                </SheetDescription>
             </SheetHeader>
 
-            <div class="mt-6 flex flex-col gap-5 px-4">
+            <div class="flex flex-col gap-5 px-4">
                 <div class="flex flex-col gap-2">
                     <Label for="project_id">Project</Label>
                     <NativeSelect id="project_id" v-model="form.project_id" required>
@@ -66,14 +67,9 @@ function submit(): void {
                     <p v-if="form.errors.project_id" class="text-sm text-destructive">{{ form.errors.project_id }}</p>
                 </div>
 
-                <div class="flex flex-col gap-2">
-                    <Label for="notes">Notes <span class="text-muted-foreground">(optional)</span></Label>
-                    <Textarea id="notes" v-model="form.notes" placeholder="What are you working on?" :rows="3" />
-                </div>
-
                 <SheetFooter class="px-0">
                     <Button class="w-full" :disabled="form.processing" @click="submit">
-                        {{ form.processing ? 'Starting…' : 'Start timer' }}
+                        {{ form.processing ? 'Starting…' : 'Start session' }}
                     </Button>
                 </SheetFooter>
             </div>

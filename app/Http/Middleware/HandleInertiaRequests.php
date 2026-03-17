@@ -9,6 +9,7 @@ use App\Http\Resources\SessionResource;
 use App\Models\Session;
 use App\Settings\GeneralSettings;
 use App\ViewModels\ActiveProjectsViewModel;
+use App\ViewModels\CurrentActivityViewModel;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -53,6 +54,7 @@ class HandleInertiaRequests extends Middleware
                 : null,
             'hotkeys' => ApplicationHotkey::options(),
             new ActiveProjectsViewModel,
+            new CurrentActivityViewModel,
         ];
     }
 }

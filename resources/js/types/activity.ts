@@ -1,4 +1,10 @@
 import type { ActivitySourceCategory } from './enums';
+import type { Project } from './resources';
+
+export type CurrentActivity = {
+    project: Project;
+    since: string;
+};
 
 export type TimelineDay = {
     date: string;
