@@ -314,3 +314,12 @@
     @apply pointer-events-none absolute inset-0 bg-accent opacity-15;
     content: '';
 }
+
+.tiptap div[data-youtube-video] {
+    @apply my-3;
+}
+
+.tiptap div[data-youtube-video] iframe {
+    @apply w-full rounded-md;
+    aspect-ratio: 16 / 9;
+}

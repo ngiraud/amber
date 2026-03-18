@@ -6,13 +6,19 @@ import { TableKit } from '@tiptap/extension-table';
 import TaskItem from '@tiptap/extension-task-item';
 import TaskList from '@tiptap/extension-task-list';
 import Typography from '@tiptap/extension-typography';
+import Youtube from '@tiptap/extension-youtube';
 import StarterKit from '@tiptap/starter-kit';
 import { EditorContent, useEditor } from '@tiptap/vue-3';
 import { common, createLowlight } from 'lowlight';
 import {
+    ArrowDownToLineIcon,
+    ArrowLeftToLineIcon,
+    ArrowRightToLineIcon,
+    ArrowUpToLineIcon,
     BoldIcon,
     CheckSquareIcon,
     CodeIcon,
+    Columns2Icon,
     Heading1Icon,
     Heading2Icon,
     Heading3Icon,
@@ -21,8 +27,11 @@ import {
     Link2OffIcon,
     ListIcon,
     ListOrderedIcon,
+    Rows2Icon,
     StrikethroughIcon,
-    TableIcon
+    TableIcon,
+    Trash2Icon,
+    YoutubeIcon,
 } from 'lucide-vue-next';
 import { onBeforeUnmount, watch } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -57,6 +66,7 @@ const editor = useEditor({
         TaskItem.configure({ nested: true }),
         CodeBlockLowlight.configure({ lowlight }),
         TableKit,
+        Youtube.configure({ nocookie: true }),
     ],
     onUpdate: ({ editor: e }) => {
         emit('update:modelValue', e.getHTML());
@@ -109,6 +119,20 @@ function setLink(): void {
 
 function insertTable(): void {
     editor.value?.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run();
+}
+
+function insertYoutube(): void {
+    if (!editor.value) {
+        return;
+    }
+
+    const url = window.prompt('YouTube URL');
+
+    if (!url) {
+        return;
+    }
+
+    editor.value.chain().focus().setYoutubeVideo({ src: url }).run();
 }
 </script>
 
@@ -245,15 +269,110 @@ function insertTable(): void {
                 <Link2OffIcon class="size-3.5" />
             </Button>
 
-            <!-- Table -->
+            <!-- Table (insert) -->
+            <Button
+                v-if="!editor.isActive('table')"
+                type="button"
+                variant="ghost"
+                size="sm"
+                class="size-7 p-0"
+                title="Insert table"
+                @click="insertTable"
+            >
+                <TableIcon class="size-3.5" />
+            </Button>
+
+            <!-- Table controls (shown when cursor is inside a table) -->
+            <template v-if="editor.isActive('table')">
+                <div class="mx-1 h-4 w-px bg-border" />
+                <Rows2Icon class="mx-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0"
+                    title="Add row above"
+                    @click="editor.chain().focus().addRowBefore().run()"
+                >
+                    <ArrowUpToLineIcon class="size-3.5" />
+                </Button>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0"
+                    title="Add row below"
+                    @click="editor.chain().focus().addRowAfter().run()"
+                >
+                    <ArrowDownToLineIcon class="size-3.5" />
+                </Button>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0 text-destructive hover:text-destructive"
+                    title="Delete row"
+                    @click="editor.chain().focus().deleteRow().run()"
+                >
+                    <Trash2Icon class="size-3.5" />
+                </Button>
+                <div class="mx-1 h-4 w-px bg-border" />
+                <Columns2Icon class="mx-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0"
+                    title="Add column before"
+                    @click="editor.chain().focus().addColumnBefore().run()"
+                >
+                    <ArrowLeftToLineIcon class="size-3.5" />
+                </Button>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0"
+                    title="Add column after"
+                    @click="editor.chain().focus().addColumnAfter().run()"
+                >
+                    <ArrowRightToLineIcon class="size-3.5" />
+                </Button>
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0 text-destructive hover:text-destructive"
+                    title="Delete column"
+                    @click="editor.chain().focus().deleteColumn().run()"
+                >
+                    <Trash2Icon class="size-3.5" />
+                </Button>
+                <div class="mx-1 h-4 w-px bg-border" />
+                <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    class="size-7 p-0 text-destructive hover:text-destructive"
+                    title="Delete table"
+                    @click="editor.chain().focus().deleteTable().run()"
+                >
+                    <TableIcon class="size-3.5" />
+                </Button>
+            </template>
+
+            <div class="mx-1 h-4 w-px bg-border" />
+
+            <!-- YouTube -->
             <Button
                 type="button"
                 variant="ghost"
                 size="sm"
-                :class="cn('size-7 p-0', editor.isActive('table') ? 'bg-accent text-accent-foreground' : '')"
-                @click="insertTable"
+                class="size-7 p-0"
+                title="Insert YouTube video"
+                @click="insertYoutube"
             >
-                <TableIcon class="size-3.5" />
+                <YoutubeIcon class="size-3.5" />
             </Button>
         </div>
 
