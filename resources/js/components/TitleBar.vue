@@ -7,7 +7,14 @@ import SessionNotesDialog from '@/components/SessionNotesDialog.vue';
 import SessionTimer from '@/components/SessionTimer.vue';
 import StartTimerSheet from '@/components/StartTimerSheet.vue';
 import { Button } from '@/components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuShortcut,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { Kbd } from '@/components/ui/kbd';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useCommandPalette } from '@/composables/useCommandPalette';
@@ -104,7 +111,6 @@ function hotkey(label: string): string {
 
     return item ? formatHotkey(item.value) : '';
 }
-
 </script>
 
 <template>

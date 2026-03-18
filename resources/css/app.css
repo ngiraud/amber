@@ -138,19 +138,22 @@
 
 @keyframes spotlight-pulse {
     0% {
-        box-shadow: 0 0 0 3px var(--background),
-        0 0 0 5px oklch(from var(--primary) l c h / 60%),
-        0 0 20px 4px oklch(from var(--primary) l c h / 25%);
+        box-shadow:
+            0 0 0 3px var(--background),
+            0 0 0 5px oklch(from var(--primary) l c h / 60%),
+            0 0 20px 4px oklch(from var(--primary) l c h / 25%);
     }
     50% {
-        box-shadow: 0 0 0 3px var(--background),
-        0 0 0 5px oklch(from var(--primary) l c h / 30%),
-        0 0 32px 8px oklch(from var(--primary) l c h / 10%);
+        box-shadow:
+            0 0 0 3px var(--background),
+            0 0 0 5px oklch(from var(--primary) l c h / 30%),
+            0 0 32px 8px oklch(from var(--primary) l c h / 10%);
     }
     100% {
-        box-shadow: 0 0 0 3px var(--background),
-        0 0 0 5px oklch(from var(--primary) l c h / 0%),
-        0 0 0 0 oklch(from var(--primary) l c h / 0%);
+        box-shadow:
+            0 0 0 3px var(--background),
+            0 0 0 5px oklch(from var(--primary) l c h / 0%),
+            0 0 0 0 oklch(from var(--primary) l c h / 0%);
     }
 }
 
@@ -205,4 +208,3 @@
         @apply opacity-0;
     }
 }
-

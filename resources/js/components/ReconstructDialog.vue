@@ -69,10 +69,7 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
             <Form :action="action" class="flex flex-col gap-4 pt-2" #default="{ errors, processing }" @success="() => (open = false)">
                 <template v-if="batch">
                     <InputField label="Starting from" :error="errors.from_date" required>
-                        <DatePicker
-                            v-model="fromDate"
-                            :max="new Date().toISOString().slice(0, 10)"
-                        />
+                        <DatePicker v-model="fromDate" :max="new Date().toISOString().slice(0, 10)" />
                         <input type="hidden" name="from_date" :value="fromDate" />
                     </InputField>
                 </template>

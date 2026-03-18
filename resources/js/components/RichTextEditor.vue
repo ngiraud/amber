@@ -31,7 +31,7 @@ import {
     StrikethroughIcon,
     TableIcon,
     Trash2Icon,
-    YoutubeIcon
+    YoutubeIcon,
 } from 'lucide-vue-next';
 import { onBeforeUnmount, watch } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -111,6 +111,7 @@ function setLink(): void {
 
     if (url === '') {
         editor.value.chain().focus().extendMarkRange('link').unsetLink().run();
+
         return;
     }
 
