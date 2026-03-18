@@ -32,22 +32,11 @@ Run `git branch --show-current` to determine the workflow:
 Review uncommitted files for code quality issues before committing: duplication, missed reuse of existing utilities, redundant logic, efficiency problems (N+1, O(n×m) loops, etc.).
 Fix any real issues found.
 
-### 4. Update README.md
+### 4. Update documentation
 
-Read `README.md` and update it if the feature adds user-visible functionality worth documenting (new capability, keyboard shortcut, integration, etc.). Skip for internal refactors, bug fixes, or developer-only changes.
+Run `/update-docs` to update `README.md` and `CHANGELOG.md` based on the completed feature.
 
-If updating, add the feature under the most relevant existing section (e.g. **Key Features**, **Deep Linking**). Keep the same tone and style as the existing entries — concise, emoji-prefixed bullet points for features.
-
-### 5. Update CHANGELOG.md
-
-Read `CHANGELOG.md` and add an entry under `## [Unreleased]` for the completed feature.
-
-- Determine the correct category: **Added** (new feature), **Changed** (behavior change or refactor), **Fixed** (bug fix), **Removed** (deletion of functionality)
-- Write a concise, user-facing bullet point — same tone and style as existing entries
-- Skip for internal-only changes (developer tooling, test updates, CI, code style) that have no user-visible impact
-- Do **not** create a new version section — only append to `[Unreleased]`
-
-### 6. Commit
+### 5. Commit
 
 1. `git status` to review all changes
 2. `git diff` to review staged and unstaged changes
@@ -57,6 +46,6 @@ Read `CHANGELOG.md` and add an entry under `## [Unreleased]` for the completed f
     - `fix: <description>` for a bugfix
     - `refactor: <description>` for refactoring
 
-### 7. Next step *(feature branch only)*
+### 6. Next step *(feature branch only)*
 
 Remind the user to run `/create-pr` when ready to open a pull request.
