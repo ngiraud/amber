@@ -4,8 +4,8 @@ import { Loader2Icon, PlusIcon, RefreshCwIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -69,13 +69,11 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
             <Form :action="action" class="flex flex-col gap-4 pt-2" #default="{ errors, processing }" @success="() => (open = false)">
                 <template v-if="batch">
                     <InputField label="Starting from" :error="errors.from_date" required>
-                        <Input
+                        <DatePicker
                             v-model="fromDate"
-                            name="from_date"
-                            type="date"
-                            class="dark:[color-scheme:dark]"
                             :max="new Date().toISOString().slice(0, 10)"
                         />
+                        <input type="hidden" name="from_date" :value="fromDate" />
                     </InputField>
                 </template>
                 <template v-else>

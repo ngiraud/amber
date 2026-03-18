@@ -3,6 +3,7 @@ import { router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
+import { DateTimePicker } from '@/components/ui/date-picker';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
@@ -78,11 +79,11 @@ function submit(): void {
 
                 <div class="grid grid-cols-2 gap-3">
                     <InputField label="Start" :error="form.errors.started_at">
-                        <Input id="past-started_at" v-model="form.started_at" type="datetime-local" class="dark:[color-scheme:dark]" required />
+                        <DateTimePicker v-model="form.started_at" />
                     </InputField>
 
                     <InputField label="End" :error="form.errors.ended_at">
-                        <Input id="past-ended_at" v-model="form.ended_at" type="datetime-local" class="dark:[color-scheme:dark]" required />
+                        <DateTimePicker v-model="form.ended_at" />
                     </InputField>
                 </div>
 

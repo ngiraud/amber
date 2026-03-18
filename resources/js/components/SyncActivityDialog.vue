@@ -4,8 +4,8 @@ import { ArrowRightIcon, CalendarDaysIcon, CheckCircle2Icon, CircleIcon, Loader2
 import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from '@/components/ui/date-picker';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useDateFormat } from '@/composables/useDateFormat';
@@ -204,11 +204,11 @@ defineExpose({ show });
                     <div v-if="period === 'custom'" class="grid grid-cols-2 gap-2">
                         <div class="flex flex-col gap-1.5">
                             <Label class="text-xs text-muted-foreground">From</Label>
-                            <Input v-model="customFrom" type="date" class="dark:scheme-dark" :max="customTo" />
+                            <DatePicker v-model="customFrom" :max="customTo" />
                         </div>
                         <div class="flex flex-col gap-1.5">
                             <Label class="text-xs text-muted-foreground">To</Label>
-                            <Input v-model="customTo" type="date" class="dark:scheme-dark" :min="customFrom" :max="today" />
+                            <DatePicker v-model="customTo" :min="customFrom" :max="today" />
                         </div>
                     </div>
                 </div>

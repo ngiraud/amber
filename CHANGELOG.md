@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Reconstruct dialog button on dashboard
 
 ### Changed
+- Replaced native date/time inputs with calendar popover pickers (DatePicker and DateTimePicker components)
 - Replaced Add Session buttons with Log Session using LogPastSessionSheet
 - Moved session actions into TitleBar with split sheets and create dropdown
 - Clients ordered alphabetically by name
