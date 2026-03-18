@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Rich text editor (Tiptap) for session notes — available on session detail page, log past session sheet, live session sheet, and the title bar note dialog
 - Session notes dialog with full-height editor, auto-focus, and discard protection (blocks accidental close)
+- Rich text editor: headings (H1–H3), task lists, code blocks with syntax highlighting, links, typography, tables with row/column controls, and YouTube embed
 - OS-aware installation instructions per activity source
 - Timeline month stats, week breakdown, and stat component refactor
 - Command palette and native menu hotkeys

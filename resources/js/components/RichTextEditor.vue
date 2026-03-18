@@ -31,7 +31,7 @@ import {
     StrikethroughIcon,
     TableIcon,
     Trash2Icon,
-    YoutubeIcon,
+    YoutubeIcon
 } from 'lucide-vue-next';
 import { onBeforeUnmount, watch } from 'vue';
 import { Button } from '@/components/ui/button';
@@ -310,7 +310,7 @@ function insertYoutube(): void {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    class="size-7 p-0 text-destructive hover:text-destructive"
+                    class="size-7 p-0 text-destructive hover:text-white"
                     title="Delete row"
                     @click="editor.chain().focus().deleteRow().run()"
                 >
@@ -342,7 +342,7 @@ function insertYoutube(): void {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    class="size-7 p-0 text-destructive hover:text-destructive"
+                    class="size-7 p-0 text-destructive hover:text-white"
                     title="Delete column"
                     @click="editor.chain().focus().deleteColumn().run()"
                 >
@@ -353,7 +353,7 @@ function insertYoutube(): void {
                     type="button"
                     variant="ghost"
                     size="sm"
-                    class="size-7 p-0 text-destructive hover:text-destructive"
+                    class="size-7 p-0 text-destructive hover:text-white"
                     title="Delete table"
                     @click="editor.chain().focus().deleteTable().run()"
                 >
@@ -364,14 +364,7 @@ function insertYoutube(): void {
             <div class="mx-1 h-4 w-px bg-border" />
 
             <!-- YouTube -->
-            <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                class="size-7 p-0"
-                title="Insert YouTube video"
-                @click="insertYoutube"
-            >
+            <Button type="button" variant="ghost" size="sm" class="size-7 p-0" title="Insert YouTube video" @click="insertYoutube">
                 <YoutubeIcon class="size-3.5" />
             </Button>
         </div>
@@ -379,3 +372,123 @@ function insertYoutube(): void {
         <EditorContent :editor="editor" class="min-h-0 flex-1 overflow-auto" />
     </div>
 </template>
+
+<style scoped>
+@reference "#app.css";
+
+:deep(.tiptap) {
+    @apply h-full min-h-20 px-3 py-2 text-sm leading-5 outline-none;
+}
+
+:deep(.tiptap p) {
+    @apply m-0;
+}
+
+:deep(.tiptap h1) {
+    @apply mt-3 mb-1 text-xl leading-7 font-bold;
+}
+
+:deep(.tiptap h2) {
+    @apply mt-2.5 mb-1 text-base leading-6 font-semibold;
+}
+
+:deep(.tiptap h3) {
+    @apply mt-2 mb-1 text-[0.9375rem] leading-snug font-semibold;
+}
+
+:deep(.tiptap h1:first-child),
+:deep(.tiptap h2:first-child),
+:deep(.tiptap h3:first-child) {
+    @apply mt-0;
+}
+
+:deep(.tiptap ul) {
+    @apply my-1 list-disc pl-5;
+}
+
+:deep(.tiptap ol) {
+    @apply my-1 list-decimal pl-5;
+}
+
+:deep(.tiptap strong) {
+    @apply font-semibold;
+}
+
+:deep(.tiptap em) {
+    @apply italic;
+}
+
+:deep(.tiptap s) {
+    @apply line-through;
+}
+
+:deep(.tiptap p.is-editor-empty:first-child::before) {
+    @apply pointer-events-none float-left h-0 text-muted-foreground;
+    content: attr(data-placeholder);
+}
+
+:deep(.tiptap code) {
+    @apply rounded bg-muted font-mono text-[0.8em];
+    padding: 0.1em 0.3em;
+}
+
+:deep(.tiptap pre) {
+    @apply my-2 overflow-x-auto rounded-md bg-muted px-4 py-3 font-mono text-[0.8125rem] leading-relaxed;
+}
+
+:deep(.tiptap pre code) {
+    @apply bg-transparent p-0;
+}
+
+:deep(.tiptap a) {
+    @apply cursor-pointer text-primary underline underline-offset-2;
+}
+
+:deep(.tiptap ul[data-type='taskList']) {
+    @apply list-none pl-1;
+}
+
+:deep(.tiptap ul[data-type='taskList'] li) {
+    @apply flex items-baseline gap-2;
+}
+
+:deep(.tiptap ul[data-type='taskList'] li > label) {
+    @apply shrink-0;
+    margin-top: 0.1rem;
+}
+
+:deep(.tiptap ul[data-type='taskList'] li > div) {
+    @apply flex-1;
+}
+
+:deep(.tiptap ul[data-type='taskList'] li[data-checked='true'] > div) {
+    @apply text-muted-foreground line-through;
+}
+
+:deep(.tiptap table) {
+    @apply my-2 w-full table-fixed border-collapse overflow-hidden;
+}
+
+:deep(.tiptap table td),
+:deep(.tiptap table th) {
+    @apply relative border border-border px-2 py-1.5 align-top;
+    min-width: 2rem;
+}
+
+:deep(.tiptap table th) {
+    @apply bg-muted text-left font-semibold;
+}
+
+:deep(.tiptap table .selectedCell::after) {
+    @apply pointer-events-none absolute inset-0 bg-accent opacity-15;
+    content: '';
+}
+
+:deep(.tiptap div[data-youtube-video]) {
+    @apply my-3;
+}
+
+:deep(.tiptap div[data-youtube-video] iframe) {
+    @apply aspect-video w-full max-w-[1000px] rounded-md;
+}
+</style>

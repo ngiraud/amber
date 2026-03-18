@@ -66,7 +66,7 @@ function close(): void {
             <slot />
         </DialogTrigger>
 
-        <DialogContent class="flex h-[calc(100svh-3rem)] flex-col gap-6 sm:max-w-4xl" @interact-outside.prevent @pointer-down-outside.prevent>
+        <DialogContent class="flex h-[calc(100svh-3rem)] flex-col gap-6 sm:max-w-full" @interact-outside.prevent @pointer-down-outside.prevent>
             <DialogHeader>
                 <DialogTitle class="flex items-center gap-2">
                     <NotebookPenIcon class="size-4" />

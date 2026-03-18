@@ -21,7 +21,6 @@ const props = defineProps<{
 
 const { formatDate, formatDateTime } = useDateFormat();
 
-
 function formatMinutes(minutes: number | null): string {
     if (!minutes) {
         return '—';
@@ -126,7 +125,7 @@ const sessionBreadcrumb = computed(() => {
             <p v-else class="text-sm text-muted-foreground">No notes yet.</p>
         </div>
 
-        <div class="mt-8 flex min-h-0 flex-1 flex-col">
+        <div v-if="session.source.label === 'Auto'" class="mt-8 flex min-h-30 flex-1 flex-col">
             <h2 class="shrink-0 text-base font-semibold">Activity Events</h2>
 
             <div class="mt-3 min-h-0 flex-1">
