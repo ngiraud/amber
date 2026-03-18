@@ -1,15 +1,28 @@
 <script lang="ts" setup>
-import type { CalendarRootEmits, CalendarRootProps, DateValue } from "reka-ui"
-import type { HTMLAttributes, Ref } from "vue"
-import type { LayoutTypes } from "."
-import { getLocalTimeZone, today } from "@internationalized/date"
-import { createReusableTemplate, reactiveOmit, useVModel } from "@vueuse/core"
-import { CalendarRoot, useDateFormatter, useForwardPropsEmits } from "reka-ui"
-import { createYear, createYearRange, toDate } from "reka-ui/date"
-import { computed, toRaw } from "vue"
-import { cn } from "@/lib/utils"
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { CalendarCell, CalendarCellTrigger, CalendarGrid, CalendarGridBody, CalendarGridHead, CalendarGridRow, CalendarHeadCell, CalendarHeader, CalendarHeading, CalendarNextButton, CalendarPrevButton } from "."
+import type { CalendarRootEmits, CalendarRootProps, DateValue } from 'reka-ui';
+import { CalendarRoot, useDateFormatter, useForwardPropsEmits } from 'reka-ui';
+import type { HTMLAttributes, Ref } from 'vue';
+import { computed, toRaw } from 'vue';
+import type { LayoutTypes } from '.';
+import {
+    CalendarCell,
+    CalendarCellTrigger,
+    CalendarGrid,
+    CalendarGridBody,
+    CalendarGridHead,
+    CalendarGridRow,
+    CalendarHeadCell,
+    CalendarHeader,
+    CalendarHeading,
+    CalendarNextButton,
+    CalendarPrevButton
+} from '.';
+import { getLocalTimeZone, today } from '@internationalized/date';
+import { usePage } from '@inertiajs/vue3';
+import { createReusableTemplate, reactiveOmit, useVModel } from '@vueuse/core';
+import { createYear, createYearRange, toDate } from 'reka-ui/date';
+import { cn } from '@/lib/utils';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 
 const props = withDefaults(defineProps<CalendarRootProps & { class?: HTMLAttributes["class"], layout?: LayoutTypes, yearRange?: DateValue[] }>(), {
   modelValue: undefined,
@@ -17,21 +30,25 @@ const props = withDefaults(defineProps<CalendarRootProps & { class?: HTMLAttribu
 })
 const emits = defineEmits<CalendarRootEmits>()
 
+const page = usePage();
+const userLocale = (page.props.display_locale || 'fr-FR') as string;
+const userTimezone = (page.props.display_timezone || getLocalTimeZone()) as string;
+
 const delegatedProps = reactiveOmit(props, "class", "layout", "placeholder")
 
 const placeholder = useVModel(props, "placeholder", emits, {
   passive: true,
-  defaultValue: props.defaultPlaceholder ?? today(getLocalTimeZone()),
+  defaultValue: props.defaultPlaceholder ?? today(userTimezone),
 }) as Ref<DateValue>
 
-const formatter = useDateFormatter(props.locale ?? "en")
+const formatter = useDateFormatter(props.locale ?? userLocale)
 
 const yearRange = computed(() => {
   return props.yearRange ?? createYearRange({
-    start: props?.minValue ?? (toRaw(props.placeholder) ?? props.defaultPlaceholder ?? today(getLocalTimeZone()))
+    start: props?.minValue ?? (toRaw(props.placeholder) ?? props.defaultPlaceholder ?? today(userTimezone))
       .cycle("year", -100),
 
-    end: props?.maxValue ?? (toRaw(props.placeholder) ?? props.defaultPlaceholder ?? today(getLocalTimeZone()))
+    end: props?.maxValue ?? (toRaw(props.placeholder) ?? props.defaultPlaceholder ?? today(userTimezone))
       .cycle("year", 10),
   })
 })
@@ -39,7 +56,10 @@ const yearRange = computed(() => {
 const [DefineMonthTemplate, ReuseMonthTemplate] = createReusableTemplate<{ date: DateValue }>()
 const [DefineYearTemplate, ReuseYearTemplate] = createReusableTemplate<{ date: DateValue }>()
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
+const forwarded = useForwardPropsEmits(
+  computed(() => ({ locale: userLocale, ...delegatedProps })),
+  emits,
+)
 </script>
 
 <template>
@@ -92,6 +112,7 @@ const forwarded = useForwardPropsEmits(delegatedProps, emits)
   <CalendarRoot
     v-slot="{ grid, weekDays, date }"
     v-bind="forwarded"
+    :week-starts-on="1"
     v-model:placeholder="placeholder"
     data-slot="calendar"
     :class="cn('p-3', props.class)"
