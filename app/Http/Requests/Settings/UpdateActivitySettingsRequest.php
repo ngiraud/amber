@@ -15,7 +15,6 @@ class UpdateActivitySettingsRequest extends FormRequest
     {
         return [
             'idle_timeout_minutes' => ['required', 'integer', 'min:1', 'max:120'],
-            'scan_interval_minutes' => ['required', 'integer', 'min:1', 'max:30'],
             'block_end_padding_minutes' => ['required', 'integer', 'min:0', 'max:60'],
             'manual_session_reminder_minutes' => ['required', 'integer', 'min:0', 'max:480'],
         ];

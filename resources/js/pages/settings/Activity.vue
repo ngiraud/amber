@@ -14,7 +14,6 @@ const props = defineProps<{
 
 const form = useForm({
     idle_timeout_minutes: props.activitySettings.idle_timeout_minutes ?? 30,
-    scan_interval_minutes: props.activitySettings.scan_interval_minutes ?? 2,
     block_end_padding_minutes: props.activitySettings.block_end_padding_minutes ?? 15,
     manual_session_reminder_minutes: props.activitySettings.manual_session_reminder_minutes ?? 60,
 });
@@ -48,14 +47,6 @@ function submit(): void {
                             hint="Gap between activity events that separates two reconstruction blocks"
                         >
                             <Input v-model.number="form.idle_timeout_minutes" type="number" min="1" max="120" />
-                        </InputField>
-
-                        <InputField
-                            label="Scan interval (min)"
-                            :error="form.errors.scan_interval_minutes"
-                            hint="How often activity sources are scanned"
-                        >
-                            <Input v-model.number="form.scan_interval_minutes" type="number" min="1" max="30" />
                         </InputField>
 
                         <InputField

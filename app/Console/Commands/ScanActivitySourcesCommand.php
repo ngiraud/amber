@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Event;
 
 class ScanActivitySourcesCommand extends Command
 {
+    /** Lookback window in minutes: scan runs every minute, +2 absorbs cron jitter */
+    private const int SCAN_WINDOW_MINUTES = 3;
+
     protected $signature = 'activity:scan {source?} {--since= : Relative time string (e.g., "1 hour ago")}';
 
     protected $description = 'Scan activity sources and record detected events';
@@ -29,7 +32,8 @@ class ScanActivitySourcesCommand extends Command
             return;
         }
 
-        $defaultSince = CarbonImmutable::now()->subMinutes($settings->scan_interval_minutes + 1);
+        $defaultSince = CarbonImmutable::now()->subMinutes(self::SCAN_WINDOW_MINUTES);
+
         $sinceOption = $this->option('since');
         $isBackfill = false;
 

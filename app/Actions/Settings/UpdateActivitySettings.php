@@ -20,10 +20,6 @@ class UpdateActivitySettings extends Action
             $this->settings->idle_timeout_minutes = $data['idle_timeout_minutes'];
         }
 
-        if (isset($data['scan_interval_minutes'])) {
-            $this->settings->scan_interval_minutes = $data['scan_interval_minutes'];
-        }
-
         if (isset($data['block_end_padding_minutes'])) {
             $this->settings->block_end_padding_minutes = $data['block_end_padding_minutes'];
         }

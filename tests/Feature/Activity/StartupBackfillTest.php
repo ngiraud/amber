@@ -21,10 +21,9 @@ beforeEach(function () {
 it('uses default interval when last_scan_completed_at is null', function () {
     $settings = app(ActivitySettings::class);
     $settings->last_scan_completed_at = null;
-    $settings->scan_interval_minutes = 5;
     $settings->save();
 
-    $expectedSince = CarbonImmutable::now()->subMinutes(6);
+    $expectedSince = CarbonImmutable::now()->subMinutes(3);
 
     ScanActivitySources::fake()
         ->shouldReceive('handle')
@@ -39,13 +38,12 @@ it('uses default interval when last_scan_completed_at is null', function () {
     $this->artisan('activity:scan');
 });
 
-it('uses default interval when gap does not exceed scan_interval_minutes', function () {
+it('uses default interval when gap does not exceed the scan window', function () {
     $settings = app(ActivitySettings::class);
-    $settings->scan_interval_minutes = 5;
-    $settings->last_scan_completed_at = CarbonImmutable::now()->subMinutes(3);
+    $settings->last_scan_completed_at = CarbonImmutable::now()->subMinutes(2);
     $settings->save();
 
-    $expectedSince = CarbonImmutable::now()->subMinutes(6);
+    $expectedSince = CarbonImmutable::now()->subMinutes(3);
 
     ScanActivitySources::fake()
         ->shouldReceive('handle')
@@ -60,11 +58,10 @@ it('uses default interval when gap does not exceed scan_interval_minutes', funct
     $this->artisan('activity:scan');
 });
 
-it('uses last_scan_completed_at as since when gap exceeds scan_interval_minutes', function () {
+it('uses last_scan_completed_at as since when gap exceeds the scan window', function () {
     $lastScan = CarbonImmutable::now()->subHours(3);
 
     $settings = app(ActivitySettings::class);
-    $settings->scan_interval_minutes = 5;
     $settings->last_scan_completed_at = $lastScan;
     $settings->save();
 
@@ -100,7 +97,6 @@ it('dispatches ActivityBackfillCompleted when backfill finds events', function (
     $lastScan = CarbonImmutable::now()->subHours(3);
 
     $settings = app(ActivitySettings::class);
-    $settings->scan_interval_minutes = 5;
     $settings->last_scan_completed_at = $lastScan;
     $settings->save();
 
@@ -119,7 +115,6 @@ it('does not dispatch ActivityBackfillCompleted when backfill finds no events', 
     $lastScan = CarbonImmutable::now()->subHours(3);
 
     $settings = app(ActivitySettings::class);
-    $settings->scan_interval_minutes = 5;
     $settings->last_scan_completed_at = $lastScan;
     $settings->save();
 
@@ -134,7 +129,6 @@ it('does not dispatch ActivityBackfillCompleted when backfill finds no events', 
 
 it('does not dispatch ActivityBackfillCompleted for a normal scan', function () {
     $settings = app(ActivitySettings::class);
-    $settings->scan_interval_minutes = 5;
     $settings->last_scan_completed_at = CarbonImmutable::now()->subMinutes(2);
     $settings->save();
 

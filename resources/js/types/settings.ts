@@ -15,7 +15,6 @@ export type GeneralSettings = {
 
 export type ActivitySettings = {
     idle_timeout_minutes: number;
-    scan_interval_minutes: number;
     block_end_padding_minutes: number;
     manual_session_reminder_minutes: number;
 };
