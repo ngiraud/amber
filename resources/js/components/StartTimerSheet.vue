@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { router, useForm, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
+import RichTextEditor from '@/components/RichTextEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
@@ -29,6 +30,7 @@ watch(shouldOpen, (val) => {
 
 const form = useForm({
     project_id: '',
+    notes: '',
 });
 
 function submit(): void {
@@ -65,6 +67,11 @@ function submit(): void {
                         </NativeSelectOption>
                     </NativeSelect>
                     <p v-if="form.errors.project_id" class="text-sm text-destructive">{{ form.errors.project_id }}</p>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <Label>Notes <span class="text-muted-foreground">(optional)</span></Label>
+                    <RichTextEditor v-model="form.notes" placeholder="What are you working on?" />
                 </div>
 
                 <SheetFooter class="px-0">

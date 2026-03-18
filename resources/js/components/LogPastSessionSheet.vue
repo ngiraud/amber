@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/RichTextEditor.vue';
 import * as sessionRoutes from '@/routes/sessions';
 
 const page = usePage();
@@ -94,8 +94,8 @@ function submit(): void {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <Label for="past-notes">Notes <span class="text-muted-foreground">(optional)</span></Label>
-                    <Textarea id="past-notes" v-model="form.notes" placeholder="Additional notes…" :rows="2" />
+                    <Label>Notes <span class="text-muted-foreground">(optional)</span></Label>
+                    <RichTextEditor v-model="form.notes" placeholder="Additional notes…" />
                 </div>
 
                 <SheetFooter class="px-0">

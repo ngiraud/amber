@@ -138,22 +138,19 @@
 
 @keyframes spotlight-pulse {
     0% {
-        box-shadow:
-            0 0 0 3px var(--background),
-            0 0 0 5px oklch(from var(--primary) l c h / 60%),
-            0 0 20px 4px oklch(from var(--primary) l c h / 25%);
+        box-shadow: 0 0 0 3px var(--background),
+        0 0 0 5px oklch(from var(--primary) l c h / 60%),
+        0 0 20px 4px oklch(from var(--primary) l c h / 25%);
     }
     50% {
-        box-shadow:
-            0 0 0 3px var(--background),
-            0 0 0 5px oklch(from var(--primary) l c h / 30%),
-            0 0 32px 8px oklch(from var(--primary) l c h / 10%);
+        box-shadow: 0 0 0 3px var(--background),
+        0 0 0 5px oklch(from var(--primary) l c h / 30%),
+        0 0 32px 8px oklch(from var(--primary) l c h / 10%);
     }
     100% {
-        box-shadow:
-            0 0 0 3px var(--background),
-            0 0 0 5px oklch(from var(--primary) l c h / 0%),
-            0 0 0 0 oklch(from var(--primary) l c h / 0%);
+        box-shadow: 0 0 0 3px var(--background),
+        0 0 0 5px oklch(from var(--primary) l c h / 0%),
+        0 0 0 0 oklch(from var(--primary) l c h / 0%);
     }
 }
 
@@ -207,4 +204,50 @@
     .banner-leave-to {
         @apply opacity-0;
     }
+}
+
+/* Tiptap rich text editor */
+.tiptap {
+    min-height: 5rem;
+    height: 100%;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    outline: none;
+}
+
+.tiptap p {
+    margin: 0;
+}
+
+.tiptap ul {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+}
+
+.tiptap ol {
+    list-style-type: decimal;
+    padding-left: 1.25rem;
+    margin: 0.25rem 0;
+}
+
+.tiptap strong {
+    font-weight: 600;
+}
+
+.tiptap em {
+    font-style: italic;
+}
+
+.tiptap s {
+    text-decoration: line-through;
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    color: var(--muted-foreground);
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
 }

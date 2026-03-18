@@ -1,24 +1,15 @@
 <script setup lang="ts">
 import { Form, router, usePage } from '@inertiajs/vue3';
 import { ClockIcon, FolderPlusIcon, NotebookPenIcon, PlayIcon, PlusIcon, SquareIcon, UserPlusIcon } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
-import { toast } from 'vue-sonner';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
+import SessionNotesDialog from '@/components/SessionNotesDialog.vue';
 import SessionTimer from '@/components/SessionTimer.vue';
 import StartTimerSheet from '@/components/StartTimerSheet.vue';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Kbd } from '@/components/ui/kbd';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Textarea } from '@/components/ui/textarea';
 import { useCommandPalette } from '@/composables/useCommandPalette';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import { useOpenClientSheet } from '@/composables/useOpenClientSheet';
@@ -114,34 +105,6 @@ function hotkey(label: string): string {
     return item ? formatHotkey(item.value) : '';
 }
 
-const notesOpen = ref(false);
-const notes = ref(activeSession.value?.notes ?? '');
-
-watch(
-    () => activeSession.value?.id,
-    () => {
-        notes.value = activeSession.value?.notes ?? '';
-    },
-);
-
-function saveNotes() {
-    if (!activeSession.value) {
-        return;
-    }
-
-    router.patch(
-        sessionRoutes.update(activeSession.value).url,
-        { notes: notes.value },
-        {
-            preserveState: true,
-            preserveScroll: true,
-            onSuccess: () => {
-                notesOpen.value = false;
-                toast.success('Note saved.');
-            },
-        },
-    );
-}
 </script>
 
 <template>
@@ -191,29 +154,12 @@ function saveNotes() {
                 </div>
 
                 <div class="flex items-center justify-end">
-                    <Dialog v-model:open="notesOpen">
-                        <DialogTrigger as-child>
-                            <Button variant="ghost" size="xs" class="text-muted-foreground hover:text-white">
-                                <NotebookPenIcon class="size-3" />
-                                Note
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent class="sm:max-w-md">
-                            <DialogHeader>
-                                <DialogTitle>Session note</DialogTitle>
-                            </DialogHeader>
-                            <Textarea
-                                v-model="notes"
-                                placeholder="Meeting agenda, decisions, context…"
-                                class="min-h-32 resize-none text-sm"
-                                @keydown.ctrl.enter="saveNotes"
-                                @keydown.meta.enter="saveNotes"
-                            />
-                            <DialogFooter>
-                                <Button class="w-full" @click="saveNotes">Save note</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
+                    <SessionNotesDialog :session="activeSession">
+                        <Button variant="ghost" size="xs" class="text-muted-foreground hover:text-white">
+                            <NotebookPenIcon class="size-3" />
+                            Note
+                        </Button>
+                    </SessionNotesDialog>
 
                     <Form :action="sessionRoutes.stop(activeSession)" method="patch" #default="{ submit }">
                         <Button variant="ghost" size="xs" class="text-muted-foreground hover:text-white" @click="submit">

@@ -4,6 +4,8 @@ import { ArrowLeftIcon } from 'lucide-vue-next';
 import { computed } from 'vue';
 import ActivityLog from '@/components/ActivityLog.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import RichTextEditor from '@/components/RichTextEditor.vue';
+import SessionNotesDialog from '@/components/SessionNotesDialog.vue';
 import SessionTimer from '@/components/SessionTimer.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,6 +20,7 @@ const props = defineProps<{
 }>();
 
 const { formatDate, formatDateTime } = useDateFormat();
+
 
 function formatMinutes(minutes: number | null): string {
     if (!minutes) {
@@ -108,6 +111,20 @@ const sessionBreadcrumb = computed(() => {
                 </div>
             </CardContent>
         </Card>
+
+        <div class="mt-6">
+            <div class="mb-3 flex items-center justify-between">
+                <h2 class="text-base font-semibold">Notes</h2>
+                <SessionNotesDialog :session="session">
+                    <Button variant="outline" size="sm">
+                        {{ session.notes ? 'Edit notes' : 'Add notes' }}
+                    </Button>
+                </SessionNotesDialog>
+            </div>
+
+            <RichTextEditor v-if="session.notes" :model-value="session.notes" :editable="false" />
+            <p v-else class="text-sm text-muted-foreground">No notes yet.</p>
+        </div>
 
         <div class="mt-8 flex min-h-0 flex-1 flex-col">
             <h2 class="shrink-0 text-base font-semibold">Activity Events</h2>
