@@ -50,18 +50,43 @@ Amber currently targets **macOS and Linux** only. Windows is not supported at th
 
 ## 🔗 Deep Linking
 
-Amber supports deep links via the `amber://` URL scheme, allowing external tools (Raycast, Alfred, shell scripts, etc.) to control sessions.
+Amber supports deep links via the `amber://` URL scheme, allowing external tools (Raycast, Alfred, shell scripts, etc.) to control the app remotely.
+
+### Session Control
 
 | URL | Action |
 |-----|--------|
 | `amber://session/start?project=<id>` | Start a session on the given project |
 | `amber://session/start` | Start a session on the first active project |
 | `amber://session/stop` | Stop the currently active session |
+| `amber://session/toggle?project=<id>` | Start a session if none is active, stop it otherwise |
+| `amber://session/switch?project=<id>` | Switch the active session to a different project (starts one if none is running) |
+
+### Navigation
+
+| URL | Action |
+|-----|--------|
+| `amber://navigate/dashboard` | Open the Dashboard |
+| `amber://navigate/timeline` | Open the Timeline |
+| `amber://navigate/reports` | Open the Activity Reports |
+| `amber://navigate/clients` | Open the Clients list |
+| `amber://navigate/projects` | Open the Projects list |
+| `amber://navigate/sessions` | Open the Sessions list |
+| `amber://navigate/activity` | Open the Activity log |
+| `amber://navigate/settings` | Open Settings |
+
+### Utilities
+
+| URL | Action |
+|-----|--------|
+| `amber://activity/sync` | Scan all enabled activity sources and show a native notification with the result |
 
 **Example — open from terminal:**
 ```bash
 open "amber://session/start?project=<project-ulid>"
-open "amber://session/stop"
+open "amber://session/toggle?project=<project-ulid>"
+open "amber://navigate/timeline"
+open "amber://activity/sync"
 ```
 
 ## 🛠 Tech Stack
