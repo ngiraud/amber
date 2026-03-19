@@ -2,6 +2,10 @@
     "$schema": "https://www.schemastore.org/package.json",
     "name": "amber",
     "private": true,
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/ngiraud/amber.git"
+    },
     "type": "module",
     "scripts": {
         "build": "vite build",
