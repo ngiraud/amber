@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { router, useForm } from '@inertiajs/vue3';
-import { ref, watch } from 'vue';
+import { router, useForm, usePage } from '@inertiajs/vue3';
+import { ArrowUpCircleIcon, CheckCircle2Icon, LoaderCircleIcon, RotateCcwIcon } from 'lucide-vue-next';
+import { computed, ref, watch } from 'vue';
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
 import InputField from '@/components/InputField.vue';
 import SettingsLayout from '@/components/settings/SettingsLayout.vue';
@@ -25,6 +26,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { applyTheme } from '@/composables/useAppearance';
 import { useSpotlight } from '@/composables/useSpotlight';
+import { checkForUpdates, downloadProgress, installUpdate, updateInfo, updaterStatus } from '@/composables/useUpdater';
 import * as settingsRoutes from '@/routes/settings';
 import * as generalRoutes from '@/routes/settings/general';
 import type { GeneralSettings } from '@/types';
@@ -43,6 +45,9 @@ const props = defineProps<{
     timezones: string[];
     // locales: LocaleOption[];
 }>();
+
+const page = usePage();
+const appVersion = computed(() => page.props.appVersion);
 
 const ROUNDING_OPTIONS = [
     { value: 15, label: 'Quarter hour (15 min)' },
@@ -155,6 +160,75 @@ function submit(): void {
                     </CardContent>
                 </Card>
             </form>
+
+            <!-- Software Updates -->
+            <Card>
+                <CardHeader>
+                    <CardTitle>Software Updates</CardTitle>
+                    <CardDescription>Current version: {{ appVersion }}</CardDescription>
+                    <CardAction>
+                        <Button
+                            size="sm"
+                            variant="outline"
+                            :disabled="!['idle', 'up-to-date', 'error'].includes(updaterStatus)"
+                            @click="checkForUpdates"
+                        >
+                            <LoaderCircleIcon v-if="updaterStatus === 'checking'" class="size-3.5 animate-spin" />
+                            <ArrowUpCircleIcon v-else class="size-3.5" />
+                            {{ updaterStatus === 'checking' ? 'Checking…' : 'Check for updates' }}
+                        </Button>
+                    </CardAction>
+                </CardHeader>
+
+                <CardContent>
+                    <!-- Idle / checking -->
+                    <p v-if="updaterStatus === 'idle' || updaterStatus === 'checking'" class="text-sm text-muted-foreground">
+                        {{ updaterStatus === 'checking' ? 'Checking for updates…' : "You're up to date." }}
+                    </p>
+
+                    <!-- Up to date -->
+                    <div v-else-if="updaterStatus === 'up-to-date'" class="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2Icon class="size-4 text-green-500" />
+                        You're up to date.
+                    </div>
+
+                    <!-- Error -->
+                    <p v-else-if="updaterStatus === 'error'" class="text-sm text-destructive">Update check failed. Please try again.</p>
+
+                    <!-- Available -->
+                    <div v-else-if="updateInfo" class="flex flex-col gap-3">
+                        <div class="flex items-start justify-between gap-4">
+                            <div class="flex flex-col gap-0.5">
+                                <p class="text-sm font-medium">Version {{ updateInfo.version }} available</p>
+                                <p v-if="updateInfo.releaseDate" class="text-xs text-muted-foreground">
+                                    Released {{ new Date(updateInfo.releaseDate).toLocaleDateString() }}
+                                </p>
+                            </div>
+
+                            <Button v-if="updaterStatus === 'ready'" size="sm" @click="installUpdate">
+                                <RotateCcwIcon class="size-3.5" />
+                                Restart & Install
+                            </Button>
+                        </div>
+
+                        <!-- Download progress -->
+                        <div v-if="updaterStatus === 'downloading'" class="flex flex-col gap-1.5">
+                            <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                                <div class="h-full rounded-full bg-primary transition-all duration-300" :style="{ width: `${downloadProgress}%` }" />
+                            </div>
+                            <p class="text-xs text-muted-foreground">{{ downloadProgress }}% downloaded</p>
+                        </div>
+
+                        <!-- Release notes -->
+                        <p
+                            v-if="updateInfo.releaseNotes"
+                            class="max-h-40 overflow-y-auto rounded-md bg-muted px-3 py-2 text-xs whitespace-pre-line text-muted-foreground"
+                        >
+                            {{ Array.isArray(updateInfo.releaseNotes) ? updateInfo.releaseNotes.join('\n') : updateInfo.releaseNotes }}
+                        </p>
+                    </div>
+                </CardContent>
+            </Card>
 
             <Card class="border-destructive/40 shadow-destructive">
                 <CardHeader>

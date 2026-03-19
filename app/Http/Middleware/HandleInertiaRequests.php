@@ -46,6 +46,9 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'appVersion' => config('nativephp.version'),
+            'environment' => config('app.env'),
+            'debug' => config('app.debug'),
             'display_timezone' => config('app.display_timezone'),
             'display_locale' => config('app.locale'),
             'generalSettings' => fn () => app(GeneralSettings::class)->toArray(),

@@ -31,6 +31,9 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
+            appVersion: string;
+            environment: string;
+            debug: boolean;
             display_timezone: string;
             display_locale: string;
             generalSettings: GeneralSettings;

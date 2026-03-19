@@ -17,6 +17,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Kbd } from '@/components/ui/kbd';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import UpdateChip from '@/components/UpdateChip.vue';
 import { useCommandPalette } from '@/composables/useCommandPalette';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import { useOpenClientSheet } from '@/composables/useOpenClientSheet';
@@ -117,6 +118,11 @@ function hotkey(label: string): string {
     <div class="relative flex h-9 w-full shrink-0 items-center bg-sidebar select-none" style="-webkit-app-region: drag">
         <!-- Left: spacer for macOS traffic lights -->
         <div class="w-[70px] shrink-0" />
+
+        <!-- Left: update chip -->
+        <div class="ml-3 shrink-0">
+            <UpdateChip />
+        </div>
 
         <!-- Left: command palette trigger -->
         <div class="ml-3 flex shrink-0 items-center justify-end pr-1" style="-webkit-app-region: no-drag">

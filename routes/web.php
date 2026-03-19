@@ -19,6 +19,7 @@ use App\Http\Controllers\Settings\ActivitySourceSettingsController;
 use App\Http\Controllers\Settings\AiSettingsController;
 use App\Http\Controllers\Settings\GeneralSettingsController;
 use App\Http\Controllers\Settings\ResetDatabaseController;
+use App\Http\Controllers\Settings\UpdateController;
 use App\Http\Controllers\SyncActivityController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\ToggleProjectStatusController;
@@ -84,20 +85,22 @@ Route::get('/reports/{report}/{format}', ActivityReportExportController::class)-
 
 // Settings
 Route::redirect('/settings', '/settings/general')->name('settings.index');
-Route::prefix('settings')->name('settings.')->group(function () {
-    Route::get('/general', [GeneralSettingsController::class, 'edit'])->name('general');
-    Route::put('/general', [GeneralSettingsController::class, 'update'])->name('general.update');
 
-    Route::get('/activity', [ActivitySettingsController::class, 'edit'])->name('activity');
-    Route::put('/activity', [ActivitySettingsController::class, 'update'])->name('activity.update');
+Route::get('/settings/general', [GeneralSettingsController::class, 'edit'])->name('settings.general');
+Route::put('/settings/general', [GeneralSettingsController::class, 'update'])->name('settings.general.update');
 
-    Route::get('/sources', [ActivitySourceSettingsController::class, 'edit'])->name('sources');
-    Route::put('/sources/{source}', [ActivitySourceSettingsController::class, 'update'])->name('sources.update');
-    Route::post('/sources/{source}/test', [ActivitySourceSettingsController::class, 'test'])->name('sources.test');
+Route::get('/settings/activity', [ActivitySettingsController::class, 'edit'])->name('settings.activity');
+Route::put('/settings/activity', [ActivitySettingsController::class, 'update'])->name('settings.activity.update');
 
-    Route::get('/ai', [AiSettingsController::class, 'edit'])->name('ai');
-    Route::put('/ai', [AiSettingsController::class, 'update'])->name('ai.update');
-    Route::post('/ai/test', [AiSettingsController::class, 'test'])->name('ai.test');
+Route::get('/settings/sources', [ActivitySourceSettingsController::class, 'edit'])->name('settings.sources');
+Route::put('/settings/sources/{source}', [ActivitySourceSettingsController::class, 'update'])->name('settings.sources.update');
+Route::post('/settings/sources/{source}/test', [ActivitySourceSettingsController::class, 'test'])->name('settings.sources.test');
 
-    Route::post('/reset', ResetDatabaseController::class)->name('reset');
-});
+Route::get('/settings/ai', [AiSettingsController::class, 'edit'])->name('settings.ai');
+Route::put('/settings/ai', [AiSettingsController::class, 'update'])->name('settings.ai.update');
+Route::post('/settings/ai/test', [AiSettingsController::class, 'test'])->name('settings.ai.test');
+
+Route::post('/settings/updates/check', [UpdateController::class, 'check'])->name('settings.updates.check');
+Route::post('/settings/updates/install', [UpdateController::class, 'install'])->name('settings.updates.install');
+
+Route::post('/reset', ResetDatabaseController::class)->name('settings.reset');
