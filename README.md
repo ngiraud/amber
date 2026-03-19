@@ -30,6 +30,7 @@ activity reports.
 - **📊 Export Options:** Generate activity reports in PDF and Excel formats, ready to send to clients.
 - **🔔 Native Integration:** System notifications and a dedicated menu bar interface with real-time session status.
 - **🔗 Deep Link Support:** Trigger session actions from external tools (Raycast, Alfred, scripts) using `amber://` URLs.
+- **🔄 Auto-Updates:** Automatic update checks on launch and every 2 hours. A version chip in the title bar shows download progress and lets you install updates with one click.
 
 ## 🖥 Platform Support
 

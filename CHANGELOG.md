@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Auto-updater: version chip in title bar shows current version and update state (checking, downloading, ready) with a popover for release notes and install action
+- Software Updates card in Settings > General with inline status, download progress bar, and "Restart & Install" button
+- Automatic update check on app launch (production only) and every 2 hours via scheduler
 - Deep link support extended: `session/toggle`, `session/switch`, `navigate/{page}` (dashboard, timeline, reports, clients, projects, sessions, activity, settings), and `activity/sync` (scans all sources with start/completion native notifications)
 - Rich text editor (Tiptap) for session notes — available on session detail page, log past session sheet, live session sheet, and the title bar note dialog
 - Session notes dialog with full-height editor, auto-focus, and discard protection (blocks accidental close)
