@@ -190,6 +190,7 @@ This project has domain-specific skills available. You MUST activate the relevan
 - `create-pr` — Push branch and create a pull request on GitHub.
 - `implement-feature` — Implement a feature from an existing plan in .ai/plans/.
 - `update-boost` — Update Laravel Boost configuration after modifying .ai/ files.
+- `update-docs` — Analyze README.md and CHANGELOG.md and update them to reflect the current state of the project.
 - `validate-feature` — Run full validation suite (tests, Rector, Pint, PHPStan) and fix errors.
 
 ## Conventions

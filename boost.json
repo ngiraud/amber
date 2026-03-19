@@ -26,6 +26,7 @@
         "create-pr",
         "implement-feature",
         "update-boost",
+        "update-docs",
         "validate-feature"
     ]
 }
