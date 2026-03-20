@@ -4,9 +4,18 @@ import { ArrowUpCircleIcon, CheckCircle2Icon, CircleAlertIcon, DownloadIcon, Loa
 import { computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { downloadProgress, installUpdate, updateInfo, updaterStatus } from '@/composables/useUpdater';
+import {
+    checkGitHubRelease,
+    downloadProgress,
+    githubReleaseInfo,
+    githubReleaseStatus,
+    installUpdate,
+    updateInfo,
+    updaterStatus,
+} from '@/composables/useUpdater';
 
 const page = usePage();
+const updaterEnabled = computed(() => page.props.updaterEnabled);
 const currentVersion = computed(() => page.props.appVersion);
 
 const chipLabel = computed(() => {
@@ -69,22 +78,36 @@ const releaseNotes = computed(() => {
     <Popover>
         <PopoverTrigger as-child>
             <button
-                :class="['flex cursor-pointer items-center gap-1 rounded px-1.5 py-1 text-xs transition-colors', chipClass]"
+                :class="[
+                    'flex cursor-pointer items-center gap-1 rounded px-1.5 py-1 text-xs transition-colors',
+                    updaterEnabled ? chipClass : 'text-muted-foreground/40 hover:text-muted-foreground/70',
+                ]"
                 style="-webkit-app-region: no-drag"
             >
-                <LoaderCircleIcon v-if="updaterStatus === 'checking'" class="size-3 animate-spin" />
-                <CheckCircle2Icon v-else-if="updaterStatus === 'up-to-date'" class="size-3" />
-                <ArrowUpCircleIcon v-else-if="updaterStatus === 'available'" class="size-3" />
-                <DownloadIcon v-else-if="updaterStatus === 'downloading'" class="size-3" />
-                <RotateCcwIcon v-else-if="updaterStatus === 'ready'" class="size-3" />
-                <CircleAlertIcon v-else-if="updaterStatus === 'error'" class="size-3" />
-                <span v-else class="font-mono">v{{ chipLabel }}</span>
-                <span v-if="updaterStatus !== 'idle'" class="font-mono">{{ chipLabel }}</span>
+                <!-- Updater enabled: state-driven icons -->
+                <template v-if="updaterEnabled">
+                    <LoaderCircleIcon v-if="updaterStatus === 'checking'" class="size-3 animate-spin" />
+                    <CheckCircle2Icon v-else-if="updaterStatus === 'up-to-date'" class="size-3" />
+                    <ArrowUpCircleIcon v-else-if="updaterStatus === 'available'" class="size-3" />
+                    <DownloadIcon v-else-if="updaterStatus === 'downloading'" class="size-3" />
+                    <RotateCcwIcon v-else-if="updaterStatus === 'ready'" class="size-3" />
+                    <CircleAlertIcon v-else-if="updaterStatus === 'error'" class="size-3" />
+                    <span v-else class="font-mono">v{{ chipLabel }}</span>
+                    <span v-if="updaterStatus !== 'idle'" class="font-mono">{{ chipLabel }}</span>
+                </template>
+
+                <!-- Updater disabled: simple version + optional indicator -->
+                <template v-else>
+                    <ArrowUpCircleIcon v-if="githubReleaseStatus === 'available'" class="size-3 text-amber-400" />
+                    <LoaderCircleIcon v-else-if="githubReleaseStatus === 'checking'" class="size-3 animate-spin" />
+                    <span class="font-mono">v{{ currentVersion }}</span>
+                </template>
             </button>
         </PopoverTrigger>
 
         <PopoverContent align="start" class="w-72 p-4">
-            <div class="flex flex-col gap-3">
+            <!-- Updater enabled -->
+            <div v-if="updaterEnabled" class="flex flex-col gap-3">
                 <div class="flex flex-col gap-0.5">
                     <p class="text-sm font-medium">{{ popoverTitle }}</p>
                     <p class="text-xs text-muted-foreground">
@@ -116,6 +139,32 @@ const releaseNotes = computed(() => {
                         Restart & Install
                     </Button>
                 </div>
+            </div>
+
+            <!-- Updater disabled: manual GitHub check -->
+            <div v-else class="flex flex-col gap-3">
+                <div class="flex flex-col gap-0.5">
+                    <p class="text-sm font-medium">Software updates</p>
+                    <p class="text-xs text-muted-foreground">Current version: {{ currentVersion }}</p>
+                </div>
+
+                <p v-if="githubReleaseStatus === 'idle'" class="text-xs text-muted-foreground">Check for new releases on GitHub.</p>
+                <p v-else-if="githubReleaseStatus === 'checking'" class="text-xs text-muted-foreground">Checking…</p>
+                <div v-else-if="githubReleaseStatus === 'up-to-date'" class="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <CheckCircle2Icon class="size-3.5 text-green-500" />
+                    You're up to date.
+                </div>
+                <p v-else-if="githubReleaseStatus === 'error'" class="text-xs text-destructive">Check failed. Please try again.</p>
+                <div v-else-if="githubReleaseStatus === 'available' && githubReleaseInfo" class="flex items-center justify-between gap-3">
+                    <p class="text-xs font-medium">v{{ githubReleaseInfo.version }} available</p>
+                    <Button size="sm" variant="outline" as="a" :href="githubReleaseInfo.url" target="_blank"> View release </Button>
+                </div>
+
+                <Button size="sm" variant="outline" :disabled="githubReleaseStatus === 'checking'" @click="checkGitHubRelease(currentVersion)">
+                    <LoaderCircleIcon v-if="githubReleaseStatus === 'checking'" class="size-3 animate-spin" />
+                    <ArrowUpCircleIcon v-else class="size-3" />
+                    Check for updates
+                </Button>
             </div>
         </PopoverContent>
     </Popover>

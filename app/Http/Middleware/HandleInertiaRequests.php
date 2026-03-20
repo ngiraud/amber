@@ -47,6 +47,7 @@ class HandleInertiaRequests extends Middleware
             ...parent::share($request),
             'name' => config('app.name'),
             'appVersion' => config('nativephp.version'),
+            'updaterEnabled' => config('nativephp.updater.enabled', true),
             'environment' => config('app.env'),
             'debug' => config('app.debug'),
             'display_timezone' => config('app.display_timezone'),

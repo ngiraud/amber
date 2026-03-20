@@ -9,5 +9,5 @@ Schedule::timezone('Europe/Paris')->group(function () {
     Schedule::command('activity:scan')->everyMinute();
     Schedule::command('sessions:reconstruct')->everyFiveMinutes();
     Schedule::command('session:check-reminder')->everyMinute();
-    Schedule::command('updates:check')->everyTwoHours();
+    Schedule::command('updates:check')->everyTwoHours()->skip(fn () => ! config('nativephp.updater.enabled', true));
 });

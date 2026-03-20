@@ -23,6 +23,7 @@ use App\Http\Controllers\Settings\UpdateController;
 use App\Http\Controllers\SyncActivityController;
 use App\Http\Controllers\TimelineController;
 use App\Http\Controllers\ToggleProjectStatusController;
+use App\Http\Middleware\EnsureUpdaterEnabled;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('home');
@@ -100,7 +101,12 @@ Route::get('/settings/ai', [AiSettingsController::class, 'edit'])->name('setting
 Route::put('/settings/ai', [AiSettingsController::class, 'update'])->name('settings.ai.update');
 Route::post('/settings/ai/test', [AiSettingsController::class, 'test'])->name('settings.ai.test');
 
-Route::post('/settings/updates/check', [UpdateController::class, 'check'])->name('settings.updates.check');
-Route::post('/settings/updates/install', [UpdateController::class, 'install'])->name('settings.updates.install');
+Route::post('/settings/updates/check', [UpdateController::class, 'check'])
+    ->middleware(EnsureUpdaterEnabled::class)
+    ->name('settings.updates.check');
+
+Route::post('/settings/updates/install', [UpdateController::class, 'install'])
+    ->middleware(EnsureUpdaterEnabled::class)
+    ->name('settings.updates.install');
 
 Route::post('/reset', ResetDatabaseController::class)->name('settings.reset');

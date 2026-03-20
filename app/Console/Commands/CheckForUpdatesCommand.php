@@ -15,6 +15,10 @@ class CheckForUpdatesCommand extends Command
 
     public function handle(): void
     {
+        if (! config('nativephp.updater.enabled', true)) {
+            return;
+        }
+
         AutoUpdater::checkForUpdates();
     }
 }

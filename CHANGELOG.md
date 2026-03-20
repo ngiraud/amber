@@ -5,22 +5,56 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.1.0] — 2026-03-20 — Initial Public Release
 
 ### Added
-- Auto-updater: version chip in title bar shows current version and update state (checking, downloading, ready) with a popover for release notes and install action
-- Software Updates card in Settings > General with inline status, download progress bar, and "Restart & Install" button
-- Automatic update check on app launch (production only) and every 2 hours via scheduler
+- Auto-updater (when `nativephp.updater.enabled` is true): version chip in title bar shows current version and update state (checking, downloading, ready) with a popover for release notes and install action
+- Software Updates card in Settings > General with inline status, download progress bar, and "Restart & Install" button when auto-updater is enabled
+- Manual GitHub release check (when auto-updater is disabled): "Check for updates" button in title bar popover and Settings > General fetches the latest GitHub release and links to it
+- "Check for updates" command in the command palette — delegates to auto-updater or GitHub check based on config
+- Automatic update check on app launch (production only) and every 2 hours via scheduler (skipped when auto-updater is disabled)
+- `EnsureUpdaterEnabled` middleware guards auto-updater routes and returns 403 when the updater is disabled
 - Deep link support extended: `session/toggle`, `session/switch`, `navigate/{page}` (dashboard, timeline, reports, clients, projects, sessions, activity, settings), and `activity/sync` (scans all sources with start/completion native notifications)
 - Rich text editor (Tiptap) for session notes — available on session detail page, log past session sheet, live session sheet, and the title bar note dialog
 - Session notes dialog with full-height editor, auto-focus, and discard protection (blocks accidental close)
 - Rich text editor: headings (H1–H3), task lists, code blocks with syntax highlighting, links, typography, tables with row/column controls, and YouTube embed
+- Activity Reports (CRA) with LLM-powered summarization
+- Multi-provider AI support: Mistral, OpenAI, Anthropic, Ollama
+- PDF/Excel export for activity reports
+- Report finalization and status tracking (draft / finalized / sent)
+- Git branch and diff stats on activity events
+- GitHub PR association via `gh` CLI
+- Claude Code prompt context in activity events
+- Opencode AI activity source
+- Timeline view for reviewing and editing time entries
+- ReconstructDailySessions and ReconstructSessionsFromDate actions
+- Time entries with rounding and validation
+- Settings > Reset Database with confirmation dialog
+- Settings > Sources with centralized sync management (per-source progress)
+- Onboarding checklist on Dashboard with spotlight mechanism
+- Deep link support (`amber://`) to start/stop sessions from Raycast or external tools
+- Git activity source (git log with diff stats, branch switches)
+- GitHub activity source (pull requests via `gh` CLI)
+- Claude Code activity source (parses `~/.claude/projects/` JSONL files)
+- Filesystem activity source (fswatch file change events)
+- Gemini AI activity source
+- Mistral Vibe activity source
+- Session management: start, stop, switch project
+- macOS menu bar integration
+- Session notes
+- Session validation workflow
 - OS-aware installation instructions per activity source
 - Timeline month stats, week breakdown, and stat component refactor
 - Command palette and native menu hotkeys
 - Quick note field on active session title bar
 - Native folder picker for repository and source paths
 - Reconstruct dialog button on dashboard
+- Clients CRUD
+- Projects CRUD with color, TJM, hourly rate, daily reference hours, rounding
+- Project repositories management
+- App layout with sidebar navigation
+- NativePHP + Electron desktop app scaffold
+- SQLite embedded database
 
 ### Changed
 - Removed `scan_interval_minutes` setting — scan window is now hardcoded (3 min) since the cron schedule is fixed
@@ -34,70 +68,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Report lines rendered by date descending
 - AI config API key sync when needed
 - Rounding and daily_reference_hours no longer mandatory
-
----
-
-## [0.5.0] — Activity Reports & AI Summarization
-
-### Added
-- Activity Reports (CRA) with LLM-powered summarization
-- Multi-provider AI support: Mistral, OpenAI, Anthropic, Ollama
-- PDF/Excel export for activity reports
-- Report finalization and status tracking (draft / finalized / sent)
-
----
-
-## [0.4.5] — Enriched Activity Context
-
-### Added
-- Git branch and diff stats on activity events
-- GitHub PR association via `gh` CLI
-- Claude Code prompt context in activity events
-- Opencode AI activity source
-
----
-
-## [0.4.0] — Timeline & Reconstruction
-
-### Added
-- Timeline view for reviewing and editing time entries
-- ReconstructDailySessions and ReconstructSessionsFromDate actions
-- Time entries with rounding and validation
-- Settings > Reset Database with confirmation dialog
-- Settings > Sources with centralized sync management (per-source progress)
-- Onboarding checklist on Dashboard with spotlight mechanism
-- Deep link support (`amber://`) to start/stop sessions from Raycast or external tools
-
----
-
-## [0.3.0] — Activity Sources
-
-### Added
-- Git activity source (git log with diff stats, branch switches)
-- GitHub activity source (pull requests via `gh` CLI)
-- Claude Code activity source (parses `~/.claude/projects/` JSONL files)
-- Filesystem activity source (fswatch file change events)
-- Gemini AI activity source
-- Mistral Vibe activity source
-
----
-
-## [0.2.0] — Sessions & Menu Bar
-
-### Added
-- Session management: start, stop, switch project
-- macOS menu bar integration
-- Session notes
-- Session validation workflow
-
----
-
-## [0.1.0] — Foundation
-
-### Added
-- Clients CRUD
-- Projects CRUD with color, TJM, hourly rate, daily reference hours, rounding
-- Project repositories management
-- App layout with sidebar navigation
-- NativePHP + Electron desktop app scaffold
-- SQLite embedded database

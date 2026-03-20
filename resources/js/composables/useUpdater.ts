@@ -4,6 +4,13 @@ import { useNativeEvent } from '@/composables/useNativeEvent';
 import * as updateRoutes from '@/routes/settings/updates';
 
 export type UpdaterStatus = 'idle' | 'checking' | 'up-to-date' | 'available' | 'downloading' | 'ready' | 'error';
+export type GitHubReleaseStatus = 'idle' | 'checking' | 'up-to-date' | 'available' | 'error';
+
+export type GitHubReleaseInfo = {
+    version: string;
+    url: string;
+    publishedAt: string;
+};
 
 export type UpdateInfo = {
     version: string;
@@ -24,6 +31,34 @@ export function checkForUpdates(): void {
 
 export function installUpdate(): void {
     router.post(updateRoutes.install().url, {}, { preserveState: true, preserveScroll: true });
+}
+
+// GitHub release check (for when auto-updater is disabled)
+export const githubReleaseStatus = ref<GitHubReleaseStatus>('idle');
+export const githubReleaseInfo = ref<GitHubReleaseInfo | null>(null);
+
+export async function checkGitHubRelease(currentVersion: string): Promise<void> {
+    githubReleaseStatus.value = 'checking';
+
+    try {
+        const response = await fetch('https://api.github.com/repos/ngiraud/amber/releases/latest', {
+            headers: { Accept: 'application/vnd.github.v3+json', 'User-Agent': 'Amber-App' },
+        });
+
+        if (!response.ok) {
+            githubReleaseStatus.value = 'error';
+
+            return;
+        }
+
+        const data = await response.json();
+        const latestVersion = (data.tag_name ?? '').replace(/^v/, '');
+
+        githubReleaseInfo.value = { version: latestVersion, url: data.html_url, publishedAt: data.published_at };
+        githubReleaseStatus.value = latestVersion && latestVersion !== currentVersion ? 'available' : 'up-to-date';
+    } catch {
+        githubReleaseStatus.value = 'error';
+    }
 }
 
 export function dismissUpdate(): void {

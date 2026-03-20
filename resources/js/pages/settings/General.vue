@@ -26,7 +26,16 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { applyTheme } from '@/composables/useAppearance';
 import { useSpotlight } from '@/composables/useSpotlight';
-import { checkForUpdates, downloadProgress, installUpdate, updateInfo, updaterStatus } from '@/composables/useUpdater';
+import {
+    checkForUpdates,
+    checkGitHubRelease,
+    downloadProgress,
+    githubReleaseInfo,
+    githubReleaseStatus,
+    installUpdate,
+    updateInfo,
+    updaterStatus,
+} from '@/composables/useUpdater';
 import * as settingsRoutes from '@/routes/settings';
 import * as generalRoutes from '@/routes/settings/general';
 import type { GeneralSettings } from '@/types';
@@ -48,6 +57,7 @@ const props = defineProps<{
 
 const page = usePage();
 const appVersion = computed(() => page.props.appVersion);
+const updaterEnabled = computed(() => page.props.updaterEnabled);
 
 const ROUNDING_OPTIONS = [
     { value: 15, label: 'Quarter hour (15 min)' },
@@ -161,8 +171,8 @@ function submit(): void {
                 </Card>
             </form>
 
-            <!-- Software Updates -->
-            <Card>
+            <!-- Software Updates: auto-updater enabled -->
+            <Card v-if="updaterEnabled">
                 <CardHeader>
                     <CardTitle>Software Updates</CardTitle>
                     <CardDescription>Current version: {{ appVersion }}</CardDescription>
@@ -226,6 +236,50 @@ function submit(): void {
                         >
                             {{ Array.isArray(updateInfo.releaseNotes) ? updateInfo.releaseNotes.join('\n') : updateInfo.releaseNotes }}
                         </p>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <!-- Software Updates: manual GitHub check (updater disabled) -->
+            <Card v-else>
+                <CardHeader>
+                    <CardTitle>Software Updates</CardTitle>
+                    <CardDescription>Current version: {{ appVersion }}</CardDescription>
+                    <CardAction>
+                        <Button size="sm" variant="outline" :disabled="githubReleaseStatus === 'checking'" @click="checkGitHubRelease(appVersion)">
+                            <LoaderCircleIcon v-if="githubReleaseStatus === 'checking'" class="size-3.5 animate-spin" />
+                            <ArrowUpCircleIcon v-else class="size-3.5" />
+                            {{ githubReleaseStatus === 'checking' ? 'Checking…' : 'Check for updates' }}
+                        </Button>
+                    </CardAction>
+                </CardHeader>
+
+                <CardContent>
+                    <p v-if="githubReleaseStatus === 'idle'" class="text-sm text-muted-foreground">
+                        Auto-updates are disabled. Check manually for new releases on GitHub.
+                    </p>
+
+                    <p v-else-if="githubReleaseStatus === 'checking'" class="text-sm text-muted-foreground">Checking for updates…</p>
+
+                    <div v-else-if="githubReleaseStatus === 'up-to-date'" class="flex items-center gap-2 text-sm text-muted-foreground">
+                        <CheckCircle2Icon class="size-4 text-green-500" />
+                        You're up to date.
+                    </div>
+
+                    <p v-else-if="githubReleaseStatus === 'error'" class="text-sm text-destructive">Update check failed. Please try again.</p>
+
+                    <div v-else-if="githubReleaseStatus === 'available' && githubReleaseInfo" class="flex items-center justify-between gap-4">
+                        <div class="flex flex-col gap-0.5">
+                            <p class="text-sm font-medium">Version {{ githubReleaseInfo.version }} available</p>
+                            <p v-if="githubReleaseInfo.publishedAt" class="text-xs text-muted-foreground">
+                                Released {{ new Date(githubReleaseInfo.publishedAt).toLocaleDateString() }}
+                            </p>
+                        </div>
+
+                        <Button size="sm" variant="outline" as="a" :href="githubReleaseInfo.url" target="_blank">
+                            <ArrowUpCircleIcon class="size-3.5" />
+                            View release
+                        </Button>
                     </div>
                 </CardContent>
             </Card>

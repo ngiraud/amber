@@ -2,6 +2,7 @@
 import { router, usePage } from '@inertiajs/vue3';
 import {
     ActivityIcon,
+    ArrowUpCircleIcon,
     CalendarDaysIcon,
     ClockIcon,
     FileTextIcon,
@@ -29,6 +30,7 @@ import { useOpenClientSheet } from '@/composables/useOpenClientSheet';
 import { useOpenProjectSheet } from '@/composables/useOpenProjectSheet';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import { formatHotkey } from '@/composables/useOs';
+import { checkForUpdates, checkGitHubRelease } from '@/composables/useUpdater';
 import { home } from '@/routes';
 import * as activityRoutes from '@/routes/activity';
 import * as clientRoutes from '@/routes/clients';
@@ -46,6 +48,8 @@ const { shouldOpen: shouldOpenProjectSheet } = useOpenProjectSheet();
 const page = usePage();
 const activeSession = computed(() => page.props.activeSession);
 const hotkeys = computed(() => page.props.hotkeys);
+const appVersion = computed(() => page.props.appVersion);
+const updaterEnabled = computed(() => page.props.updaterEnabled);
 
 function hotkey(label: string): string {
     const item = hotkeys.value.find((h) => h.label === label);
@@ -94,6 +98,16 @@ function newProject() {
 
 function close() {
     isOpen.value = false;
+}
+
+function triggerUpdateCheck() {
+    if (updaterEnabled.value) {
+        checkForUpdates();
+    } else {
+        checkGitHubRelease(appVersion.value);
+    }
+
+    navigate(settingsRoutes.general().url);
 }
 </script>
 
@@ -196,6 +210,10 @@ function close() {
             <CommandSeparator />
 
             <CommandGroup heading="Settings">
+                <CommandItem value="check for updates" @select="triggerUpdateCheck">
+                    <ArrowUpCircleIcon />
+                    Check for updates
+                </CommandItem>
                 <CommandItem value="general settings" @select="navigate(settingsRoutes.general().url)">
                     <SettingsIcon />
                     General

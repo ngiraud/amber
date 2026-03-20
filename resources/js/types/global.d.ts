@@ -32,6 +32,7 @@ declare module '@inertiajs/core' {
         sharedPageProps: {
             name: string;
             appVersion: string;
+            updaterEnabled: boolean;
             environment: string;
             debug: boolean;
             display_timezone: string;
