@@ -18,7 +18,7 @@ const props = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
 const open = ref(false)
-const { formatDateLong } = useDateFormat()
+const { formatDate } = useDateFormat()
 
 const dateValue = computed<DateValue | undefined>(() => {
     return props.modelValue ? parseDate(props.modelValue) : undefined
@@ -37,7 +37,7 @@ const displayValue = computed(() => {
         return props.placeholder ?? 'Pick a date'
     }
 
-    return formatDateLong(`${props.modelValue}T00:00:00`)
+    return formatDate(`${props.modelValue}T00:00:00`)
 })
 
 function onSelect(value: DateValue | undefined): void {

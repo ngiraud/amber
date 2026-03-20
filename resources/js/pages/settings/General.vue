@@ -25,6 +25,7 @@ import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { applyTheme } from '@/composables/useAppearance';
+import { useDateFormat } from '@/composables/useDateFormat';
 import { useSpotlight } from '@/composables/useSpotlight';
 import {
     checkForUpdates,
@@ -41,6 +42,7 @@ import * as generalRoutes from '@/routes/settings/general';
 import type { GeneralSettings } from '@/types';
 
 const { spotlightClass } = useSpotlight();
+const { formatDate } = useDateFormat();
 
 const resetConfirmInput = ref('');
 const isResetOpen = ref(false);
@@ -231,7 +233,7 @@ function submit(): void {
                             <div class="flex flex-col gap-0.5">
                                 <p class="text-sm font-medium">Version {{ updateInfo.version }} available</p>
                                 <p v-if="updateInfo.releaseDate" class="text-xs text-muted-foreground">
-                                    Released {{ new Date(updateInfo.releaseDate).toLocaleDateString() }}
+                                    Released {{ formatDate(updateInfo.releaseDate) }}
                                 </p>
                             </div>
 
@@ -292,7 +294,7 @@ function submit(): void {
                         <div class="flex flex-col gap-0.5">
                             <p class="text-sm font-medium">Version {{ githubReleaseInfo.version }} available</p>
                             <p v-if="githubReleaseInfo.publishedAt" class="text-xs text-muted-foreground">
-                                Released {{ new Date(githubReleaseInfo.publishedAt).toLocaleDateString() }}
+                                Released {{ formatDate(githubReleaseInfo.publishedAt) }}
                             </p>
                         </div>
 
