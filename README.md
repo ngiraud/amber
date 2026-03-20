@@ -111,10 +111,16 @@ Amber is distributed as an **unsigned macOS application**. This means macOS will
 
 1. **Download** the latest `.dmg` from the [Releases](https://github.com/ngiraud/amber/releases) page.
 2. **Mount** the `.dmg` and drag Amber to your Applications folder.
-3. **First launch:** Right-click (or Ctrl+click) the app icon → **Open** → click **Open** in the dialog.
-   - Alternatively, if you see "Amber can't be opened", go to **System Settings → Privacy & Security** and click **Open Anyway**.
+3. **Remove the quarantine attribute** by running this command in Terminal:
+   ```bash
+   xattr -cr /Applications/Amber.app
+   ```
+4. Open Amber normally.
 
 You only need to do this once. After that, Amber opens normally.
+
+> [!TIP]
+> On older macOS versions you may instead right-click the app → **Open** → click **Open**, or go to **System Settings → Privacy & Security → Open Anyway**. On macOS Sequoia and later, the `xattr` command above is the only reliable method.
 
 > [!NOTE]
 > Auto-updates are disabled in unsigned builds. To update, download and reinstall the latest release manually from the Releases page.
