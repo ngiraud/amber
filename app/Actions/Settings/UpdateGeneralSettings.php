@@ -6,7 +6,9 @@ namespace App\Actions\Settings;
 
 use App\Actions\Action;
 use App\Enums\AvailableLocale;
+use App\Enums\DateFormat;
 use App\Enums\RoundingStrategy;
+use App\Enums\TimeFormat;
 use App\Settings\GeneralSettings;
 use Native\Desktop\Enums\SystemThemesEnum;
 use Native\Desktop\Facades\App;
@@ -49,6 +51,14 @@ class UpdateGeneralSettings extends Action
 
         if (isset($data['open_at_login'])) {
             $this->settings->open_at_login = (bool) $data['open_at_login'];
+        }
+
+        if (isset($data['date_format'])) {
+            $this->settings->date_format = DateFormat::from($data['date_format']);
+        }
+
+        if (isset($data['time_format'])) {
+            $this->settings->time_format = TimeFormat::from($data['time_format']);
         }
 
         $this->settings->save();

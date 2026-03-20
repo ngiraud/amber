@@ -5,6 +5,15 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Date format preference in Settings > General — choose between DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD, or DD Mon YYYY; applied everywhere dates are displayed
+- Time format preference in Settings > General — toggle between 24h (14:30) and 12h (02:30 PM); applied everywhere times are displayed
+
+---
+
 ## [0.2.0] — 2026-03-20
 
 ### Added

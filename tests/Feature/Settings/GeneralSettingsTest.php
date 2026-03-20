@@ -16,7 +16,8 @@ describe('general settings', function () {
                 ->component('settings/General')
                 ->has('generalSettings')
                 ->has('timezones')
-                //                ->has('locales')
+                ->has('dateFormats')
+                ->has('timeFormats')
             );
     });
 
@@ -30,9 +31,10 @@ describe('general settings', function () {
             'company_name' => 'Acme Corp',
             'default_rounding_strategy' => 15,
             'timezone' => 'Europe/Paris',
-            //            'locale' => 'fr',
             'theme' => 'system',
             'open_at_login' => false,
+            'date_format' => 'd/m/Y',
+            'time_format' => 'H:i',
         ])->assertRedirectBack();
     });
 
@@ -52,10 +54,21 @@ describe('general settings', function () {
         $this->put(route('settings.general.update'), [
             'default_rounding_strategy' => 15,
             'timezone' => 'Europe/Paris',
-            //            'locale' => 'fr',
             'theme' => 'system',
             'open_at_login' => false,
+            'date_format' => 'd/m/Y',
+            'time_format' => 'H:i',
         ])->assertRedirectBack();
+    });
+
+    it('validates date_format must be a valid enum value', function () {
+        $this->put(route('settings.general.update'), ['date_format' => 'invalid'])
+            ->assertInvalid(['date_format']);
+    });
+
+    it('validates time_format must be a valid enum value', function () {
+        $this->put(route('settings.general.update'), ['time_format' => 'invalid'])
+            ->assertInvalid(['time_format']);
     });
 
     //    it('validates locale must be in allowed list', function () {

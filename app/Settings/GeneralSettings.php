@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Settings;
 
 use App\Enums\AvailableLocale;
+use App\Enums\DateFormat;
 use App\Enums\RoundingStrategy;
+use App\Enums\TimeFormat;
 use Native\Desktop\Enums\SystemThemesEnum;
 use Spatie\LaravelSettings\Settings;
 
@@ -26,6 +28,10 @@ class GeneralSettings extends Settings
     public string $timezone;
 
     public AvailableLocale $locale;
+
+    public DateFormat $date_format;
+
+    public TimeFormat $time_format;
 
     public SystemThemesEnum $theme;
 

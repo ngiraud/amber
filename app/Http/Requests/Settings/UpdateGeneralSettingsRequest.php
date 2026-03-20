@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Requests\Settings;
 
+use App\Enums\DateFormat;
 use App\Enums\RoundingStrategy;
+use App\Enums\TimeFormat;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Native\Desktop\Enums\SystemThemesEnum;
@@ -27,6 +29,8 @@ class UpdateGeneralSettingsRequest extends FormRequest
             //            'locale' => ['required', Rule::enum(AvailableLocale::class)],
             'theme' => ['required', Rule::enum(SystemThemesEnum::class)],
             'open_at_login' => ['required', 'boolean'],
+            'date_format' => ['required', Rule::enum(DateFormat::class)],
+            'time_format' => ['required', Rule::enum(TimeFormat::class)],
         ];
     }
 }

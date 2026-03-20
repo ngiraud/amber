@@ -52,7 +52,8 @@ function confirmReset(): void {
 const props = defineProps<{
     generalSettings: GeneralSettings;
     timezones: string[];
-    // locales: LocaleOption[];
+    dateFormats: { value: string; label: string }[];
+    timeFormats: { value: string; label: string }[];
 }>();
 
 const page = usePage();
@@ -73,7 +74,8 @@ const form = useForm({
     default_daily_reference_hours: props.generalSettings.default_daily_reference_hours ?? 8,
     default_rounding_strategy: props.generalSettings.default_rounding_strategy ?? 15,
     timezone: props.generalSettings.timezone ?? '',
-    // locale: props.generalSettings.locale ?? '',
+    date_format: props.generalSettings.date_format ?? 'd/m/Y',
+    time_format: props.generalSettings.time_format ?? 'H:i',
     theme: props.generalSettings.theme ?? 'system',
     open_at_login: props.generalSettings.open_at_login ?? false,
 });
@@ -110,6 +112,24 @@ function submit(): void {
                             <InputField label="Timezone" :error="form.errors.timezone">
                                 <TimezoneCombobox v-model="form.timezone" :timezones="timezones" />
                             </InputField>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <InputField label="Date format" :error="form.errors.date_format">
+                                    <NativeSelect v-model="form.date_format" class="w-full">
+                                        <NativeSelectOption v-for="option in dateFormats" :key="option.value" :value="option.value">
+                                            {{ option.value }} — {{ option.label }}
+                                        </NativeSelectOption>
+                                    </NativeSelect>
+                                </InputField>
+
+                                <InputField label="Time format" :error="form.errors.time_format">
+                                    <NativeSelect v-model="form.time_format" class="w-full">
+                                        <NativeSelectOption v-for="option in timeFormats" :key="option.value" :value="option.value">
+                                            {{ option.label }}
+                                        </NativeSelectOption>
+                                    </NativeSelect>
+                                </InputField>
+                            </div>
 
                             <InputField label="Theme" :error="form.errors.theme" direction="horizontal">
                                 <AppearanceTabs v-model="form.theme" />

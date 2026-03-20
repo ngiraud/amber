@@ -9,6 +9,8 @@ export type GeneralSettings = {
     default_rounding_strategy: number;
     timezone: string | null;
     locale: string | null;
+    date_format: string;
+    time_format: string;
     theme: Appearance;
     open_at_login: boolean;
 };
