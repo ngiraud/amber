@@ -33,6 +33,10 @@ function actionLabelFor(step: OnboardingStep): string | undefined {
         return 'Log manually →';
     }
 
+    if (step.key === 'sync') {
+        return 'Sync now →';
+    }
+
     return undefined;
 }
 

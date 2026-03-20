@@ -92,6 +92,14 @@ class GetOnboardingState extends Action
                 'optional' => false,
             ],
             [
+                'key' => 'sync',
+                'label' => 'Sync your past activity',
+                'description' => 'Run a sync to import commits and work from your connected sources for any period.',
+                'complete' => Session::exists(),
+                'url' => '/settings/sources',
+                'optional' => true,
+            ],
+            [
                 'key' => 'sessions',
                 'label' => 'Sessions are tracked automatically',
                 'description' => 'Once your sources are configured, sessions are recorded automatically. You can also log a session manually.',

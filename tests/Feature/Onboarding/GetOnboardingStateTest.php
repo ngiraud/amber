@@ -20,7 +20,7 @@ describe('get onboarding state', function () {
 
         expect($state['dismissed'])->toBeFalse()
             ->and($state['all_complete'])->toBeFalse()
-            ->and($state['steps'])->toHaveCount(6);
+            ->and($state['steps'])->toHaveCount(7);
 
         foreach ($state['steps'] as $step) {
             if ($step['optional']) {
