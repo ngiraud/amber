@@ -30,7 +30,6 @@ activity reports.
 - **📊 Export Options:** Generate activity reports in PDF and Excel formats, ready to send to clients.
 - **🔔 Native Integration:** System notifications and a dedicated menu bar interface with real-time session status.
 - **🔗 Deep Link Support:** Trigger session actions from external tools (Raycast, Alfred, scripts) using `amber://` URLs.
-- **🔄 Auto-Updates:** Automatic update checks on launch and every 2 hours. A version chip in the title bar shows download progress and lets you install updates with one click.
 
 ## 🖥 Platform Support
 
@@ -103,6 +102,24 @@ Amber is built with the latest modern web and desktop technologies:
 - **Testing:** [Pest 4](https://pestphp.com)
 
 ## 📦 Installation
+
+### For macOS Users (Pre-built App)
+
+Amber is distributed as an **unsigned macOS application**. This means macOS will warn you the first time you open it, because it hasn't been notarized with an Apple Developer certificate.
+
+**This is expected and safe.** Here's how to open it:
+
+1. **Download** the latest `.dmg` from the [Releases](https://github.com/ngiraud/amber/releases) page.
+2. **Mount** the `.dmg` and drag Amber to your Applications folder.
+3. **First launch:** Right-click (or Ctrl+click) the app icon → **Open** → click **Open** in the dialog.
+   - Alternatively, if you see "Amber can't be opened", go to **System Settings → Privacy & Security** and click **Open Anyway**.
+
+You only need to do this once. After that, Amber opens normally.
+
+> [!NOTE]
+> Auto-updates are disabled in unsigned builds. To update, download and reinstall the latest release manually from the Releases page.
+
+---
 
 ### For Developers
 
