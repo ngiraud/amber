@@ -35,6 +35,7 @@ export function useDateFormat() {
                 return `${year}-${month}-${day}`;
             case 'd M Y': {
                 const shortMonth = new Intl.DateTimeFormat(locale, { month: 'short', timeZone: timezone }).format(d);
+
                 return `${day} ${shortMonth} ${year}`;
             }
             default:

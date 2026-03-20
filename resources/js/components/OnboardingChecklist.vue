@@ -61,7 +61,13 @@ function dismiss() {
             </div>
 
             <div class="mt-6 flex flex-col gap-2">
-                <OnboardingStepItem v-for="step in onboarding.steps" :key="step.key" :step="step" :action="actionFor(step)" :action-label="actionLabelFor(step)" />
+                <OnboardingStepItem
+                    v-for="step in onboarding.steps"
+                    :key="step.key"
+                    :step="step"
+                    :action="actionFor(step)"
+                    :action-label="actionLabelFor(step)"
+                />
             </div>
         </CardContent>
     </Card>

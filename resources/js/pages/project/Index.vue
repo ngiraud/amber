@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import { TriangleAlert } from 'lucide-vue-next';
+import { onMounted } from 'vue';
 import * as projectRoutes from '@/actions/App/Http/Controllers/ProjectController';
 import PageHeader from '@/components/PageHeader.vue';
 import ProjectSheet from '@/components/ProjectSheet.vue';

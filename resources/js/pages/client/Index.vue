@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
+import { onMounted } from 'vue';
 import ClientSheet from '@/components/ClientSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import { Badge } from '@/components/ui/badge';
