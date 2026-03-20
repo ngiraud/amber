@@ -146,7 +146,7 @@ class ReleaseCommand extends Command
 
         task("Commit, tag v{$version}, and push", function () use ($version): bool {
             Process::run(['git', 'add', 'CHANGELOG.md']);
-            Process::run(['git', 'commit', '-m', "chore: release v{$version} [skip ci]"]);
+            Process::run(['git', 'commit', '-m', "chore: release v{$version}"]);
             Process::run(['git', 'push', 'origin', 'main', '--quiet']);
             Process::run(['git', 'tag', "v{$version}"]);
 
