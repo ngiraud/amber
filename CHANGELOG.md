@@ -5,6 +5,14 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `php artisan release` command — interactive release wizard with preflight checks (branch, clean tree, sync with origin), current state display (commits since last tag), full test suite run, patch/minor/major version selection, CHANGELOG update, and tag creation/push
+
+---
+
 ## [0.1.0] — 2026-03-20 — Initial Public Release
 
 ### Added

@@ -40,17 +40,18 @@ Update `README.md` if any user-visible functionality is missing or outdated:
 
 ### 4. Update CHANGELOG.md
 
+The CHANGELOG targets **all audiences** — end users AND developers/contributors. Document anything meaningful: new features, behavior changes, bug fixes, developer tooling, CI improvements, test infrastructure, etc. Only skip truly trivial commits (lint fixes, typos, dependency bumps with no behavior change).
+
 Update `CHANGELOG.md` to reflect any undocumented changes:
 
 - Add missing entries under `## [Unreleased]`, creating the section if absent
 - Use the correct category:
-  - **Added** — new features
+  - **Added** — new features or tooling
   - **Changed** — behavior changes or refactors
   - **Fixed** — bug fixes
   - **Removed** — deleted functionality
-- Write concise, user-facing bullet points matching the tone of existing entries
+- Write concise bullet points — user-facing changes in plain language, developer changes in technical terms
 - Do **not** create a new version section — only append to `[Unreleased]`
-- Do **not** document internal-only changes (developer tooling, test updates, CI, code style)
 
 ### 5. Report changes
 
