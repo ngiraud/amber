@@ -24,8 +24,8 @@ export function useSpotlight() {
         }
     });
 
-    function spotlightClass(key: string, classes = 'rounded-lg -m-2 p-2 animate-spotlight'): Record<string, boolean> {
-        return { [classes]: activeTarget.value === key };
+    function spotlightClass(key: string, extraClasses = 'rounded-lg -m-2 p-2'): Record<string, boolean> {
+        return { [`animate-spotlight ${extraClasses}`.trim()]: activeTarget.value === key };
     }
 
     return { spotlightClass };

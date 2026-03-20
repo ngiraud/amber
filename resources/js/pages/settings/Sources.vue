@@ -37,7 +37,7 @@ function showSyncDialog(): void {
                     </p>
                 </div>
 
-                <Item variant="muted" :class="['flex items-center justify-between gap-4 p-4', spotlightClass('sync', 'animate-spotlight')]">
+                <Item variant="muted" :class="['flex items-center justify-between gap-4 p-4', spotlightClass('sync', '')]">
                     <div class="flex items-center gap-3">
                         <ItemMedia>
                             <LucideRefreshCcw class="size-5 text-muted-foreground" :class="{ 'opacity-40': !hasEnabledSources }" />
