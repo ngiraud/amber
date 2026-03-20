@@ -5,16 +5,20 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] — 2026-03-20 — Initial Public Release
+## [0.1.0] — 2026-03-20 — 2026-03-20 — Initial Public Release
 
 ### Added
-- Auto-updater (when `nativephp.updater.enabled` is true): version chip in title bar shows current version and update state (checking, downloading, ready) with a popover for release notes and install action
+
+- Auto-updater (when `nativephp.updater.enabled` is true): version chip in title bar shows current version and update state (checking, downloading, ready) with a popover for
+  release notes and install action
 - Software Updates card in Settings > General with inline status, download progress bar, and "Restart & Install" button when auto-updater is enabled
-- Manual GitHub release check (when auto-updater is disabled): "Check for updates" button in title bar popover and Settings > General fetches the latest GitHub release and links to it
+- Manual GitHub release check (when auto-updater is disabled): "Check for updates" button in title bar popover and Settings > General fetches the latest GitHub release and links to
+  it
 - "Check for updates" command in the command palette — delegates to auto-updater or GitHub check based on config
 - Automatic update check on app launch (production only) and every 2 hours via scheduler (skipped when auto-updater is disabled)
 - `EnsureUpdaterEnabled` middleware guards auto-updater routes and returns 403 when the updater is disabled
-- Deep link support extended: `session/toggle`, `session/switch`, `navigate/{page}` (dashboard, timeline, reports, clients, projects, sessions, activity, settings), and `activity/sync` (scans all sources with start/completion native notifications)
+- Deep link support extended: `session/toggle`, `session/switch`, `navigate/{page}` (dashboard, timeline, reports, clients, projects, sessions, activity, settings), and
+  `activity/sync` (scans all sources with start/completion native notifications)
 - Rich text editor (Tiptap) for session notes — available on session detail page, log past session sheet, live session sheet, and the title bar note dialog
 - Session notes dialog with full-height editor, auto-focus, and discard protection (blocks accidental close)
 - Rich text editor: headings (H1–H3), task lists, code blocks with syntax highlighting, links, typography, tables with row/column controls, and YouTube embed
@@ -57,6 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SQLite embedded database
 
 ### Changed
+
 - Removed `scan_interval_minutes` setting — scan window is now hardcoded (3 min) since the cron schedule is fixed
 - Replaced native date/time inputs with calendar popover pickers (DatePicker and DateTimePicker components)
 - Replaced Add Session buttons with Log Session using LogPastSessionSheet
@@ -65,6 +70,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Centralized active projects ordering via ActiveProjectsProps
 
 ### Fixed
+
 - Report lines rendered by date descending
 - AI config API key sync when needed
 - Rounding and daily_reference_hours no longer mandatory
