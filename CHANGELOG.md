@@ -11,6 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Date format preference in Settings > General — choose between DD/MM/YYYY, MM/DD/YYYY, YYYY-MM-DD, or DD Mon YYYY; applied everywhere dates are displayed
 - Time format preference in Settings > General — toggle between 24h (14:30) and 12h (02:30 PM); applied everywhere times are displayed
+- "Sync past activity" step in onboarding checklist with spotlight on the Sources page sync button
+
+### Fixed
+
+- Onboarding create sheet no longer auto-opens when navigating to Clients or Projects pages after spotlight interaction
 
 ---
 
