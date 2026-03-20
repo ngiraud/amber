@@ -96,7 +96,7 @@ class GetOnboardingState extends Action
                 'label' => 'Sync your past activity',
                 'description' => 'Run a sync to import commits and work from your connected sources for any period.',
                 'complete' => Session::exists(),
-                'url' => '/settings/sources',
+                'url' => '/settings/sources?spotlight=sync',
                 'optional' => true,
             ],
             [
