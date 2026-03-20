@@ -229,7 +229,6 @@ return [
 
     'postbuild' => [
         'rm -rf public/build',
-        'php artisan cache:clear',
     ],
 
     /**
