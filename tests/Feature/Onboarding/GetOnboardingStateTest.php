@@ -81,24 +81,27 @@ describe('get onboarding state', function () {
         expect($step['optional'])->toBeTrue();
     });
 
-    it('marks session step complete when a session exists', function () {
+    it('marks sessions step complete when a session exists', function () {
         Session::factory()->create();
 
         $state = app(GetOnboardingState::class)->handle();
-        $step = collect($state['steps'])->firstWhere('key', 'start-session');
+        $step = collect($state['steps'])->firstWhere('key', 'sessions');
 
         expect($step['complete'])->toBeTrue();
+        expect($step['optional'])->toBeTrue();
+    });
+
+    it('marks company step optional', function () {
+        $state = app(GetOnboardingState::class)->handle();
+        $step = collect($state['steps'])->firstWhere('key', 'company');
+
+        expect($step['optional'])->toBeTrue();
     });
 
     it('considers all_complete true when all required steps are done', function () {
-        $generalSettings = app(GeneralSettings::class);
-        $generalSettings->company_name = 'Acme Corp';
-        $generalSettings->save();
-
         $client = Client::factory()->create();
         $project = Project::factory()->for($client)->create();
         ProjectRepository::factory()->for($project)->create();
-        Session::factory()->create();
 
         $sourceSettings = app(ActivitySourceSettings::class);
         $sourceSettings->setConfig(ActivityEventSourceType::Git, ['enabled' => true, 'author_emails' => []]);

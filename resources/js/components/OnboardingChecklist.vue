@@ -19,10 +19,18 @@ const progressPercent = computed(() => Math.round((completedCount.value / totalC
 const { shouldOpen: shouldOpenSession } = useOpenSessionDialog();
 
 function actionFor(step: OnboardingStep): (() => void) | undefined {
-    if (step.key === 'start-session') {
+    if (step.key === 'sessions') {
         return () => {
             shouldOpenSession.value = true;
         };
+    }
+
+    return undefined;
+}
+
+function actionLabelFor(step: OnboardingStep): string | undefined {
+    if (step.key === 'sessions') {
+        return 'Log manually →';
     }
 
     return undefined;
@@ -49,7 +57,7 @@ function dismiss() {
             </div>
 
             <div class="mt-6 flex flex-col gap-2">
-                <OnboardingStepItem v-for="step in onboarding.steps" :key="step.key" :step="step" :action="actionFor(step)" />
+                <OnboardingStepItem v-for="step in onboarding.steps" :key="step.key" :step="step" :action="actionFor(step)" :action-label="actionLabelFor(step)" />
             </div>
         </CardContent>
     </Card>

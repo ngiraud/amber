@@ -60,14 +60,6 @@ class GetOnboardingState extends Action
     {
         return [
             [
-                'key' => 'company',
-                'label' => 'Set up company info',
-                'description' => 'Add your company name to personalize the app.',
-                'complete' => ! empty($this->generalSettings->company_name),
-                'url' => '/settings/general?spotlight=company',
-                'optional' => false,
-            ],
-            [
                 'key' => 'sources',
                 'label' => 'Configure activity sources',
                 'description' => 'Enable the sources that match your workflow.',
@@ -100,12 +92,20 @@ class GetOnboardingState extends Action
                 'optional' => false,
             ],
             [
-                'key' => 'start-session',
-                'label' => 'Start your first session',
-                'description' => 'Track your first work session to see everything in action.',
+                'key' => 'sessions',
+                'label' => 'Sessions are tracked automatically',
+                'description' => 'Once your sources are configured, sessions are recorded automatically. You can also log a session manually.',
                 'complete' => Session::exists(),
                 'url' => '/?spotlight=start-session',
-                'optional' => false,
+                'optional' => true,
+            ],
+            [
+                'key' => 'company',
+                'label' => 'Set up company info',
+                'description' => 'Add your company name to personalize the app.',
+                'complete' => ! empty($this->generalSettings->company_name),
+                'url' => '/settings/general?spotlight=company',
+                'optional' => true,
             ],
         ];
     }
