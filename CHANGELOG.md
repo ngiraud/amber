@@ -5,6 +5,14 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Clicking "Reconstruct sessions" in the activity backfill toast now opens the reconstruction dialog directly instead of navigating to the Timeline page first
+
+---
+
 ## [0.3.0] — 2026-03-20
 
 ### Added
