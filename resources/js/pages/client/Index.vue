@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onMounted } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import ClientSheet from '@/components/ClientSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
@@ -13,6 +14,10 @@ import type { Client, Paginator } from '@/types';
 
 const { spotlightClass } = useSpotlight();
 const { shouldOpen } = useOpenClientSheet();
+
+onMounted(() => {
+    shouldOpen.value = false;
+});
 
 defineProps<{
     clients: Paginator<Client>;
