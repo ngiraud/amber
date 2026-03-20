@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
 use InvalidArgumentException;
+use Symfony\Component\Process\Process as SymfonyProcess;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
@@ -77,8 +78,7 @@ class ReleaseCommand extends Command
 
         task('Working tree clean', fn (): bool => $status === '');
 
-        if ($status !== '') {
-            error('Uncommitted changes detected. Commit or stash them first.');
+        if ($status !== '' && ! confirm('Uncommitted changes detected. Release anyway?', default: false)) {
             $passed = false;
         }
 
@@ -117,7 +117,11 @@ class ReleaseCommand extends Command
         title('Test Suite');
         info('Running composer test:all...');
 
-        $result = Process::tty()->run('composer test:all');
+        $pending = SymfonyProcess::isTtySupported()
+            ? Process::tty()
+            : Process::newPendingProcess();
+
+        $result = $pending->run('composer test:all');
 
         if (! $result->successful()) {
             error('Tests failed. Fix issues before releasing.');
@@ -150,9 +154,14 @@ class ReleaseCommand extends Command
         });
     }
 
+    private function changelogPath(): string
+    {
+        return (string) config('changelog.path', base_path('CHANGELOG.md'));
+    }
+
     private function currentVersion(): string
     {
-        $changelog = (string) file_get_contents(base_path('CHANGELOG.md'));
+        $changelog = (string) file_get_contents($this->changelogPath());
 
         if (preg_match('/^## \[(\d+\.\d+\.\d+)\]/m', $changelog, $matches)) {
             return $matches[1];
@@ -184,7 +193,7 @@ class ReleaseCommand extends Command
 
     private function updateChangelog(string $version): void
     {
-        $path = base_path('CHANGELOG.md');
+        $path = $this->changelogPath();
         $content = (string) file_get_contents($path);
         $date = Carbon::today()->toDateString();
 
