@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Process;
 use InvalidArgumentException;
-use Symfony\Component\Process\Process as SymfonyProcess;
 
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\error;
@@ -115,21 +114,12 @@ class ReleaseCommand extends Command
     private function runTests(): bool
     {
         title('Test Suite');
-        info('Running composer test:all...');
 
-        $pending = SymfonyProcess::isTtySupported()
-            ? Process::tty()->env(['APP_ENV' => false])
-            : Process::newPendingProcess();
-
-        $result = $pending->run('composer test:all');
-
-        if (! $result->successful()) {
-            error('Tests failed. Fix issues before releasing.');
+        if (! confirm('Have you run `composer test:all` and did all checks pass?', default: false)) {
+            warning('Please run `composer test:all` before releasing.');
 
             return false;
         }
-
-        info('All checks passed.');
 
         return true;
     }

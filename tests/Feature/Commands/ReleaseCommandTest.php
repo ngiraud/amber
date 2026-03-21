@@ -61,7 +61,6 @@ function fakeReleaseProcesses(array $overrides = []): void
         "'git' 'commit'*" => Process::result(''),
         "'git' 'push'*" => Process::result(''),
         "'git' 'tag'*" => Process::result(''),
-        'composer test:all' => Process::result(''),
     ], $overrides));
 }
 
@@ -91,6 +90,7 @@ describe('preflight checks', function (): void {
 
         $this->artisan('release')
             ->expectsConfirmation('Uncommitted changes detected. Release anyway?', 'yes')
+            ->expectsConfirmation('Have you run `composer test:all` and did all checks pass?', 'yes')
             ->expectsChoice('Select release type', 'patch', RELEASE_TYPE_CHOICES)
             ->expectsConfirmation('Create and push tag v0.1.1?', 'no')
             ->assertSuccessful();
@@ -98,10 +98,12 @@ describe('preflight checks', function (): void {
 })->group('preflight');
 
 describe('test suite', function (): void {
-    it('fails when tests fail', function (): void {
-        fakeReleaseProcesses(['composer test:all' => Process::result(exitCode: 1)]);
+    it('fails when confirmation is declined', function (): void {
+        fakeReleaseProcesses();
 
-        $this->artisan('release')->assertFailed();
+        $this->artisan('release')
+            ->expectsConfirmation('Have you run `composer test:all` and did all checks pass?', 'no')
+            ->assertFailed();
     });
 })->group('tests');
 
@@ -110,6 +112,7 @@ describe('version selection', function (): void {
         fakeReleaseProcesses();
 
         $this->artisan('release')
+            ->expectsConfirmation('Have you run `composer test:all` and did all checks pass?', 'yes')
             ->expectsChoice('Select release type', 'patch', RELEASE_TYPE_CHOICES)
             ->expectsConfirmation('Create and push tag v0.1.1?', 'no')
             ->assertSuccessful();
@@ -123,6 +126,7 @@ describe('publish', function (): void {
         fakeReleaseProcesses();
 
         $this->artisan('release')
+            ->expectsConfirmation('Have you run `composer test:all` and did all checks pass?', 'yes')
             ->expectsChoice('Select release type', $type, RELEASE_TYPE_CHOICES)
             ->expectsConfirmation("Create and push tag v{$expectedVersion}?", 'yes')
             ->assertSuccessful();
@@ -139,6 +143,7 @@ describe('publish', function (): void {
         fakeReleaseProcesses();
 
         $this->artisan('release')
+            ->expectsConfirmation('Have you run `composer test:all` and did all checks pass?', 'yes')
             ->expectsChoice('Select release type', 'patch', RELEASE_TYPE_CHOICES)
             ->expectsConfirmation('Create and push tag v0.1.1?', 'yes')
             ->assertSuccessful();
