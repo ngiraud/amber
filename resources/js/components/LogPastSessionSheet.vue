@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { t } from '@/composables/useTranslation';
 import * as sessionRoutes from '@/routes/sessions';
 
 const page = usePage();
@@ -62,14 +63,14 @@ function submit(): void {
 
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>Log Past Session</SheetTitle>
+                <SheetTitle>{{ t('app.session.log_past') }}</SheetTitle>
             </SheetHeader>
 
             <div class="mt-6 flex flex-col gap-5 px-4">
                 <div class="flex flex-col gap-2">
-                    <Label for="past-project_id">Project</Label>
+                    <Label for="past-project_id">{{ t('app.session.project') }}</Label>
                     <NativeSelect id="past-project_id" v-model="form.project_id" required>
-                        <NativeSelectOption value="" disabled>Select a project…</NativeSelectOption>
+                        <NativeSelectOption value="" disabled>{{ t('app.common.select_project') }}</NativeSelectOption>
                         <NativeSelectOption v-for="project in projects" :key="project.id" :value="project.id">
                             {{ project.client?.name }} — {{ project.name }}
                         </NativeSelectOption>
@@ -78,29 +79,33 @@ function submit(): void {
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
-                    <InputField label="Start" :error="form.errors.started_at">
+                    <InputField :label="t('app.common.start')" :error="form.errors.started_at">
                         <DateTimePicker v-model="form.started_at" />
                     </InputField>
 
-                    <InputField label="End" :error="form.errors.ended_at">
+                    <InputField :label="t('app.common.end')" :error="form.errors.ended_at">
                         <DateTimePicker v-model="form.ended_at" />
                     </InputField>
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <Label for="past-description">Description <span class="text-muted-foreground">(optional)</span></Label>
-                    <Input id="past-description" v-model="form.description" type="text" placeholder="e.g. Meeting with client" />
+                    <Label for="past-description"
+                        >{{ t('app.common.description') }} <span class="text-muted-foreground">({{ t('app.common.optional') }})</span></Label
+                    >
+                    <Input id="past-description" v-model="form.description" type="text" :placeholder="t('app.session.description_placeholder')" />
                     <p v-if="form.errors.description" class="text-sm text-destructive">{{ form.errors.description }}</p>
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <Label>Notes <span class="text-muted-foreground">(optional)</span></Label>
-                    <RichTextEditor v-model="form.notes" placeholder="Additional notes…" />
+                    <Label
+                        >{{ t('app.common.notes') }} <span class="text-muted-foreground">({{ t('app.common.optional') }})</span></Label
+                    >
+                    <RichTextEditor v-model="form.notes" :placeholder="t('app.session.additional_notes_placeholder')" />
                 </div>
 
                 <SheetFooter class="px-0">
                     <Button class="w-full" :disabled="form.processing" @click="submit">
-                        {{ form.processing ? 'Saving…' : 'Add session' }}
+                        {{ form.processing ? t('app.common.saving') : t('app.session.add') }}
                     </Button>
                 </SheetFooter>
             </div>

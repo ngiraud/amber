@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/sidebar';
 import { useCurrentUrl } from '@/composables/useCurrentUrl';
 import { formatHotkey } from '@/composables/useOs';
+import { t } from '@/composables/useTranslation';
 import { home } from '@/routes';
 import * as activityRoutes from '@/routes/activity';
 import * as clientRoutes from '@/routes/clients';
@@ -47,7 +48,7 @@ function navHotkey(page: string): string {
                                 size="lg"
                                 as-child
                                 :is-active="isCurrentUrl(home())"
-                                tooltip="Dashboard"
+                                :tooltip="t('app.nav.dashboard')"
                                 :tooltip-hotkey="navHotkey('dashboard')"
                             >
                                 <Link :href="home().url" class="items-center justify-center">
@@ -61,7 +62,7 @@ function navHotkey(page: string): string {
                                 size="lg"
                                 as-child
                                 :is-active="isCurrentUrlOrChild(timelineRoutes.index())"
-                                tooltip="Timeline"
+                                :tooltip="t('app.nav.timeline')"
                                 :tooltip-hotkey="navHotkey('timeline')"
                             >
                                 <Link :href="timelineRoutes.index().url" class="items-center justify-center">
@@ -75,7 +76,7 @@ function navHotkey(page: string): string {
                                 size="lg"
                                 as-child
                                 :is-active="isCurrentUrlOrChild(clientRoutes.index())"
-                                tooltip="Clients"
+                                :tooltip="t('app.nav.clients')"
                                 :tooltip-hotkey="navHotkey('clients')"
                             >
                                 <Link :href="clientRoutes.index()" class="items-center justify-center">
@@ -89,7 +90,7 @@ function navHotkey(page: string): string {
                                 size="lg"
                                 as-child
                                 :is-active="isCurrentUrlOrChild(projectRoutes.index())"
-                                tooltip="Projects"
+                                :tooltip="t('app.nav.projects')"
                                 :tooltip-hotkey="navHotkey('projects')"
                             >
                                 <Link :href="projectRoutes.index()" class="items-center justify-center">
@@ -103,7 +104,7 @@ function navHotkey(page: string): string {
                                 size="lg"
                                 as-child
                                 :is-active="isCurrentUrlOrChild(reportRoutes.index())"
-                                tooltip="Reports"
+                                :tooltip="t('app.nav.reports')"
                                 :tooltip-hotkey="navHotkey('reports')"
                             >
                                 <Link :href="reportRoutes.index()" class="items-center justify-center">
@@ -123,7 +124,7 @@ function navHotkey(page: string): string {
                         size="lg"
                         as-child
                         :is-active="isCurrentUrlOrChild(sessionRoutes.index())"
-                        tooltip="Sessions"
+                        :tooltip="t('app.nav.sessions')"
                         :tooltip-hotkey="navHotkey('sessions')"
                     >
                         <Link :href="sessionRoutes.index()" class="items-center justify-center">
@@ -137,7 +138,7 @@ function navHotkey(page: string): string {
                         size="lg"
                         as-child
                         :is-active="isCurrentUrl(activityRoutes.index())"
-                        tooltip="Activity"
+                        :tooltip="t('app.nav.activities')"
                         :tooltip-hotkey="navHotkey('activity')"
                     >
                         <Link :href="activityRoutes.index()" class="items-center justify-center">
@@ -153,7 +154,7 @@ function navHotkey(page: string): string {
                         size="lg"
                         as-child
                         :is-active="isCurrentUrlOrChild(settingsRoutes.index())"
-                        tooltip="Settings"
+                        :tooltip="t('app.nav.settings')"
                         :tooltip-hotkey="navHotkey('settings')"
                     >
                         <Link :href="settingsRoutes.index()" class="items-center justify-center">

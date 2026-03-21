@@ -7,6 +7,7 @@ import { toast } from 'vue-sonner';
 import { Button } from '@/components/ui/button';
 import { Item, ItemActions, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Switch } from '@/components/ui/switch';
+import { t } from '@/composables/useTranslation';
 import { cn } from '@/lib/utils';
 import * as sourcesRoutes from '@/routes/settings/sources';
 import type { SourceDefinition } from '@/types';
@@ -55,7 +56,7 @@ const { copy } = useClipboard();
 
 function handleCopy(command: string): void {
     copy(command);
-    toast.info('Command copied to clipboard');
+    toast.info(t('app.sources.command_copied'));
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
@@ -159,7 +160,7 @@ const indicatorClass = computed(() => {
             >
                 <AlertCircleIcon v-if="hasError" class="size-3" />
                 <InfoIcon v-else class="size-3" />
-                {{ hasError ? 'Tool Not Found' : 'Setup Requirements' }}
+                {{ hasError ? t('app.sources.tool_not_found') : t('app.sources.setup_requirements') }}
             </div>
 
             <p class="leading-relaxed">{{ source.requirements }}</p>

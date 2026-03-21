@@ -7,6 +7,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import TimelineStatsBar from '@/components/TimelineStatsBar.vue';
 import { Button } from '@/components/ui/button';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatPeriod } from '@/lib/utils';
 import * as timelineRoutes from '@/routes/timeline';
@@ -73,15 +74,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 </script>
 
 <template>
-    <AppLayout title="Timeline">
+    <AppLayout :title="t('app.timeline.title')">
         <template #header>
-            <PageHeader title="Timeline">
+            <PageHeader :title="t('app.timeline.title')">
                 <template #actions>
                     <div class="flex items-center gap-2">
                         <ReconstructDialog ref="fromDateDialog" batch>
                             <Button variant="outline" size="sm">
                                 <RefreshCwIcon class="mr-1.5 size-3.5" />
-                                Reconstruct since a date
+                                {{ t('app.timeline.reconstruct_since_date') }}
                             </Button>
                         </ReconstructDialog>
 

@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { t } from '@/composables/useTranslation';
 import { reconstruct, reconstructFrom } from '@/routes/sessions';
 
 const props = withDefaults(
@@ -39,16 +40,14 @@ function show(initialFromDate?: string): void {
 
 defineExpose({ show });
 
-const title = computed(() => (props.batch ? 'Reconstruct since a date' : 'Reconstruct sessions'));
+const title = computed(() => (props.batch ? t('app.timeline.reconstruct_since_date') : t('app.timeline.reconstruct_sessions')));
 
 const description = computed(() => {
     if (props.batch) {
-        return 'Reconstruct sessions for every day from the selected date to today.';
+        return t('app.timeline.reconstruct_since_description');
     }
 
-    return props.hasSessions
-        ? 'There are existing sessions for this day. How would you like to reconstruct?'
-        : 'Configure how you would like to reconstruct sessions for this day.';
+    return props.hasSessions ? t('app.timeline.reconstruct_existing_description') : t('app.timeline.reconstruct_new_description');
 });
 
 const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()));
@@ -68,7 +67,7 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
 
             <Form :action="action" class="flex flex-col gap-4 pt-2" #default="{ errors, processing }" @success="() => (open = false)">
                 <template v-if="batch">
-                    <InputField label="Starting from" :error="errors.from_date" required>
+                    <InputField :label="t('app.timeline.starting_from')" :error="errors.from_date" required>
                         <DatePicker v-model="fromDate" :max="new Date().toISOString().slice(0, 10)" />
                         <input type="hidden" name="from_date" :value="fromDate" />
                     </InputField>
@@ -80,7 +79,7 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
                 <input type="hidden" name="mode" :value="mode" />
 
                 <div class="flex flex-col gap-2">
-                    <Label>Mode</Label>
+                    <Label>{{ t('app.common.mode') }}</Label>
                     <RadioGroup v-model="mode" class="gap-2">
                         <Item
                             as="label"
@@ -92,8 +91,8 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
                                 <PlusIcon class="size-4 text-muted-foreground" />
                             </ItemMedia>
                             <ItemContent>
-                                <ItemTitle>Fill gaps</ItemTitle>
-                                <ItemDescription>Add missing sessions without touching existing ones.</ItemDescription>
+                                <ItemTitle>{{ t('app.timeline.fill_gaps') }}</ItemTitle>
+                                <ItemDescription>{{ t('app.timeline.fill_gaps_description') }}</ItemDescription>
                             </ItemContent>
                             <RadioGroupItem value="gaps" />
                         </Item>
@@ -108,8 +107,8 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
                                 <RefreshCwIcon class="size-4 text-muted-foreground" />
                             </ItemMedia>
                             <ItemContent>
-                                <ItemTitle>Rebuild auto sessions</ItemTitle>
-                                <ItemDescription>Delete auto-generated sessions and reconstruct from scratch.</ItemDescription>
+                                <ItemTitle>{{ t('app.timeline.rebuild_sessions') }}</ItemTitle>
+                                <ItemDescription>{{ t('app.timeline.rebuild_sessions_description') }}</ItemDescription>
                             </ItemContent>
                             <RadioGroupItem value="replace" />
                         </Item>
@@ -117,10 +116,10 @@ const action = computed(() => (props.batch ? reconstructFrom() : reconstruct()))
                 </div>
 
                 <div class="flex justify-end gap-2 pt-2">
-                    <Button type="button" variant="ghost" size="sm" @click="open = false" :disabled="processing">Cancel</Button>
+                    <Button type="button" variant="ghost" size="sm" @click="open = false" :disabled="processing">{{ t('app.common.cancel') }}</Button>
                     <Button type="submit" size="sm" :disabled="processing || (batch && !fromDate)">
                         <Loader2Icon v-if="processing" class="mr-2 size-4 animate-spin" />
-                        {{ processing ? 'Reconstructing…' : 'Reconstruct' }}
+                        {{ processing ? t('app.timeline.reconstructing') : t('app.timeline.reconstruct') }}
                     </Button>
                 </div>
             </Form>

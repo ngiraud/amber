@@ -13,18 +13,18 @@ enum ActivitySourceCategory: string
     public function label(): string
     {
         return match ($this) {
-            self::AiClients => 'AI Clients',
-            self::DevTools => 'Developer Tools',
-            self::FileWatcher => 'File Watcher',
+            self::AiClients => __('app.sources.categories.ai_clients.label'),
+            self::DevTools => __('app.sources.categories.dev_tools.label'),
+            self::FileWatcher => __('app.sources.categories.file_watcher.label'),
         };
     }
 
     public function description(): string
     {
         return match ($this) {
-            self::AiClients => 'AI-powered coding assistants and tools',
-            self::DevTools => 'Version control and development tools',
-            self::FileWatcher => 'Real-time file system monitoring',
+            self::AiClients => __('app.sources.categories.ai_clients.description'),
+            self::DevTools => __('app.sources.categories.dev_tools.description'),
+            self::FileWatcher => __('app.sources.categories.file_watcher.description'),
         };
     }
 

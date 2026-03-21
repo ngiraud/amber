@@ -6,6 +6,7 @@ import InputField from '@/components/InputField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { t } from '@/composables/useTranslation';
 import repositories from '@/routes/projects/repositories';
 import type { Project } from '@/types';
 
@@ -37,7 +38,7 @@ function reset(): void {
 
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>Add repository</SheetTitle>
+                <SheetTitle>{{ t('app.project.add_repository') }}</SheetTitle>
             </SheetHeader>
 
             <Form
@@ -52,17 +53,17 @@ function reset(): void {
                     }
                 "
             >
-                <InputField label="Local path" :error="errors.local_path">
+                <InputField :label="t('app.project.local_path')" :error="errors.local_path">
                     <FolderPathInput v-model="localPath" name="local_path" placeholder="/Users/me/code/my-repo" @pick="onPick" />
                 </InputField>
 
-                <InputField label="Repository name" :error="errors.name">
+                <InputField :label="t('app.project.repository_name')" :error="errors.name">
                     <Input v-model="name" name="name" type="text" placeholder="my-repo" />
                 </InputField>
 
                 <SheetFooter>
                     <Button type="submit" :disabled="processing" class="w-full">
-                        {{ processing ? 'Adding…' : 'Add repository' }}
+                        {{ processing ? t('app.common.adding') : t('app.project.add_repository') }}
                     </Button>
                 </SheetFooter>
             </Form>

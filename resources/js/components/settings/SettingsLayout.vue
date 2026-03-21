@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
 import PageHeader from '@/components/PageHeader.vue';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as settingsRoutes from '@/routes/settings';
 
@@ -9,17 +10,17 @@ defineProps<{
 }>();
 
 const navItems = [
-    { label: 'General', href: settingsRoutes.general().url, tab: 'general' },
-    { label: 'Activity', href: settingsRoutes.activity().url, tab: 'activity' },
-    { label: 'Sources', href: settingsRoutes.sources().url, tab: 'sources' },
-    { label: 'AI', href: settingsRoutes.ai().url, tab: 'ai' },
+    { labelKey: 'app.settings.general', href: settingsRoutes.general().url, tab: 'general' },
+    { labelKey: 'app.settings.activity', href: settingsRoutes.activity().url, tab: 'activity' },
+    { labelKey: 'app.settings.sources', href: settingsRoutes.sources().url, tab: 'sources' },
+    { labelKey: 'app.settings.ai', href: settingsRoutes.ai().url, tab: 'ai' },
 ] as const;
 </script>
 
 <template>
-    <AppLayout title="Settings">
+    <AppLayout :title="t('app.settings.title')">
         <template #header>
-            <PageHeader title="Settings" />
+            <PageHeader :title="t('app.settings.title')" />
         </template>
 
         <div class="flex gap-10">
@@ -36,7 +37,7 @@ const navItems = [
                                     : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
                             "
                         >
-                            {{ item.label }}
+                            {{ t(item.labelKey) }}
                         </Link>
                     </li>
                 </ul>

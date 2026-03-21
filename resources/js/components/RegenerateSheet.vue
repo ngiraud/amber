@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { t } from '@/composables/useTranslation';
 import * as reportRoutes from '@/routes/reports';
 import type { ActivityReport, AiSettings } from '@/types';
 
@@ -24,7 +25,7 @@ const useAiSummary = ref(props.aiSettings.enabled);
     <Sheet v-model:open="open">
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>Regenerate Report</SheetTitle>
+                <SheetTitle>{{ t('app.report.regenerate_title') }}</SheetTitle>
             </SheetHeader>
 
             <Form
@@ -40,20 +41,20 @@ const useAiSummary = ref(props.aiSettings.enabled);
                 >
                     <SparklesIcon class="size-4 shrink-0 text-violet-500 dark:text-violet-400" />
                     <div class="min-w-0 flex-1">
-                        <p class="text-sm font-medium text-violet-800 dark:text-violet-300">AI summaries</p>
-                        <p class="text-xs text-violet-600 dark:text-violet-400">Summarize each activity line with your LLM.</p>
+                        <p class="text-sm font-medium text-violet-800 dark:text-violet-300">{{ t('app.report.ai_summaries') }}</p>
+                        <p class="text-xs text-violet-600 dark:text-violet-400">{{ t('app.report.ai_summaries_description') }}</p>
                     </div>
                     <input type="hidden" name="use_ai_summary" :value="useAiSummary ? '1' : '0'" />
                     <Switch v-model="useAiSummary" />
                 </div>
 
-                <InputField label="Notes" :error="errors.notes">
-                    <Textarea name="notes" rows="4" placeholder="Optional notes for this report…" :default-value="report.notes ?? ''" />
+                <InputField :label="t('app.common.notes')" :error="errors.notes">
+                    <Textarea name="notes" rows="4" :placeholder="t('app.common.optional') + '…'" :default-value="report.notes ?? ''" />
                 </InputField>
 
                 <SheetFooter>
                     <Button type="submit" :disabled="processing" class="w-full">
-                        {{ processing ? 'Regenerating…' : 'Regenerate report' }}
+                        {{ processing ? t('app.report.regenerating') : t('app.report.regenerate_action') }}
                     </Button>
                 </SheetFooter>
             </Form>

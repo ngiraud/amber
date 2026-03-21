@@ -3,6 +3,7 @@ declare global {
         Native?: {
             on: (event: string, callback: (payload: unknown) => void) => void;
         };
+        __translations: Record<string, Record<string, string>>;
     }
 }
 

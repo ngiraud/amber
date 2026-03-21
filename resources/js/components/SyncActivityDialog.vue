@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useDateFormat } from '@/composables/useDateFormat';
+import { t } from '@/composables/useTranslation';
 import { sync as syncRoute } from '@/routes/activity';
 import * as timelineRoutes from '@/routes/timeline';
 
@@ -40,12 +41,12 @@ const syncedSince = ref('');
 
 const today = new Date().toISOString().slice(0, 10);
 
-const periodOptions: { value: Period; label: string }[] = [
-    { value: 'today', label: 'Today' },
-    { value: 'yesterday', label: 'Yesterday' },
-    { value: 'month', label: 'Start of month' },
-    { value: 'custom', label: 'Custom range' },
-];
+const periodOptions = computed((): { value: Period; label: string }[] => [
+    { value: 'today', label: t('app.dashboard.today') },
+    { value: 'yesterday', label: t('app.sync.yesterday') },
+    { value: 'month', label: t('app.sync.start_of_month') },
+    { value: 'custom', label: t('app.sync.custom_range') },
+]);
 
 const periodRangeLabel = computed(() => {
     const now = new Date();
@@ -180,16 +181,16 @@ defineExpose({ show });
     <Dialog :open="open" @update:open="phase !== 'syncing' ? (open = $event) : undefined">
         <DialogContent class="sm:max-w-lg" :show-close-button="phase !== 'syncing'">
             <DialogHeader>
-                <DialogTitle>{{ phase === 'done' ? 'Sync complete' : 'Sync Activity Sources' }}</DialogTitle>
-                <DialogDescription v-if="phase === 'config'">Select the period and sources you want to scan for activity.</DialogDescription>
-                <DialogDescription v-else-if="phase === 'syncing'">Scanning your sources, please wait…</DialogDescription>
-                <DialogDescription v-else-if="totalCount === 0">No new events found for {{ periodRangeLabel }}.</DialogDescription>
+                <DialogTitle>{{ phase === 'done' ? t('app.sync.complete') : t('app.sync.title') }}</DialogTitle>
+                <DialogDescription v-if="phase === 'config'">{{ t('app.sync.config_description') }}</DialogDescription>
+                <DialogDescription v-else-if="phase === 'syncing'">{{ t('app.sync.scanning_description') }}</DialogDescription>
+                <DialogDescription v-else-if="totalCount === 0">{{ t('app.sync.no_events_found', { period: periodRangeLabel }) }}</DialogDescription>
             </DialogHeader>
 
             <!-- Config phase -->
             <div v-if="phase === 'config'" class="flex flex-col gap-6 pt-2">
                 <div class="flex flex-col gap-3">
-                    <Label>Period</Label>
+                    <Label>{{ t('app.sync.period') }}</Label>
                     <RadioGroup v-model="period" class="grid grid-cols-2 gap-2">
                         <label
                             v-for="opt in periodOptions"
@@ -203,11 +204,11 @@ defineExpose({ show });
 
                     <div v-if="period === 'custom'" class="grid grid-cols-2 gap-2">
                         <div class="flex flex-col gap-1.5">
-                            <Label class="text-xs text-muted-foreground">From</Label>
+                            <Label class="text-xs text-muted-foreground">{{ t('app.report.from') }}</Label>
                             <DatePicker v-model="customFrom" :max="customTo" />
                         </div>
                         <div class="flex flex-col gap-1.5">
-                            <Label class="text-xs text-muted-foreground">To</Label>
+                            <Label class="text-xs text-muted-foreground">{{ t('app.report.to') }}</Label>
                             <DatePicker v-model="customTo" :min="customFrom" :max="today" />
                         </div>
                     </div>
@@ -215,12 +216,12 @@ defineExpose({ show });
 
                 <div class="flex flex-col gap-3">
                     <div class="flex items-center justify-between">
-                        <Label>Sources</Label>
+                        <Label>{{ t('app.settings.sources') }}</Label>
                         <button
                             class="text-xs text-primary hover:underline"
                             @click="selectedSources = selectedSources.length === enabledSources.length ? [] : enabledSources.map((s) => s.value)"
                         >
-                            {{ selectedSources.length === enabledSources.length ? 'Deselect all' : 'Select all' }}
+                            {{ selectedSources.length === enabledSources.length ? t('app.sync.deselect_all') : t('app.sync.select_all') }}
                         </button>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
@@ -239,20 +240,20 @@ defineExpose({ show });
                         </div>
                     </div>
                     <p v-if="enabledSources.length === 0" class="text-xs text-muted-foreground italic">
-                        No sources enabled. Enable them in settings.
+                        {{ t('app.sync.no_sources') }}
                     </p>
                 </div>
 
                 <div class="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-xs text-muted-foreground">
                     <CalendarDaysIcon class="size-3.5 shrink-0" />
                     <span
-                        >Will scan: <span class="font-medium text-foreground">{{ periodRangeLabel }}</span></span
+                        >{{ t('app.sync.will_scan') }} <span class="font-medium text-foreground">{{ periodRangeLabel }}</span></span
                     >
                 </div>
 
                 <div class="flex justify-end gap-2">
-                    <Button type="button" variant="ghost" size="sm" @click="open = false">Cancel</Button>
-                    <Button type="button" size="sm" :disabled="selectedSources.length === 0" @click="startSync">Start sync</Button>
+                    <Button type="button" variant="ghost" size="sm" @click="open = false">{{ t('app.common.cancel') }}</Button>
+                    <Button type="button" size="sm" :disabled="selectedSources.length === 0" @click="startSync">{{ t('app.sync.start') }}</Button>
                 </div>
             </div>
 
@@ -269,21 +270,21 @@ defineExpose({ show });
                         <span class="flex items-center gap-1.5 text-xs">
                             <template v-if="item.status === 'waiting'">
                                 <CircleIcon class="size-3.5 text-muted-foreground" />
-                                <span class="text-muted-foreground">Waiting</span>
+                                <span class="text-muted-foreground">{{ t('app.sync.waiting') }}</span>
                             </template>
                             <template v-else-if="item.status === 'scanning'">
                                 <Loader2Icon class="size-3.5 animate-spin" />
-                                <span>Scanning…</span>
+                                <span>{{ t('app.sync.scanning') }}</span>
                             </template>
                             <template v-else-if="item.status === 'done'">
                                 <CheckCircle2Icon class="size-3.5" :class="item.count! > 0 ? 'text-green-500' : 'text-muted-foreground'" />
                                 <span :class="item.count! > 0 ? 'font-medium' : 'text-muted-foreground'">
-                                    {{ item.count === 0 ? 'No new events' : `${item.count} new ${item.count === 1 ? 'event' : 'events'}` }}
+                                    {{ item.count === 0 ? t('app.sync.no_new_events') : t('app.sync.new_events', { count: item.count ?? 0 }) }}
                                 </span>
                             </template>
                             <template v-else>
                                 <XCircleIcon class="size-3.5 shrink-0 text-destructive" />
-                                <span class="text-destructive">{{ item.errorMessage ?? 'Error' }}</span>
+                                <span class="text-destructive">{{ item.errorMessage ?? t('app.common.error') }}</span>
                             </template>
                         </span>
                     </div>
@@ -292,26 +293,25 @@ defineExpose({ show });
                 <template v-if="phase === 'done' && totalCount > 0">
                     <div class="rounded-md border bg-muted/40 px-4 py-3">
                         <p class="text-sm font-medium">
-                            {{ totalCount }} new {{ totalCount === 1 ? 'event' : 'events' }} found for
+                            {{ t('app.sync.new_events', { count: totalCount }) }} {{ t('app.sync.found_for') }}
                             <span class="text-muted-foreground">{{ periodRangeLabel }}</span>
                         </p>
                         <p class="mt-1 text-xs text-muted-foreground">
-                            Events are raw data — they need to be grouped into sessions to appear on your timeline. Reconstruct your sessions to
-                            include them.
+                            {{ t('app.sync.events_description') }}
                         </p>
                     </div>
 
                     <div class="flex justify-end gap-2">
-                        <Button type="button" variant="ghost" size="sm" @click="open = false">Close</Button>
+                        <Button type="button" variant="ghost" size="sm" @click="open = false">{{ t('app.common.close') }}</Button>
                         <Button type="button" size="sm" @click="reconstructSessions">
                             <ArrowRightIcon class="mr-1.5 size-3.5" />
-                            Reconstruct sessions
+                            {{ t('app.timeline.reconstruct_sessions') }}
                         </Button>
                     </div>
                 </template>
 
                 <div v-else-if="phase === 'done'" class="flex justify-end">
-                    <Button type="button" variant="ghost" size="sm" @click="open = false">Close</Button>
+                    <Button type="button" variant="ghost" size="sm" @click="open = false">{{ t('app.common.close') }}</Button>
                 </div>
             </div>
         </DialogContent>

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Multi-language support (English, French, German) — all UI strings, flash messages, CSV headers, and enum labels are fully translated
+- Locale selector in Settings > General — switching language updates the entire UI reactively without a page reload
+- Frontend translation composable (`useTranslation`) reads from server-injected `window.__translations`; supports named replacements and pipe-based pluralisation
+- Locale-aware month names and weekday labels throughout the app (Timeline calendar, report month picker, date labels) using `Intl.DateTimeFormat`
+
 ### Changed
 
 - Clicking "Reconstruct sessions" in the activity backfill toast now opens the reconstruction dialog directly instead of navigating to the Timeline page first

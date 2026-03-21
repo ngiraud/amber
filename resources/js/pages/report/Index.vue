@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import { useSpotlight } from '@/composables/useSpotlight';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
 import * as reportRoutes from '@/routes/reports';
@@ -43,22 +44,22 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 </script>
 
 <template>
-    <AppLayout title="Reports">
+    <AppLayout :title="t('app.report.title')">
         <template #header>
-            <PageHeader title="Reports">
+            <PageHeader :title="t('app.report.title')">
                 <template #actions>
                     <ReportSheet :clients="clients" :ai-settings="aiSettings">
-                        <Button size="sm" :class="spotlightClass('new-report')">New report</Button>
+                        <Button size="sm" :class="spotlightClass('new-report')">{{ t('app.report.add') }}</Button>
                     </ReportSheet>
                 </template>
             </PageHeader>
         </template>
 
         <Empty v-if="reports.data.length === 0" class="mt-6">
-            <EmptyTitle>No reports yet</EmptyTitle>
-            <EmptyDescription>Generate your first Activity report by clicking the button above.</EmptyDescription>
+            <EmptyTitle>{{ t('app.report.no_reports') }}</EmptyTitle>
+            <EmptyDescription>{{ t('app.report.no_reports_description_2') }}</EmptyDescription>
             <ReportSheet :clients="clients" :ai-settings="aiSettings">
-                <Button size="sm">New report</Button>
+                <Button size="sm">{{ t('app.report.add') }}</Button>
             </ReportSheet>
         </Empty>
 
@@ -91,16 +92,18 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 
             <div v-if="reports.last_page > 1" class="mt-4 flex items-center justify-between">
                 <Button v-if="reports.prev_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="reports.prev_page_url">← Previous</Link>
+                    <Link :href="reports.prev_page_url">← {{ t('app.common.previous') }}</Link>
                 </Button>
-                <span v-else class="text-sm text-muted-foreground/40">← Previous</span>
+                <span v-else class="text-sm text-muted-foreground/40">← {{ t('app.common.previous') }}</span>
 
-                <span class="text-xs text-muted-foreground">Page {{ reports.current_page }} of {{ reports.last_page }}</span>
+                <span class="text-xs text-muted-foreground">{{
+                    t('app.common.page_of', { current: reports.current_page, total: reports.last_page })
+                }}</span>
 
                 <Button v-if="reports.next_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="reports.next_page_url">Next →</Link>
+                    <Link :href="reports.next_page_url">{{ t('app.common.next') }} →</Link>
                 </Button>
-                <span v-else class="text-sm text-muted-foreground/40">Next →</span>
+                <span v-else class="text-sm text-muted-foreground/40">{{ t('app.common.next') }} →</span>
             </div>
         </div>
     </AppLayout>

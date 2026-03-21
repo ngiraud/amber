@@ -18,6 +18,7 @@ describe('general settings', function () {
                 ->has('timezones')
                 ->has('dateFormats')
                 ->has('timeFormats')
+                ->has('locales')
             );
     });
 
@@ -31,6 +32,7 @@ describe('general settings', function () {
             'company_name' => 'Acme Corp',
             'default_rounding_strategy' => 15,
             'timezone' => 'Europe/Paris',
+            'locale' => 'en',
             'theme' => 'system',
             'open_at_login' => false,
             'date_format' => 'd/m/Y',
@@ -54,6 +56,7 @@ describe('general settings', function () {
         $this->put(route('settings.general.update'), [
             'default_rounding_strategy' => 15,
             'timezone' => 'Europe/Paris',
+            'locale' => 'en',
             'theme' => 'system',
             'open_at_login' => false,
             'date_format' => 'd/m/Y',
@@ -71,10 +74,24 @@ describe('general settings', function () {
             ->assertInvalid(['time_format']);
     });
 
-    //    it('validates locale must be in allowed list', function () {
-    //        $this->put(route('settings.general.update'), ['locale' => 'de'])
-    //            ->assertInvalid(['locale']);
-    //    });
+    it('validates locale must be in allowed list', function () {
+        $this->put(route('settings.general.update'), ['locale' => 'es'])
+            ->assertInvalid(['locale']);
+    });
+
+    it('accepts a valid locale', function () {
+        UpdateGeneralSettings::fake()->shouldReceive('handle')->once();
+
+        $this->put(route('settings.general.update'), [
+            'default_rounding_strategy' => 15,
+            'timezone' => 'Europe/Paris',
+            'locale' => 'de',
+            'theme' => 'system',
+            'open_at_login' => false,
+            'date_format' => 'd/m/Y',
+            'time_format' => 'H:i',
+        ])->assertRedirectBack();
+    });
 })->group('controllers');
 
 describe('UpdateGeneralSettings action', function () {

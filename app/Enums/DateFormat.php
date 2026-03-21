@@ -18,10 +18,10 @@ enum DateFormat: string
     public function label(): string
     {
         return match ($this) {
-            self::DayMonthYear => 'DD/MM/YYYY',
-            self::MonthDayYear => 'MM/DD/YYYY',
-            self::YearMonthDay => 'YYYY-MM-DD',
-            self::DayShortMonthYear => 'DD Mon YYYY',
+            self::DayMonthYear => '31/01/2026',
+            self::MonthDayYear => '01/31/2026',
+            self::YearMonthDay => '2026-01-31',
+            self::DayShortMonthYear => '31 Jan 2026',
         };
     }
 }

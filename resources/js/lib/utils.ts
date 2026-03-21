@@ -2,6 +2,7 @@ import type { InertiaLinkProps } from '@inertiajs/vue3';
 import { clsx } from 'clsx';
 import type { ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
+import { locale } from '@/composables/useTranslation';
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -11,10 +12,10 @@ export function toUrl(href: NonNullable<InertiaLinkProps['href']>) {
     return typeof href === 'string' ? href : href?.url;
 }
 
-export const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
 export function formatPeriod(month: number, year: number): string {
-    return `${MONTHS[month - 1]} ${year}`;
+    const name = new Intl.DateTimeFormat(locale.value, { month: 'long' }).format(new Date(year, month - 1, 1));
+
+    return `${name.charAt(0).toUpperCase() + name.slice(1)} ${year}`;
 }
 
 export function formatMinutes(minutes: number): string {

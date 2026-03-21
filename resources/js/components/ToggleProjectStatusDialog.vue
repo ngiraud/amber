@@ -12,6 +12,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { t } from '@/composables/useTranslation';
 import * as projectRoutes from '@/routes/projects';
 import type { Project } from '@/types';
 
@@ -29,24 +30,23 @@ const open = ref(false);
         </DialogTrigger>
         <DialogContent>
             <DialogHeader>
-                <DialogTitle>{{ project.is_active ? 'Archive project' : 'Restore project' }}</DialogTitle>
+                <DialogTitle>{{ project.is_active ? t('app.project.archive_title') : t('app.project.restore_title') }}</DialogTitle>
                 <DialogDescription>
                     <template v-if="project.is_active">
-                        Archiving <strong>{{ project.name }}</strong> will hide it from active lists and stop new activity from being recorded.
-                        Existing data is preserved.
+                        {{ t('app.project.archive_description', { name: project.name }) }}
                     </template>
                     <template v-else>
-                        Restoring <strong>{{ project.name }}</strong> will make it active again and allow new activity to be recorded.
+                        {{ t('app.project.restore_description', { name: project.name }) }}
                     </template>
                 </DialogDescription>
             </DialogHeader>
             <DialogFooter>
                 <DialogClose as-child>
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="outline">{{ t('app.common.cancel') }}</Button>
                 </DialogClose>
                 <Form :action="projectRoutes.toggleStatus(project)" @success="open = false">
                     <Button type="submit">
-                        {{ project.is_active ? 'Archive' : 'Restore' }}
+                        {{ project.is_active ? t('app.common.archive') : t('app.common.restore') }}
                     </Button>
                 </Form>
             </DialogFooter>

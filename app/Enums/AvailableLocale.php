@@ -12,12 +12,14 @@ enum AvailableLocale: string
 
     case French = 'fr';
     case English = 'en';
+    case German = 'de';
 
     public function label(): string
     {
         return match ($this) {
-            self::English => __('English'),
-            self::French => __('French'),
+            self::English => __('app.locales.en'),
+            self::French => __('app.locales.fr'),
+            self::German => __('app.locales.de'),
         };
     }
 }

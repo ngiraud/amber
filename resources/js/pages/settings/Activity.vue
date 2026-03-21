@@ -5,6 +5,7 @@ import SettingsLayout from '@/components/settings/SettingsLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { t } from '@/composables/useTranslation';
 import * as activityRoutes from '@/routes/settings/activity';
 import type { ActivitySettings } from '@/types';
 
@@ -28,39 +29,41 @@ function submit(): void {
         <form class="flex flex-col gap-6" @submit.prevent="submit">
             <Card>
                 <CardHeader>
-                    <CardTitle>Activity</CardTitle>
-                    <CardDescription>Configure timing thresholds for session detection and scanning</CardDescription>
+                    <CardTitle>{{ t('app.settings.activity') }}</CardTitle>
+                    <CardDescription>{{ t('app.settings.activity_section.description') }}</CardDescription>
                     <CardAction>
                         <Button type="submit" :disabled="form.processing">
-                            {{ form.processing ? 'Saving…' : 'Save' }}
+                            {{ form.processing ? t('app.common.saving') : t('app.common.save') }}
                         </Button>
                     </CardAction>
                 </CardHeader>
 
                 <CardContent class="flex flex-col gap-4 pt-0">
-                    <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Timing</h2>
+                    <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                        {{ t('app.settings.activity_section.timing') }}
+                    </h2>
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputField
-                            label="Idle timeout (min)"
+                            :label="t('app.settings.activity_section.idle_timeout_label')"
                             :error="form.errors.idle_timeout_minutes"
-                            hint="Gap between activity events that separates two reconstruction blocks"
+                            :hint="t('app.settings.activity_section.idle_timeout_hint')"
                         >
                             <Input v-model.number="form.idle_timeout_minutes" type="number" min="1" max="120" />
                         </InputField>
 
                         <InputField
-                            label="Block end padding (min)"
+                            :label="t('app.settings.activity_section.block_padding_label')"
                             :error="form.errors.block_end_padding_minutes"
-                            hint="Minutes added after the last event when reconstructing sessions"
+                            :hint="t('app.settings.activity_section.block_padding_hint')"
                         >
                             <Input v-model.number="form.block_end_padding_minutes" type="number" min="0" max="60" />
                         </InputField>
 
                         <InputField
-                            label="Manual session reminder (min)"
+                            :label="t('app.settings.activity_section.reminder_label')"
                             :error="form.errors.manual_session_reminder_minutes"
-                            hint="Get a notification reminder when a manual timer session is running. Set to 0 to disable."
+                            :hint="t('app.settings.activity_section.reminder_hint')"
                         >
                             <Input v-model.number="form.manual_session_reminder_minutes" type="number" min="0" max="480" />
                         </InputField>

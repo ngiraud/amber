@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -40,7 +41,7 @@ function removeRepo(): void {
 </script>
 
 <template>
-    <AppLayout :title="project.name" :breadcrumb="['Clients', client.name, project.name]">
+    <AppLayout :title="project.name" :breadcrumb="[t('app.client.title'), client.name, project.name]">
         <template #header>
             <PageHeader>
                 <template #breadcrumb>
@@ -48,7 +49,7 @@ function removeRepo(): void {
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink as-child>
-                                    <Link :href="clientRoutes.index()">Clients</Link>
+                                    <Link :href="clientRoutes.index()">{{ t('app.client.title') }}</Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
@@ -69,28 +70,28 @@ function removeRepo(): void {
                     <div class="flex items-center gap-3">
                         <div class="h-4 w-4 rounded-full" :style="{ backgroundColor: project.color }" />
                         <h1 class="text-xl font-semibold">{{ project.name }}</h1>
-                        <Badge v-if="!project.is_active" variant="secondary">Inactive</Badge>
+                        <Badge v-if="!project.is_active" variant="secondary">{{ t('app.common.inactive') }}</Badge>
                     </div>
                 </template>
 
                 <template #actions>
                     <ProjectSheet :project="project" :clients="clients">
-                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">{{ t('app.common.edit') }}</Button>
                     </ProjectSheet>
 
                     <ToggleProjectStatusDialog :project="project">
                         <Button variant="outline" size="sm">
-                            {{ project.is_active ? 'Archive' : 'Restore' }}
+                            {{ project.is_active ? t('app.common.archive') : t('app.common.restore') }}
                         </Button>
                     </ToggleProjectStatusDialog>
 
-                    <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
+                    <Button variant="destructive" size="sm" @click="confirmDelete = true">{{ t('app.common.delete') }}</Button>
 
                     <Form :action="projectRoutes.destroy(project)" #default="{ submit }">
                         <ConfirmDialog
                             :open="confirmDelete"
-                            title="Delete project"
-                            :message="`Are you sure you want to delete ${project.name}? All associated repositories, sessions, and activity events will be permanently deleted.`"
+                            :title="t('app.project.delete')"
+                            :message="t('app.project.delete_confirm_message', { name: project.name })"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />
@@ -102,26 +103,26 @@ function removeRepo(): void {
         <div class="mt-4 flex shrink-0 flex-wrap gap-6 text-sm text-muted-foreground">
             <span v-if="project.daily_rate_formatted">
                 <span class="font-medium text-foreground">{{ project.daily_rate_formatted }}</span
-                >/day
+                >{{ t('app.common.per_day') }}
             </span>
             <span v-if="project.hourly_rate_formatted">
                 <span class="font-medium text-foreground">{{ project.hourly_rate_formatted }}</span
-                >/hr
+                >{{ t('app.common.per_hr') }}
             </span>
             <span>
-                <span class="font-medium text-foreground">{{ project.daily_reference_hours }}h</span> reference day
+                <span class="font-medium text-foreground">{{ project.daily_reference_hours }}h</span> {{ t('app.project.reference_day') }}
             </span>
             <span>
-                Rounding: <span class="font-medium text-foreground">{{ project.rounding.label }}</span>
+                {{ t('app.project.rounding_label') }} <span class="font-medium text-foreground">{{ project.rounding.label }}</span>
             </span>
         </div>
 
         <div class="mt-8 shrink-0">
             <div class="flex items-center justify-between">
-                <h2 class="text-base font-semibold">Repositories</h2>
+                <h2 class="text-base font-semibold">{{ t('app.project.repositories') }}</h2>
 
                 <RepositorySheet :project="project">
-                    <Button size="sm" variant="outline">Add repository</Button>
+                    <Button size="sm" variant="outline">{{ t('app.project.add_repository') }}</Button>
                 </RepositorySheet>
             </div>
 
@@ -136,32 +137,32 @@ function removeRepo(): void {
                         <p class="mt-0.5 font-mono text-xs text-muted-foreground">{{ repo.local_path }}</p>
                     </div>
 
-                    <Button variant="ghost" size="sm" class="text-destructive" @click="repoToDelete = repo"> Remove </Button>
+                    <Button variant="ghost" size="sm" class="text-destructive" @click="repoToDelete = repo">
+                        {{ t('app.common.remove') }}
+                    </Button>
                 </div>
             </div>
 
             <Empty v-else class="mt-3">
-                <EmptyTitle>No repositories linked yet</EmptyTitle>
-                <EmptyDescription>Link a repository to automatically track commits for this project.</EmptyDescription>
+                <EmptyTitle>{{ t('app.project.no_repos') }}</EmptyTitle>
+                <EmptyDescription>{{ t('app.project.no_repos_description') }}</EmptyDescription>
                 <RepositorySheet :project="project">
-                    <Button size="sm" variant="outline">Add repository</Button>
+                    <Button size="sm" variant="outline">{{ t('app.project.add_repository') }}</Button>
                 </RepositorySheet>
             </Empty>
         </div>
 
         <ConfirmDialog
             :open="repoToDelete !== null"
-            title="Remove repository"
-            :message="
-                repoToDelete ? `Remove ${repoToDelete.name} from this project? All associated activity events will be permanently deleted.` : ''
-            "
-            confirm-label="Remove"
+            :title="t('app.project.remove_repository')"
+            :message="repoToDelete ? t('app.project.remove_repository_confirm', { name: repoToDelete.name }) : ''"
+            :confirm-label="t('app.common.remove')"
             @confirm="removeRepo"
             @cancel="repoToDelete = null"
         />
 
         <div class="mt-8 flex min-h-0 flex-1 flex-col">
-            <h2 class="shrink-0 text-base font-semibold">Recent Activity</h2>
+            <h2 class="shrink-0 text-base font-semibold">{{ t('app.common.recent_activity') }}</h2>
 
             <div class="mt-3 min-h-0 flex-1">
                 <ActivityLog />

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useOpenClientSheet } from '@/composables/useOpenClientSheet';
 import { useSpotlight } from '@/composables/useSpotlight';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import type { Client, Paginator } from '@/types';
@@ -25,22 +26,22 @@ defineProps<{
 </script>
 
 <template>
-    <AppLayout title="Clients">
+    <AppLayout :title="t('app.client.title')">
         <template #header>
-            <PageHeader title="Clients">
+            <PageHeader :title="t('app.client.title')">
                 <template #actions>
                     <ClientSheet v-model:open="shouldOpen">
-                        <Button size="sm" :class="spotlightClass('new-client')">New client</Button>
+                        <Button size="sm" :class="spotlightClass('new-client')">{{ t('app.client.new_client') }}</Button>
                     </ClientSheet>
                 </template>
             </PageHeader>
         </template>
 
         <Empty v-if="clients.data.length === 0" class="mt-6">
-            <EmptyTitle>No clients yet</EmptyTitle>
-            <EmptyDescription>Get started by adding your first client.</EmptyDescription>
+            <EmptyTitle>{{ t('app.client.no_clients') }}</EmptyTitle>
+            <EmptyDescription>{{ t('app.client.no_clients_get_started') }}</EmptyDescription>
             <ClientSheet v-model:open="shouldOpen">
-                <Button size="sm" :class="spotlightClass('new-client')">New client</Button>
+                <Button size="sm" :class="spotlightClass('new-client')">{{ t('app.client.new_client') }}</Button>
             </ClientSheet>
         </Empty>
 
@@ -59,23 +60,24 @@ defineProps<{
                 </div>
 
                 <Badge variant="secondary">
-                    {{ client.projects_count ?? 0 }}
-                    {{ (client.projects_count ?? 0) === 1 ? 'project' : 'projects' }}
+                    {{ t('app.client.project_count', { count: client.projects_count ?? 0 }) }}
                 </Badge>
             </Link>
 
             <div v-if="clients.last_page > 1" class="mt-4 flex items-center justify-between">
                 <Button v-if="clients.prev_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="clients.prev_page_url">← Previous</Link>
+                    <Link :href="clients.prev_page_url">← {{ t('app.common.previous') }}</Link>
                 </Button>
-                <span v-else class="text-sm text-muted-foreground/40">← Previous</span>
+                <span v-else class="text-sm text-muted-foreground/40">← {{ t('app.common.previous') }}</span>
 
-                <span class="text-xs text-muted-foreground">Page {{ clients.current_page }} of {{ clients.last_page }}</span>
+                <span class="text-xs text-muted-foreground">{{
+                    t('app.common.page_of', { current: clients.current_page, total: clients.last_page })
+                }}</span>
 
                 <Button v-if="clients.next_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="clients.next_page_url">Next →</Link>
+                    <Link :href="clients.next_page_url">{{ t('app.common.next') }} →</Link>
                 </Button>
-                <span v-else class="text-sm text-muted-foreground/40">Next →</span>
+                <span v-else class="text-sm text-muted-foreground/40">{{ t('app.common.next') }} →</span>
             </div>
         </div>
     </AppLayout>

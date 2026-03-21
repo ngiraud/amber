@@ -19,7 +19,7 @@ class ExportActivityReportCsv extends Action implements ExportActivityReport
         $lines = $report->lines->sortBy('date');
 
         $rows = [];
-        $rows[] = [__('Date'), __('Project'), __('Hours'), __('Days'), __('Description')];
+        $rows[] = [__('app.csv.date'), __('app.csv.project'), __('app.csv.hours'), __('app.csv.days'), __('app.csv.description')];
 
         foreach ($lines as $line) {
             $rows[] = [
@@ -32,7 +32,7 @@ class ExportActivityReportCsv extends Action implements ExportActivityReport
         }
 
         $rows[] = [
-            __('TOTAL'),
+            __('app.csv.total'),
             '',
             number_format($report->total_minutes / 60, 2),
             number_format((float) $report->total_days, 2),

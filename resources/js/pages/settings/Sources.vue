@@ -7,6 +7,7 @@ import SyncActivityDialog from '@/components/SyncActivityDialog.vue';
 import { Button } from '@/components/ui/button';
 import { Item, ItemContent, ItemDescription, ItemMedia, ItemTitle } from '@/components/ui/item';
 import { useSpotlight } from '@/composables/useSpotlight';
+import { t } from '@/composables/useTranslation';
 import type { CategoryWithSources } from '@/types';
 
 defineProps<{
@@ -27,12 +28,12 @@ function showSyncDialog(): void {
         <div :class="['flex flex-col gap-10', spotlightClass('sources')]">
             <section class="flex flex-col gap-4">
                 <div class="flex flex-col gap-1">
-                    <h2 class="text-sm font-semibold text-foreground/80">Synchronize</h2>
+                    <h2 class="text-sm font-semibold text-foreground/80">{{ t('app.settings.sources_section.synchronize') }}</h2>
                     <p class="text-xs text-muted-foreground">
                         {{
                             hasEnabledSources
-                                ? 'Force a scan of your sources to find activity events from the past.'
-                                : 'Enable at least one source below to start syncing historical activity.'
+                                ? t('app.settings.sources_section.sync_description_enabled')
+                                : t('app.settings.sources_section.sync_description_disabled')
                         }}
                     </p>
                 </div>
@@ -43,11 +44,13 @@ function showSyncDialog(): void {
                             <LucideRefreshCcw class="size-5 text-muted-foreground" :class="{ 'opacity-40': !hasEnabledSources }" />
                         </ItemMedia>
                         <ItemContent>
-                            <ItemTitle>Synchronize activity</ItemTitle>
-                            <ItemDescription>Manually scan your enabled sources for a specific period.</ItemDescription>
+                            <ItemTitle>{{ t('app.settings.sources_section.sync_item_title') }}</ItemTitle>
+                            <ItemDescription>{{ t('app.settings.sources_section.sync_item_description') }}</ItemDescription>
                         </ItemContent>
                     </div>
-                    <Button variant="outline" size="sm" :disabled="!hasEnabledSources" @click="showSyncDialog">Open Sync Tool</Button>
+                    <Button variant="outline" size="sm" :disabled="!hasEnabledSources" @click="showSyncDialog">
+                        {{ t('app.settings.sources_section.open_sync_tool') }}
+                    </Button>
                 </Item>
             </section>
 

@@ -66,7 +66,7 @@ describe('ai settings', function () {
         $this->put(route('settings.ai'), [
             'enabled' => true,
             'provider' => 'anthropic',
-            'summary_language' => 'de',
+            'summary_language' => 'invalid-locale',
         ])->assertInvalid(['summary_language']);
     });
 

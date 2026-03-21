@@ -56,26 +56,26 @@ enum ActivityEventSourceType: string
     public function description(): string
     {
         return match ($this) {
-            self::Git => 'Detect commits and branch activity from local repositories',
-            self::GitHub => 'Detect pull requests, reviews, and issue activity',
-            self::ClaudeCode => 'Detect Claude Code sessions and conversation history',
-            self::Gemini => 'Detect Gemini CLI sessions and conversation history',
-            self::MistralVibe => 'Detect Mistral Vibe sessions and conversation history',
-            self::Opencode => 'Detect Opencode sessions and conversation history',
-            self::Fswatch => 'Detect file changes in real-time — restart required on toggle',
+            self::Git => __('app.sources.git.description'),
+            self::GitHub => __('app.sources.github.description'),
+            self::ClaudeCode => __('app.sources.claude_code.description'),
+            self::Gemini => __('app.sources.gemini.description'),
+            self::MistralVibe => __('app.sources.mistral_vibe.description'),
+            self::Opencode => __('app.sources.opencode.description'),
+            self::Fswatch => __('app.sources.fswatch.description'),
         };
     }
 
     public function requirements(): string
     {
         return match ($this) {
-            self::Git => 'Requires git',
-            self::GitHub => 'Requires GitHub CLI authenticated',
-            self::ClaudeCode => 'Requires Claude Code CLI',
-            self::Gemini => 'Requires Gemini CLI',
-            self::MistralVibe => 'Requires Mistral Vibe',
-            self::Opencode => 'Requires Opencode',
-            self::Fswatch => 'Requires fswatch',
+            self::Git => __('app.sources.git.requirements'),
+            self::GitHub => __('app.sources.github.requirements'),
+            self::ClaudeCode => __('app.sources.claude_code.requirements'),
+            self::Gemini => __('app.sources.gemini.requirements'),
+            self::MistralVibe => __('app.sources.mistral_vibe.requirements'),
+            self::Opencode => __('app.sources.opencode.requirements'),
+            self::Fswatch => __('app.sources.fswatch.requirements'),
         };
     }
 

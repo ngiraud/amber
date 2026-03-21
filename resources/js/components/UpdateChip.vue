@@ -4,6 +4,7 @@ import { ArrowUpCircleIcon, CheckCircle2Icon, CircleAlertIcon, DownloadIcon, Loa
 import { computed } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { t } from '@/composables/useTranslation';
 import {
     checkGitHubRelease,
     downloadProgress,
@@ -47,19 +48,19 @@ const chipClass = computed(() => {
 const popoverTitle = computed(() => {
     switch (updaterStatus.value) {
         case 'checking':
-            return 'Checking for updates…';
+            return t('app.settings.updates.checking_for_updates');
         case 'available':
-            return 'Update available';
+            return t('app.settings.updates.update_available');
         case 'downloading':
-            return 'Downloading update…';
+            return t('app.settings.updates.downloading_title');
         case 'ready':
-            return 'Ready to install';
+            return t('app.settings.updates.ready_to_install');
         case 'up-to-date':
-            return 'Up to date';
+            return t('app.settings.updates.up_to_date_title');
         case 'error':
-            return 'Update error';
+            return t('app.settings.updates.update_error');
         default:
-            return 'Software updates';
+            return t('app.settings.sections.software_updates');
     }
 });
 
@@ -111,8 +112,10 @@ const releaseNotes = computed(() => {
                 <div class="flex flex-col gap-0.5">
                     <p class="text-sm font-medium">{{ popoverTitle }}</p>
                     <p class="text-xs text-muted-foreground">
-                        Current version: {{ currentVersion }}
-                        <template v-if="updateInfo && updaterStatus !== 'idle'"> · {{ updateInfo.version }} available </template>
+                        {{ t('app.settings.updates.current_version', { version: currentVersion }) }}
+                        <template v-if="updateInfo && updaterStatus !== 'idle'">
+                            · {{ t('app.settings.updates.version_available', { version: updateInfo.version }) }}
+                        </template>
                     </p>
                 </div>
 
@@ -121,7 +124,7 @@ const releaseNotes = computed(() => {
                     <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                         <div class="h-full rounded-full bg-amber-400 transition-all duration-300" :style="{ width: `${downloadProgress}%` }" />
                     </div>
-                    <p class="text-xs text-muted-foreground">{{ downloadProgress }}% downloaded</p>
+                    <p class="text-xs text-muted-foreground">{{ t('app.settings.updates.downloading', { percent: downloadProgress }) }}</p>
                 </div>
 
                 <!-- Release notes -->
@@ -136,7 +139,7 @@ const releaseNotes = computed(() => {
                 <div v-if="updaterStatus === 'ready'" class="flex justify-end">
                     <Button size="sm" @click="installUpdate">
                         <RotateCcwIcon class="size-3" />
-                        Restart & Install
+                        {{ t('app.settings.updates.restart_install') }}
                     </Button>
                 </div>
             </div>
@@ -144,26 +147,30 @@ const releaseNotes = computed(() => {
             <!-- Updater disabled: manual GitHub check -->
             <div v-else class="flex flex-col gap-3">
                 <div class="flex flex-col gap-0.5">
-                    <p class="text-sm font-medium">Software updates</p>
-                    <p class="text-xs text-muted-foreground">Current version: {{ currentVersion }}</p>
+                    <p class="text-sm font-medium">{{ t('app.settings.sections.software_updates') }}</p>
+                    <p class="text-xs text-muted-foreground">{{ t('app.settings.updates.current_version', { version: currentVersion }) }}</p>
                 </div>
 
-                <p v-if="githubReleaseStatus === 'idle'" class="text-xs text-muted-foreground">Check for new releases on GitHub.</p>
-                <p v-else-if="githubReleaseStatus === 'checking'" class="text-xs text-muted-foreground">Checking…</p>
+                <p v-if="githubReleaseStatus === 'idle'" class="text-xs text-muted-foreground">
+                    {{ t('app.settings.updates.check_releases_github') }}
+                </p>
+                <p v-else-if="githubReleaseStatus === 'checking'" class="text-xs text-muted-foreground">{{ t('app.settings.updates.checking') }}</p>
                 <div v-else-if="githubReleaseStatus === 'up-to-date'" class="flex items-center gap-1.5 text-xs text-muted-foreground">
                     <CheckCircle2Icon class="size-3.5 text-green-500" />
-                    You're up to date.
+                    {{ t('app.settings.updates.up_to_date') }}
                 </div>
-                <p v-else-if="githubReleaseStatus === 'error'" class="text-xs text-destructive">Check failed. Please try again.</p>
+                <p v-else-if="githubReleaseStatus === 'error'" class="text-xs text-destructive">{{ t('app.settings.updates.check_failed') }}</p>
                 <div v-else-if="githubReleaseStatus === 'available' && githubReleaseInfo" class="flex items-center justify-between gap-3">
-                    <p class="text-xs font-medium">v{{ githubReleaseInfo.version }} available</p>
-                    <Button size="sm" variant="outline" as="a" :href="githubReleaseInfo.url" target="_blank"> View release </Button>
+                    <p class="text-xs font-medium">{{ t('app.settings.updates.version_available', { version: githubReleaseInfo.version }) }}</p>
+                    <Button size="sm" variant="outline" as="a" :href="githubReleaseInfo.url" target="_blank">
+                        {{ t('app.settings.updates.view_release') }}
+                    </Button>
                 </div>
 
                 <Button size="sm" variant="outline" :disabled="githubReleaseStatus === 'checking'" @click="checkGitHubRelease(currentVersion)">
                     <LoaderCircleIcon v-if="githubReleaseStatus === 'checking'" class="size-3 animate-spin" />
                     <ArrowUpCircleIcon v-else class="size-3" />
-                    Check for updates
+                    {{ t('app.settings.updates.check') }}
                 </Button>
             </div>
         </PopoverContent>

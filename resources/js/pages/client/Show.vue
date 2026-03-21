@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as clientRoutes from '@/routes/clients';
 import * as projectRoutes from '@/routes/projects';
@@ -24,7 +25,7 @@ const confirmDelete = ref(false);
 </script>
 
 <template>
-    <AppLayout :title="client.name" :breadcrumb="['Clients', client.name]">
+    <AppLayout :title="client.name" :breadcrumb="[t('app.client.title'), client.name]">
         <template #header>
             <PageHeader :title="client.name">
                 <template #breadcrumb>
@@ -32,7 +33,7 @@ const confirmDelete = ref(false);
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink as-child>
-                                    <Link :href="clientRoutes.index()">Clients</Link>
+                                    <Link :href="clientRoutes.index()">{{ t('app.client.title') }}</Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
@@ -45,16 +46,16 @@ const confirmDelete = ref(false);
 
                 <template #actions>
                     <ClientSheet :client="client">
-                        <Button variant="outline" size="sm">Edit</Button>
+                        <Button variant="outline" size="sm">{{ t('app.common.edit') }}</Button>
                     </ClientSheet>
 
-                    <Button variant="destructive" size="sm" @click="confirmDelete = true">Delete</Button>
+                    <Button variant="destructive" size="sm" @click="confirmDelete = true">{{ t('app.common.delete') }}</Button>
 
                     <Form :action="clientRoutes.destroy(client)" #default="{ submit }">
                         <ConfirmDialog
                             :open="confirmDelete"
-                            title="Delete client"
-                            :message="`Are you sure you want to delete ${client.name}? All associated projects, repositories, sessions, and activity events will be permanently deleted.`"
+                            :title="t('app.client.delete')"
+                            :message="t('app.client.delete_confirm_message', { name: client.name })"
                             @confirm="submit"
                             @cancel="confirmDelete = false"
                         />
@@ -67,18 +68,18 @@ const confirmDelete = ref(false);
             <p v-if="client.notes" class="mb-6 text-sm text-muted-foreground">{{ client.notes }}</p>
 
             <div class="flex items-center justify-between">
-                <h2 class="text-base font-semibold">Projects</h2>
+                <h2 class="text-base font-semibold">{{ t('app.client.projects') }}</h2>
 
                 <ProjectSheet :client="client" :clients="clients">
-                    <Button size="sm">Add project</Button>
+                    <Button size="sm">{{ t('app.client.add_project') }}</Button>
                 </ProjectSheet>
             </div>
 
             <Empty v-if="!client.projects?.length" class="mt-6">
-                <EmptyTitle>No projects yet</EmptyTitle>
-                <EmptyDescription>Add a project to start tracking time for this client.</EmptyDescription>
+                <EmptyTitle>{{ t('app.project.no_projects') }}</EmptyTitle>
+                <EmptyDescription>{{ t('app.client.no_projects_description_client') }}</EmptyDescription>
                 <ProjectSheet :client="client" :clients="clients">
-                    <Button size="sm">Add project</Button>
+                    <Button size="sm">{{ t('app.client.add_project') }}</Button>
                 </ProjectSheet>
             </Empty>
 
@@ -92,17 +93,17 @@ const confirmDelete = ref(false);
                     <div class="flex items-center gap-2.5">
                         <div class="h-3 w-3 shrink-0 rounded-full" :style="{ backgroundColor: project.color }" />
                         <span class="text-sm font-medium">{{ project.name }}</span>
-                        <Badge v-if="!project.is_active" variant="secondary" class="ml-auto text-xs">Inactive</Badge>
+                        <Badge v-if="!project.is_active" variant="secondary" class="ml-auto text-xs">{{ t('app.common.inactive') }}</Badge>
                     </div>
 
                     <div class="flex gap-4 text-xs text-muted-foreground">
                         <span v-if="project.daily_rate_formatted">
                             <span class="font-medium">{{ project.daily_rate_formatted }}</span
-                            >/day
+                            >{{ t('app.common.per_day') }}
                         </span>
                         <span v-if="project.hourly_rate_formatted">
                             <span class="font-medium">{{ project.hourly_rate_formatted }}</span
-                            >/hr
+                            >{{ t('app.common.per_hr') }}
                         </span>
                     </div>
                 </Link>
@@ -110,7 +111,7 @@ const confirmDelete = ref(false);
         </div>
 
         <div class="mt-8 flex min-h-0 flex-1 flex-col">
-            <h2 class="shrink-0 text-base font-semibold">Recent Activity</h2>
+            <h2 class="shrink-0 text-base font-semibold">{{ t('app.common.recent_activity') }}</h2>
 
             <div class="mt-3 min-h-0 flex-1">
                 <ActivityLog />

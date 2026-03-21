@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetDescription, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
+import { t } from '@/composables/useTranslation';
 import * as sessionRoutes from '@/routes/sessions';
 
 const page = usePage();
@@ -51,17 +52,17 @@ function submit(): void {
 
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>Live Session</SheetTitle>
+                <SheetTitle>{{ t('app.session.live_title') }}</SheetTitle>
                 <SheetDescription>
-                    Track time for work that isn't automatically captured — meetings, code reviews, pair programming, training.
+                    {{ t('app.session.live_description') }}
                 </SheetDescription>
             </SheetHeader>
 
             <div class="flex flex-col gap-5 px-4">
                 <div class="flex flex-col gap-2">
-                    <Label for="project_id">Project</Label>
+                    <Label for="project_id">{{ t('app.session.project') }}</Label>
                     <NativeSelect id="project_id" v-model="form.project_id" required>
-                        <NativeSelectOption value="" disabled>Select a project…</NativeSelectOption>
+                        <NativeSelectOption value="" disabled>{{ t('app.common.select_project') }}</NativeSelectOption>
                         <NativeSelectOption v-for="project in projects" :key="project.id" :value="project.id">
                             {{ project.client?.name }} — {{ project.name }}
                         </NativeSelectOption>
@@ -70,13 +71,15 @@ function submit(): void {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <Label>Notes <span class="text-muted-foreground">(optional)</span></Label>
+                    <Label
+                        >{{ t('app.session.notes') }} <span class="text-muted-foreground">({{ t('app.common.optional') }})</span></Label
+                    >
                     <RichTextEditor v-model="form.notes" placeholder="What are you working on?" />
                 </div>
 
                 <SheetFooter class="px-0">
                     <Button class="w-full" :disabled="form.processing" @click="submit">
-                        {{ form.processing ? 'Starting…' : 'Start session' }}
+                        {{ form.processing ? t('app.session.starting') : t('app.session.start') }}
                     </Button>
                 </SheetFooter>
             </div>

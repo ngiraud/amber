@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { useOpenProjectSheet } from '@/composables/useOpenProjectSheet';
 import { useSpotlight } from '@/composables/useSpotlight';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Client, Paginator, Project } from '@/types';
 
@@ -27,22 +28,22 @@ defineProps<{
 </script>
 
 <template>
-    <AppLayout title="Projects">
+    <AppLayout :title="t('app.project.title')">
         <template #header>
-            <PageHeader title="Projects">
+            <PageHeader :title="t('app.project.title')">
                 <template #actions>
                     <ProjectSheet :clients="clients" v-model:open="shouldOpen">
-                        <Button size="sm" :class="spotlightClass('new-project')">New project</Button>
+                        <Button size="sm" :class="spotlightClass('new-project')">{{ t('app.project.new_project') }}</Button>
                     </ProjectSheet>
                 </template>
             </PageHeader>
         </template>
 
         <Empty v-if="projects.data.length === 0" class="mt-6">
-            <EmptyTitle>No projects yet</EmptyTitle>
-            <EmptyDescription>Create your first project to start tracking time.</EmptyDescription>
+            <EmptyTitle>{{ t('app.project.no_projects') }}</EmptyTitle>
+            <EmptyDescription>{{ t('app.project.no_projects_description') }}</EmptyDescription>
             <ProjectSheet :clients="clients" v-model:open="shouldOpen">
-                <Button size="sm" :class="spotlightClass('new-project')">New project</Button>
+                <Button size="sm" :class="spotlightClass('new-project')">{{ t('app.project.new_project') }}</Button>
             </ProjectSheet>
         </Empty>
 
@@ -66,27 +67,28 @@ defineProps<{
                 <div class="flex items-center gap-2">
                     <Badge v-if="!project.is_active" variant="destructive">
                         <TriangleAlert />
-                        Inactive
+                        {{ t('app.common.inactive') }}
                     </Badge>
                     <Badge variant="secondary">
-                        {{ project.repositories_count }}
-                        {{ project.repositories_count === 1 ? 'repository' : 'repositories' }}
+                        {{ t('app.project.repository_count', { count: project.repositories_count }) }}
                     </Badge>
                 </div>
             </Link>
 
             <div v-if="projects.last_page > 1" class="mt-4 flex items-center justify-between">
                 <Button v-if="projects.prev_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="projects.prev_page_url">← Previous</Link>
+                    <Link :href="projects.prev_page_url">← {{ t('app.common.previous') }}</Link>
                 </Button>
-                <span v-else class="text-sm text-muted-foreground/40">← Previous</span>
+                <span v-else class="text-sm text-muted-foreground/40">← {{ t('app.common.previous') }}</span>
 
-                <span class="text-xs text-muted-foreground">Page {{ projects.current_page }} of {{ projects.last_page }}</span>
+                <span class="text-xs text-muted-foreground">{{
+                    t('app.common.page_of', { current: projects.current_page, total: projects.last_page })
+                }}</span>
 
                 <Button v-if="projects.next_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="projects.next_page_url">Next →</Link>
+                    <Link :href="projects.next_page_url">{{ t('app.common.next') }} →</Link>
                 </Button>
-                <span v-else class="text-sm text-muted-foreground/40">Next →</span>
+                <span v-else class="text-sm text-muted-foreground/40">{{ t('app.common.next') }} →</span>
             </div>
         </div>
     </AppLayout>

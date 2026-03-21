@@ -8,6 +8,7 @@ import { Calendar } from '@/components/ui/calendar'
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useDateFormat } from '@/composables/useDateFormat'
+import { t } from '@/composables/useTranslation'
 
 const props = defineProps<{
     modelValue?: string
@@ -31,7 +32,7 @@ const dateValue = computed<DateValue | undefined>(() => {
 
 const displayValue = computed(() => {
     if (!props.modelValue) {
-        return props.placeholder ?? 'Pick a date & time'
+        return props.placeholder ?? t('app.common.pick_date_time')
     }
 
     return `${formatDate(props.modelValue)} ${formatTime(props.modelValue)}`

@@ -5,6 +5,7 @@ import OnboardingStepItem from '@/components/OnboardingStepItem.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
+import { t } from '@/composables/useTranslation';
 import * as onboardingRoutes from '@/routes/onboarding';
 import type { OnboardingState, OnboardingStep } from '@/types';
 
@@ -30,11 +31,11 @@ function actionFor(step: OnboardingStep): (() => void) | undefined {
 
 function actionLabelFor(step: OnboardingStep): string | undefined {
     if (step.key === 'sessions') {
-        return 'Log manually →';
+        return t('app.onboarding.log_manually');
     }
 
     if (step.key === 'sync') {
-        return 'Sync now →';
+        return t('app.onboarding.sync_now');
     }
 
     return undefined;
@@ -48,10 +49,10 @@ function dismiss() {
 <template>
     <Card>
         <CardHeader>
-            <CardTitle>Get started with Activity Record</CardTitle>
-            <CardDescription>{{ completedCount }} of {{ totalCount }} steps completed</CardDescription>
+            <CardTitle>{{ t('app.onboarding.get_started') }}</CardTitle>
+            <CardDescription>{{ t('app.onboarding.steps_completed', { done: completedCount, total: totalCount }) }}</CardDescription>
             <CardAction>
-                <Button variant="ghost" size="sm" class="text-muted-foreground" @click="dismiss"> Dismiss </Button>
+                <Button variant="ghost" size="sm" class="text-muted-foreground" @click="dismiss"> {{ t('app.onboarding.dismiss') }} </Button>
             </CardAction>
         </CardHeader>
 

@@ -29,6 +29,7 @@ activity reports.
 - **🤖 AI-Powered Reports:** Automatically summarize your activity into professional monthly reports (CRA) using the Laravel AI SDK — supports Mistral, OpenAI, Anthropic, and Ollama.
 - **📊 Export Options:** Generate activity reports in PDF and Excel formats, ready to send to clients.
 - **🔔 Native Integration:** System notifications and a dedicated menu bar interface with real-time session status.
+- **🌍 Multi-Language:** Full UI localisation in English, French, and German — switchable from Settings > General without restarting.
 - **🔗 Deep Link Support:** Trigger session actions from external tools (Raycast, Alfred, scripts) using `amber://` URLs.
 
 ## 🖥 Platform Support

@@ -27,6 +27,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { applyTheme } from '@/composables/useAppearance';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { useSpotlight } from '@/composables/useSpotlight';
+import { setLocale, t } from '@/composables/useTranslation';
 import {
     checkForUpdates,
     checkGitHubRelease,
@@ -56,17 +57,19 @@ const props = defineProps<{
     timezones: string[];
     dateFormats: { value: string; label: string }[];
     timeFormats: { value: string; label: string }[];
+    locales: { value: string; label: string }[];
 }>();
 
 const page = usePage();
 const appVersion = computed(() => page.props.appVersion);
 const updaterEnabled = computed(() => page.props.updaterEnabled);
+const appName = computed(() => page.props.name);
 
-const ROUNDING_OPTIONS = [
-    { value: 15, label: 'Quarter hour (15 min)' },
-    { value: 30, label: 'Half hour (30 min)' },
-    { value: 60, label: 'Hour (60 min)' },
-];
+const roundingOptions = computed(() => [
+    { value: 15, label: t('app.settings.rounding.quarter_hour') },
+    { value: 30, label: t('app.settings.rounding.half_hour') },
+    { value: 60, label: t('app.settings.rounding.hour') },
+]);
 
 const form = useForm({
     company_name: props.generalSettings.company_name ?? '',
@@ -76,6 +79,7 @@ const form = useForm({
     default_daily_reference_hours: props.generalSettings.default_daily_reference_hours ?? 8,
     default_rounding_strategy: props.generalSettings.default_rounding_strategy ?? 15,
     timezone: props.generalSettings.timezone ?? '',
+    locale: props.generalSettings.locale ?? 'en',
     date_format: props.generalSettings.date_format ?? 'd/m/Y',
     time_format: props.generalSettings.time_format ?? 'H:i',
     theme: props.generalSettings.theme ?? 'system',
@@ -87,8 +91,19 @@ watch(
     (theme) => applyTheme(theme),
 );
 
+const localeChanged = computed(() => form.locale !== props.generalSettings.locale);
+
 function submit(): void {
-    form.submit(generalRoutes.update());
+    const newLocale = form.locale;
+    const shouldUpdateLocale = localeChanged.value;
+
+    form.submit(generalRoutes.update(), {
+        onSuccess: () => {
+            if (shouldUpdateLocale) {
+                setLocale(newLocale);
+            }
+        },
+    });
 }
 </script>
 
@@ -98,48 +113,58 @@ function submit(): void {
             <form class="flex flex-col gap-6" @submit.prevent="submit">
                 <Card>
                     <CardHeader>
-                        <CardTitle>General</CardTitle>
-                        <CardDescription>Company info, billing defaults, and regional preferences</CardDescription>
+                        <CardTitle>{{ t('app.settings.general') }}</CardTitle>
+                        <CardDescription>{{ t('app.settings.general_description') }}</CardDescription>
                         <CardAction>
                             <Button type="submit" :disabled="form.processing">
-                                {{ form.processing ? 'Saving…' : 'Save' }}
+                                {{ form.processing ? t('app.common.saving') : t('app.common.save') }}
                             </Button>
                         </CardAction>
                     </CardHeader>
 
                     <CardContent class="flex flex-col gap-4">
                         <div class="flex flex-col gap-4">
-                            <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Preferences</h2>
+                            <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                                {{ t('app.settings.sections.preferences') }}
+                            </h2>
 
-                            <InputField label="Timezone" :error="form.errors.timezone">
-                                <TimezoneCombobox v-model="form.timezone" :timezones="timezones" />
+                            <InputField :label="t('app.settings.fields.language')" :error="form.errors.locale" direction="horizontal">
+                                <NativeSelect v-model="form.locale" class="w-48">
+                                    <NativeSelectOption v-for="option in locales" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </NativeSelectOption>
+                                </NativeSelect>
                             </InputField>
 
-                            <div class="grid grid-cols-2 gap-4">
-                                <InputField label="Date format" :error="form.errors.date_format">
-                                    <NativeSelect v-model="form.date_format" class="w-full">
-                                        <NativeSelectOption v-for="option in dateFormats" :key="option.value" :value="option.value">
-                                            {{ option.value }} — {{ option.label }}
-                                        </NativeSelectOption>
-                                    </NativeSelect>
-                                </InputField>
+                            <InputField :label="t('app.settings.fields.timezone')" :error="form.errors.timezone" direction="horizontal">
+                                <div class="w-48">
+                                    <TimezoneCombobox v-model="form.timezone" :timezones="timezones" class="w-48" />
+                                </div>
+                            </InputField>
 
-                                <InputField label="Time format" :error="form.errors.time_format">
-                                    <NativeSelect v-model="form.time_format" class="w-full">
-                                        <NativeSelectOption v-for="option in timeFormats" :key="option.value" :value="option.value">
-                                            {{ option.label }}
-                                        </NativeSelectOption>
-                                    </NativeSelect>
-                                </InputField>
-                            </div>
+                            <InputField :label="t('app.settings.fields.date_format')" :error="form.errors.date_format" direction="horizontal">
+                                <NativeSelect v-model="form.date_format" class="w-48">
+                                    <NativeSelectOption v-for="option in dateFormats" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </NativeSelectOption>
+                                </NativeSelect>
+                            </InputField>
 
-                            <InputField label="Theme" :error="form.errors.theme" direction="horizontal">
+                            <InputField :label="t('app.settings.fields.time_format')" :error="form.errors.time_format" direction="horizontal">
+                                <NativeSelect v-model="form.time_format" class="w-48">
+                                    <NativeSelectOption v-for="option in timeFormats" :key="option.value" :value="option.value">
+                                        {{ option.label }}
+                                    </NativeSelectOption>
+                                </NativeSelect>
+                            </InputField>
+
+                            <InputField :label="t('app.settings.fields.theme')" :error="form.errors.theme" direction="horizontal">
                                 <AppearanceTabs v-model="form.theme" />
                             </InputField>
 
                             <InputField
-                                label="Launch at login"
-                                description="Automatically open Activity Record when you log in"
+                                :label="t('app.settings.fields.open_at_login')"
+                                :description="t('app.settings.fields.open_at_login_description', { app: appName })"
                                 direction="horizontal"
                             >
                                 <Switch v-model="form.open_at_login" />
@@ -149,13 +174,15 @@ function submit(): void {
                         <Separator />
 
                         <div :class="['flex flex-col gap-4 rounded-lg p-0 transition-all', spotlightClass('company')]">
-                            <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Company</h2>
+                            <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                                {{ t('app.settings.sections.company') }}
+                            </h2>
 
-                            <InputField label="Company name" :error="form.errors.company_name">
+                            <InputField :label="t('app.settings.fields.company_name')" :error="form.errors.company_name">
                                 <Input v-model="form.company_name" type="text" />
                             </InputField>
 
-                            <InputField label="Company address" :error="form.errors.company_address">
+                            <InputField :label="t('app.settings.fields.company_address')" :error="form.errors.company_address">
                                 <Textarea v-model="form.company_address" rows="2" />
                             </InputField>
                         </div>
@@ -163,26 +190,31 @@ function submit(): void {
                         <Separator />
 
                         <div class="flex flex-col gap-4">
-                            <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">Billing defaults</h2>
+                            <h2 class="text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+                                {{ t('app.settings.sections.billing_defaults') }}
+                            </h2>
 
                             <div class="grid grid-cols-2 gap-4">
-                                <InputField label="Hourly rate (€)" :error="form.errors.default_hourly_rate">
+                                <InputField :label="t('app.settings.fields.hourly_rate')" :error="form.errors.default_hourly_rate">
                                     <Input v-model.number="form.default_hourly_rate" type="number" min="0" step="0.01" placeholder="0.00" />
                                 </InputField>
 
-                                <InputField label="Daily rate (€)" :error="form.errors.default_daily_rate">
+                                <InputField :label="t('app.settings.fields.daily_rate')" :error="form.errors.default_daily_rate">
                                     <Input v-model.number="form.default_daily_rate" type="number" min="0" step="0.01" placeholder="0.00" />
                                 </InputField>
                             </div>
 
                             <div class="grid grid-cols-2 gap-4">
-                                <InputField label="Daily reference hours" :error="form.errors.default_daily_reference_hours">
+                                <InputField
+                                    :label="t('app.settings.fields.daily_reference_hours')"
+                                    :error="form.errors.default_daily_reference_hours"
+                                >
                                     <Input v-model.number="form.default_daily_reference_hours" type="number" min="1" max="24" />
                                 </InputField>
 
-                                <InputField label="Default rounding" :error="form.errors.default_rounding_strategy">
+                                <InputField :label="t('app.settings.fields.default_rounding')" :error="form.errors.default_rounding_strategy">
                                     <NativeSelect v-model.number="form.default_rounding_strategy" class="w-full">
-                                        <NativeSelectOption v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
+                                        <NativeSelectOption v-for="option in roundingOptions" :key="option.value" :value="option.value">
                                             {{ option.label }}
                                         </NativeSelectOption>
                                     </NativeSelect>
@@ -196,8 +228,8 @@ function submit(): void {
             <!-- Software Updates: auto-updater enabled -->
             <Card v-if="updaterEnabled">
                 <CardHeader>
-                    <CardTitle>Software Updates</CardTitle>
-                    <CardDescription>Current version: {{ appVersion }}</CardDescription>
+                    <CardTitle>{{ t('app.settings.sections.software_updates') }}</CardTitle>
+                    <CardDescription>{{ t('app.settings.updates.current_version', { version: appVersion }) }}</CardDescription>
                     <CardAction>
                         <Button
                             size="sm"
@@ -207,51 +239,45 @@ function submit(): void {
                         >
                             <LoaderCircleIcon v-if="updaterStatus === 'checking'" class="size-3.5 animate-spin" />
                             <ArrowUpCircleIcon v-else class="size-3.5" />
-                            {{ updaterStatus === 'checking' ? 'Checking…' : 'Check for updates' }}
+                            {{ updaterStatus === 'checking' ? t('app.settings.updates.checking') : t('app.settings.updates.check') }}
                         </Button>
                     </CardAction>
                 </CardHeader>
 
                 <CardContent>
-                    <!-- Idle / checking -->
                     <p v-if="updaterStatus === 'idle' || updaterStatus === 'checking'" class="text-sm text-muted-foreground">
-                        {{ updaterStatus === 'checking' ? 'Checking for updates…' : "You're up to date." }}
+                        {{ updaterStatus === 'checking' ? t('app.settings.updates.checking_for_updates') : t('app.settings.updates.up_to_date') }}
                     </p>
 
-                    <!-- Up to date -->
                     <div v-else-if="updaterStatus === 'up-to-date'" class="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle2Icon class="size-4 text-green-500" />
-                        You're up to date.
+                        {{ t('app.settings.updates.up_to_date') }}
                     </div>
 
-                    <!-- Error -->
-                    <p v-else-if="updaterStatus === 'error'" class="text-sm text-destructive">Update check failed. Please try again.</p>
+                    <p v-else-if="updaterStatus === 'error'" class="text-sm text-destructive">{{ t('app.settings.updates.error') }}</p>
 
-                    <!-- Available -->
                     <div v-else-if="updateInfo" class="flex flex-col gap-3">
                         <div class="flex items-start justify-between gap-4">
                             <div class="flex flex-col gap-0.5">
-                                <p class="text-sm font-medium">Version {{ updateInfo.version }} available</p>
+                                <p class="text-sm font-medium">{{ t('app.settings.updates.available', { version: updateInfo.version }) }}</p>
                                 <p v-if="updateInfo.releaseDate" class="text-xs text-muted-foreground">
-                                    Released {{ formatDate(updateInfo.releaseDate) }}
+                                    {{ t('app.settings.updates.released', { date: formatDate(updateInfo.releaseDate) }) }}
                                 </p>
                             </div>
 
                             <Button v-if="updaterStatus === 'ready'" size="sm" @click="installUpdate">
                                 <RotateCcwIcon class="size-3.5" />
-                                Restart & Install
+                                {{ t('app.settings.updates.restart_install') }}
                             </Button>
                         </div>
 
-                        <!-- Download progress -->
                         <div v-if="updaterStatus === 'downloading'" class="flex flex-col gap-1.5">
                             <div class="h-1.5 w-full overflow-hidden rounded-full bg-muted">
                                 <div class="h-full rounded-full bg-primary transition-all duration-300" :style="{ width: `${downloadProgress}%` }" />
                             </div>
-                            <p class="text-xs text-muted-foreground">{{ downloadProgress }}% downloaded</p>
+                            <p class="text-xs text-muted-foreground">{{ t('app.settings.updates.downloading', { percent: downloadProgress }) }}</p>
                         </div>
 
-                        <!-- Release notes -->
                         <p
                             v-if="updateInfo.releaseNotes"
                             class="max-h-40 overflow-y-auto rounded-md bg-muted px-3 py-2 text-xs whitespace-pre-line text-muted-foreground"
@@ -265,42 +291,44 @@ function submit(): void {
             <!-- Software Updates: manual GitHub check (updater disabled) -->
             <Card v-else>
                 <CardHeader>
-                    <CardTitle>Software Updates</CardTitle>
-                    <CardDescription>Current version: {{ appVersion }}</CardDescription>
+                    <CardTitle>{{ t('app.settings.sections.software_updates') }}</CardTitle>
+                    <CardDescription>{{ t('app.settings.updates.current_version', { version: appVersion }) }}</CardDescription>
                     <CardAction>
                         <Button size="sm" variant="outline" :disabled="githubReleaseStatus === 'checking'" @click="checkGitHubRelease(appVersion)">
                             <LoaderCircleIcon v-if="githubReleaseStatus === 'checking'" class="size-3.5 animate-spin" />
                             <ArrowUpCircleIcon v-else class="size-3.5" />
-                            {{ githubReleaseStatus === 'checking' ? 'Checking…' : 'Check for updates' }}
+                            {{ githubReleaseStatus === 'checking' ? t('app.settings.updates.checking') : t('app.settings.updates.check') }}
                         </Button>
                     </CardAction>
                 </CardHeader>
 
                 <CardContent>
                     <p v-if="githubReleaseStatus === 'idle'" class="text-sm text-muted-foreground">
-                        Auto-updates are disabled. Check manually for new releases on GitHub.
+                        {{ t('app.settings.updates.auto_disabled') }}
                     </p>
 
-                    <p v-else-if="githubReleaseStatus === 'checking'" class="text-sm text-muted-foreground">Checking for updates…</p>
+                    <p v-else-if="githubReleaseStatus === 'checking'" class="text-sm text-muted-foreground">
+                        {{ t('app.settings.updates.checking_for_updates') }}
+                    </p>
 
                     <div v-else-if="githubReleaseStatus === 'up-to-date'" class="flex items-center gap-2 text-sm text-muted-foreground">
                         <CheckCircle2Icon class="size-4 text-green-500" />
-                        You're up to date.
+                        {{ t('app.settings.updates.up_to_date') }}
                     </div>
 
-                    <p v-else-if="githubReleaseStatus === 'error'" class="text-sm text-destructive">Update check failed. Please try again.</p>
+                    <p v-else-if="githubReleaseStatus === 'error'" class="text-sm text-destructive">{{ t('app.settings.updates.error') }}</p>
 
                     <div v-else-if="githubReleaseStatus === 'available' && githubReleaseInfo" class="flex items-center justify-between gap-4">
                         <div class="flex flex-col gap-0.5">
-                            <p class="text-sm font-medium">Version {{ githubReleaseInfo.version }} available</p>
+                            <p class="text-sm font-medium">{{ t('app.settings.updates.available', { version: githubReleaseInfo.version }) }}</p>
                             <p v-if="githubReleaseInfo.publishedAt" class="text-xs text-muted-foreground">
-                                Released {{ formatDate(githubReleaseInfo.publishedAt) }}
+                                {{ t('app.settings.updates.released', { date: formatDate(githubReleaseInfo.publishedAt) }) }}
                             </p>
                         </div>
 
                         <Button size="sm" variant="outline" as="a" :href="githubReleaseInfo.url" target="_blank">
                             <ArrowUpCircleIcon class="size-3.5" />
-                            View release
+                            {{ t('app.settings.updates.view_release') }}
                         </Button>
                     </div>
                 </CardContent>
@@ -308,44 +336,49 @@ function submit(): void {
 
             <Card class="border-destructive/40 shadow-destructive">
                 <CardHeader>
-                    <CardTitle class="text-destructive">Danger Zone</CardTitle>
-                    <CardDescription>Irreversible actions that permanently affect your data</CardDescription>
+                    <CardTitle class="text-destructive">{{ t('app.settings.sections.danger_zone') }}</CardTitle>
+                    <CardDescription>{{ t('app.settings.reset.danger_description') }}</CardDescription>
                 </CardHeader>
 
                 <CardContent>
                     <div class="flex flex-col gap-4">
                         <Item variant="muted">
                             <ItemContent>
-                                <ItemTitle>Reset all data</ItemTitle>
-                                <ItemDescription>Permanently delete all activity records, sessions, clients, projects, and settings.</ItemDescription>
+                                <ItemTitle>{{ t('app.settings.reset.item_title') }}</ItemTitle>
+                                <ItemDescription>{{ t('app.settings.reset.item_description') }}</ItemDescription>
                             </ItemContent>
                             <ItemActions>
                                 <AlertDialog v-model="isResetOpen">
                                     <AlertDialogTrigger as-child>
-                                        <Button variant="destructive" size="sm" @click="resetConfirmInput = ''">Reset all data</Button>
+                                        <Button variant="destructive" size="sm" @click="resetConfirmInput = ''">
+                                            {{ t('app.settings.reset.button') }}
+                                        </Button>
                                     </AlertDialogTrigger>
 
                                     <AlertDialogContent>
                                         <AlertDialogHeader>
-                                            <AlertDialogTitle>Reset all data?</AlertDialogTitle>
+                                            <AlertDialogTitle>{{ t('app.settings.reset.dialog_title') }}</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                This will permanently delete everything: activity records, sessions, clients, projects, reports, and
-                                                all settings. The database will be wiped and reset to a blank state.
-                                                <strong class="text-foreground">This action cannot be undone.</strong>
+                                                {{ t('app.settings.reset.dialog_description') }}
+                                                <strong class="text-foreground">{{ t('app.settings.reset.cannot_undo') }}</strong>
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
 
                                         <div class="flex flex-col gap-2 py-2">
                                             <label class="text-sm font-medium">
-                                                Type <span class="font-mono font-bold">RESET</span> to confirm
+                                                {{ t('app.settings.reset.type_to_confirm', { word: t('app.settings.reset.confirm_word') }) }}
                                             </label>
-                                            <Input v-model="resetConfirmInput" placeholder="RESET" />
+                                            <Input v-model="resetConfirmInput" :placeholder="t('app.settings.reset.confirm_placeholder')" />
                                         </div>
 
                                         <AlertDialogFooter>
-                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                            <Button variant="destructive" :disabled="resetConfirmInput !== 'RESET'" @click="confirmReset">
-                                                Reset all data
+                                            <AlertDialogCancel>{{ t('app.common.cancel') }}</AlertDialogCancel>
+                                            <Button
+                                                variant="destructive"
+                                                :disabled="resetConfirmInput !== t('app.settings.reset.confirm_word')"
+                                                @click="confirmReset"
+                                            >
+                                                {{ t('app.settings.reset.button') }}
                                             </Button>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>

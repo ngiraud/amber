@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Paginator, Session } from '@/types';
@@ -18,17 +19,17 @@ const logSessionOpen = ref(false);
 </script>
 
 <template>
-    <AppLayout title="Sessions">
+    <AppLayout :title="t('app.nav.sessions')">
         <template #header>
-            <PageHeader title="Sessions">
+            <PageHeader :title="t('app.nav.sessions')">
                 <template #actions>
-                    <Button size="sm" @click="logSessionOpen = true">Log session</Button>
+                    <Button size="sm" @click="logSessionOpen = true">{{ t('app.dashboard.log_session') }}</Button>
                 </template>
             </PageHeader>
         </template>
 
         <Empty v-if="(sessions?.data || []).length === 0" class="mt-6">
-            <EmptyTitle>No sessions yet.</EmptyTitle>
+            <EmptyTitle>{{ t('app.session.no_sessions') }}</EmptyTitle>
         </Empty>
 
         <InfiniteScroll v-else data="sessions" :buffer="200">

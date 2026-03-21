@@ -9,6 +9,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { t } from '@/composables/useTranslation';
 
 defineProps<{
     open: boolean;
@@ -32,9 +33,9 @@ const emit = defineEmits<{
             </AlertDialogHeader>
 
             <AlertDialogFooter>
-                <AlertDialogCancel @click="emit('cancel')">Cancel</AlertDialogCancel>
+                <AlertDialogCancel @click="emit('cancel')">{{ t('app.common.cancel') }}</AlertDialogCancel>
                 <AlertDialogAction @click="emit('confirm')">
-                    {{ confirmLabel ?? 'Delete' }}
+                    {{ confirmLabel ?? t('app.common.delete') }}
                 </AlertDialogAction>
             </AlertDialogFooter>
         </AlertDialogContent>

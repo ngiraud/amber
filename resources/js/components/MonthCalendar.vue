@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { locale, t } from '@/composables/useTranslation';
 import { formatMinutes } from '@/lib/utils';
 import type { TimelineDay, WeekStats } from '@/types';
 
@@ -15,7 +16,10 @@ const emit = defineEmits<{
     (e: 'select', date: string): void;
 }>();
 
-const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+// Jan 1 2024 is a Monday — iterate 7 days to get Mon→Sun in ISO week order
+const WEEKDAYS = computed(() =>
+    Array.from({ length: 7 }, (_, i) => new Intl.DateTimeFormat(locale.value, { weekday: 'short' }).format(new Date(2024, 0, 1 + i))),
+);
 
 const today = new Date().toISOString().split('T')[0];
 
@@ -102,7 +106,9 @@ function isFuture(date: string): boolean {
                     {{ day }}
                 </div>
             </div>
-            <div v-if="weeks !== undefined" class="w-36 shrink-0 py-1 text-center text-xs font-medium text-muted-foreground">Week</div>
+            <div v-if="weeks !== undefined" class="w-36 shrink-0 py-1 text-center text-xs font-medium text-muted-foreground">
+                {{ t('app.timeline.week') }}
+            </div>
         </div>
 
         <!-- Calendar body -->
@@ -206,7 +212,8 @@ function isFuture(date: string): boolean {
                                     />
                                 </div>
                                 <p class="font-mono text-[9px] text-muted-foreground/60 tabular-nums">
-                                    {{ weekRow.stats.worked_days }}d · {{ formatMinutes(weekRow.stats.avg_minutes_per_day) }}/d
+                                    {{ weekRow.stats.worked_days }}{{ t('app.timeline.days_short') }} ·
+                                    {{ formatMinutes(weekRow.stats.avg_minutes_per_day) }}{{ t('app.timeline.per_day_short') }}
                                 </p>
                             </div>
                         </TooltipTrigger>

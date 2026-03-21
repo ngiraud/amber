@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useDateFormat } from '@/composables/useDateFormat';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import type { Session } from '@/types';
 
@@ -44,20 +45,20 @@ const sessionBreadcrumb = computed(() => {
     const project = props.session.project;
     const context = project ? `${project.client?.name ?? ''} — ${project.name}` : '';
     const date = formatDate(props.session.started_at);
-    const isActive = props.session.ended_at === null ? ' · Active' : '';
+    const isActive = props.session.ended_at === null ? ` · ${t('app.session.active_badge')}` : '';
 
-    return ['Sessions', context, `${date}${isActive}`].filter(Boolean);
+    return [t('app.nav.sessions'), context, `${date}${isActive}`].filter(Boolean);
 });
 </script>
 
 <template>
-    <AppLayout title="Session" :breadcrumb="sessionBreadcrumb">
+    <AppLayout :title="t('app.nav.sessions')" :breadcrumb="sessionBreadcrumb">
         <template #header>
             <PageHeader :title="session.project?.client?.name + ' — ' + session.project?.name">
                 <template #actions>
                     <Button variant="outline" size="sm" @click="router.visit(props.backUrl)">
                         <ArrowLeftIcon class="mr-1.5 size-3.5" />
-                        Back
+                        {{ t('app.common.back') }}
                     </Button>
                 </template>
             </PageHeader>
@@ -75,23 +76,23 @@ const sessionBreadcrumb = computed(() => {
                         <p class="text-sm font-medium">{{ session.project?.client?.name }} — {{ session.project?.name }}</p>
                     </div>
 
-                    <Badge v-if="session.ended_at === null" class="bg-green-500 text-white">Active</Badge>
-                    <Badge v-else-if="session.is_validated" variant="secondary">Validated</Badge>
+                    <Badge v-if="session.ended_at === null" class="bg-green-500 text-white">{{ t('app.session.active_badge') }}</Badge>
+                    <Badge v-else-if="session.is_validated" variant="secondary">{{ t('app.session.validated_badge') }}</Badge>
                 </div>
 
                 <div class="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <div>
-                        <p class="text-xs text-muted-foreground">Started</p>
+                        <p class="text-xs text-muted-foreground">{{ t('app.session.started') }}</p>
                         <p class="mt-0.5">{{ formatDateTime(session.started_at) }}</p>
                     </div>
 
                     <div>
-                        <p class="text-xs text-muted-foreground">Ended</p>
+                        <p class="text-xs text-muted-foreground">{{ t('app.session.ended') }}</p>
                         <p class="mt-0.5">{{ session.ended_at ? formatDateTime(session.ended_at) : '—' }}</p>
                     </div>
 
                     <div>
-                        <p class="text-xs text-muted-foreground">Duration</p>
+                        <p class="text-xs text-muted-foreground">{{ t('app.session.duration') }}</p>
                         <p class="mt-0.5 font-mono">
                             <SessionTimer v-if="session.ended_at === null" :started-at="session.started_at" />
                             <span v-else>{{ formatMinutes(session.rounded_minutes) }}</span>
@@ -99,13 +100,13 @@ const sessionBreadcrumb = computed(() => {
                     </div>
 
                     <div>
-                        <p class="text-xs text-muted-foreground">Source</p>
+                        <p class="text-xs text-muted-foreground">{{ t('app.session.source') }}</p>
                         <p class="mt-0.5">{{ session.source.label }}</p>
                     </div>
                 </div>
 
                 <div v-if="session.description" class="mt-4">
-                    <p class="text-xs text-muted-foreground">Description</p>
+                    <p class="text-xs text-muted-foreground">{{ t('app.common.description') }}</p>
                     <p class="mt-0.5 text-sm">{{ session.description }}</p>
                 </div>
             </CardContent>
@@ -113,20 +114,20 @@ const sessionBreadcrumb = computed(() => {
 
         <div class="mt-6">
             <div class="mb-3 flex items-center justify-between">
-                <h2 class="text-base font-semibold">Notes</h2>
+                <h2 class="text-base font-semibold">{{ t('app.common.notes') }}</h2>
                 <SessionNotesDialog :session="session">
                     <Button variant="outline" size="sm">
-                        {{ session.notes ? 'Edit notes' : 'Add notes' }}
+                        {{ session.notes ? t('app.session.edit_notes') : t('app.session.add_notes_btn') }}
                     </Button>
                 </SessionNotesDialog>
             </div>
 
             <RichTextEditor v-if="session.notes" :model-value="session.notes" :editable="false" />
-            <p v-else class="text-sm text-muted-foreground">No notes yet.</p>
+            <p v-else class="text-sm text-muted-foreground">{{ t('app.session.no_notes') }}</p>
         </div>
 
         <div v-if="session.source.label === 'Auto'" class="mt-8 flex min-h-30 flex-1 flex-col">
-            <h2 class="shrink-0 text-base font-semibold">Activity Events</h2>
+            <h2 class="shrink-0 text-base font-semibold">{{ t('app.session.activity_events') }}</h2>
 
             <div class="mt-3 min-h-0 flex-1">
                 <ActivityLog />

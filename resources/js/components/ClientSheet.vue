@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Textarea } from '@/components/ui/textarea';
+import { t } from '@/composables/useTranslation';
 import * as clientRoutes from '@/routes/clients';
 import type { Client } from '@/types';
 
@@ -26,26 +27,26 @@ const action = computed(() => (isEditing.value ? clientRoutes.update(props.clien
 
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>{{ isEditing ? 'Edit client' : 'New client' }}</SheetTitle>
+                <SheetTitle>{{ isEditing ? t('app.client.edit') : t('app.client.new_client') }}</SheetTitle>
             </SheetHeader>
 
             <Form class="flex flex-col gap-5 px-4 py-2" :action="action" #default="{ errors, processing }" @success="() => (open = false)">
-                <InputField label="Name" :error="errors.name" required>
+                <InputField :label="t('app.common.name')" :error="errors.name" required>
                     <Input name="name" type="text" :default-value="client?.name" :placeholder="isEditing ? undefined : 'Acme Corp'" autofocus />
                 </InputField>
 
-                <InputField label="Notes" :error="errors.notes">
+                <InputField :label="t('app.common.notes')" :error="errors.notes">
                     <Textarea
                         name="notes"
                         rows="4"
                         :default-value="client?.notes ?? undefined"
-                        :placeholder="isEditing ? undefined : 'Optional notes about this client…'"
+                        :placeholder="isEditing ? undefined : t('app.common.optional') + '…'"
                     />
                 </InputField>
 
                 <SheetFooter class="px-0">
                     <Button type="submit" :disabled="processing" class="w-full">
-                        {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create client' }}
+                        {{ processing ? t('app.common.saving') : isEditing ? t('app.common.save_changes') : t('app.client.create') }}
                     </Button>
                 </SheetFooter>
             </Form>

@@ -23,6 +23,7 @@ import { useNativeEvent } from '@/composables/useNativeEvent';
 import { useOpenClientSheet } from '@/composables/useOpenClientSheet';
 import { useOpenProjectSheet } from '@/composables/useOpenProjectSheet';
 import { formatHotkey } from '@/composables/useOs';
+import { t } from '@/composables/useTranslation';
 import * as sessionRoutes from '@/routes/sessions';
 
 defineProps<{
@@ -130,9 +131,9 @@ function hotkey(label: string): string {
                 class="flex cursor-pointer items-center gap-1.5 rounded px-2 py-1 text-xs text-muted-foreground/60 transition-colors hover:text-muted-foreground"
                 @click="commandPaletteOpen = true"
             >
-                <span>Use</span>
+                <span>{{ t('app.titlebar.search_use') }}</span>
                 <Kbd class="opacity-60">{{ formatHotkey('CmdOrCtrl+K') }}</Kbd>
-                <span>to search</span>
+                <span>{{ t('app.titlebar.search_to') }}</span>
             </button>
         </div>
 
@@ -169,14 +170,14 @@ function hotkey(label: string): string {
                     <SessionNotesDialog :session="activeSession">
                         <Button variant="ghost" size="xs" class="text-muted-foreground hover:text-white">
                             <NotebookPenIcon class="size-3" />
-                            Note
+                            {{ t('app.titlebar.note') }}
                         </Button>
                     </SessionNotesDialog>
 
                     <Form :action="sessionRoutes.stop(activeSession)" method="patch" #default="{ submit }">
                         <Button variant="ghost" size="xs" class="text-muted-foreground hover:text-white" @click="submit">
                             <SquareIcon class="size-3 fill-current" />
-                            Stop
+                            {{ t('app.common.stop') }}
                             <Kbd class="opacity-60">{{ hotkey('Toggle Session') }}</Kbd>
                         </Button>
                     </Form>
@@ -196,7 +197,7 @@ function hotkey(label: string): string {
                             >
                                 <span class="size-1.5 shrink-0 animate-pulse rounded-full bg-green-500/50" />
                                 <span class="truncate">
-                                    Working on {{ currentActivity.length }} {{ currentActivity.length > 1 ? 'projects' : 'project' }}
+                                    {{ t('app.titlebar.working_on', { count: currentActivity.length }) }}
                                 </span>
                                 <span class="text-muted-foreground/30">·</span>
                                 <span v-if="currentElapsed" class="shrink-0 font-mono tabular-nums">
@@ -223,7 +224,7 @@ function hotkey(label: string): string {
                 <StartTimerSheet>
                     <Button variant="ghost" size="xs" class="text-muted-foreground/50 hover:bg-accent/70 hover:text-white">
                         <PlayIcon class="size-3" />
-                        Live session
+                        {{ t('app.titlebar.live_session') }}
                         <Kbd class="opacity-60">{{ hotkey('Toggle Session') }}</Kbd>
                     </Button>
                 </StartTimerSheet>
@@ -240,19 +241,19 @@ function hotkey(label: string): string {
                 <DropdownMenuContent align="end" class="w-52 text-xs">
                     <DropdownMenuItem class="text-xs" @click="logPastSessionOpen = true">
                         <ClockIcon class="size-3" />
-                        Log past session
+                        {{ t('app.session.log_past') }}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem class="text-xs" @click="clientSheetOpen = true">
                         <UserPlusIcon class="size-3" />
-                        New client
+                        {{ t('app.client.new_client') }}
                         <DropdownMenuShortcut>
                             <Kbd>{{ hotkey('New Client') }}</Kbd>
                         </DropdownMenuShortcut>
                     </DropdownMenuItem>
                     <DropdownMenuItem class="text-xs" @click="projectSheetOpen = true">
                         <FolderPlusIcon class="size-3" />
-                        New project
+                        {{ t('app.project.new_project') }}
                         <DropdownMenuShortcut>
                             <Kbd>{{ hotkey('New Project') }}</Kbd>
                         </DropdownMenuShortcut>

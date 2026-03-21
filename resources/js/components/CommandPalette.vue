@@ -30,6 +30,7 @@ import { useOpenClientSheet } from '@/composables/useOpenClientSheet';
 import { useOpenProjectSheet } from '@/composables/useOpenProjectSheet';
 import { useOpenSessionDialog } from '@/composables/useOpenSessionDialog';
 import { formatHotkey } from '@/composables/useOs';
+import { t } from '@/composables/useTranslation';
 import { checkForUpdates, checkGitHubRelease } from '@/composables/useUpdater';
 import { home } from '@/routes';
 import * as activityRoutes from '@/routes/activity';
@@ -113,56 +114,56 @@ function triggerUpdateCheck() {
 
 <template>
     <CommandDialog v-model:open="isOpen">
-        <CommandInput placeholder="Search..." />
+        <CommandInput :placeholder="t('app.common.search')" />
         <CommandList>
-            <CommandEmpty>No results found.</CommandEmpty>
+            <CommandEmpty>{{ t('app.command_palette.no_results') }}</CommandEmpty>
 
-            <CommandGroup heading="Navigate">
+            <CommandGroup :heading="t('app.common.navigate')">
                 <CommandItem value="dashboard" @select="navigate(home().url)">
                     <LayoutDashboardIcon />
-                    Dashboard
+                    {{ t('app.nav.dashboard') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Dashboard') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="timeline" @select="navigate(timelineRoutes.index().url)">
                     <CalendarDaysIcon />
-                    Timeline
+                    {{ t('app.nav.timeline') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Timeline') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="clients" @select="navigate(clientRoutes.index().url)">
                     <UsersIcon />
-                    Clients
+                    {{ t('app.nav.clients') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Clients') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="projects" @select="navigate(projectRoutes.index().url)">
                     <FolderIcon />
-                    Projects
+                    {{ t('app.nav.projects') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Projects') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="reports" @select="navigate(reportRoutes.index().url)">
                     <FileTextIcon />
-                    Reports
+                    {{ t('app.nav.reports') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Reports') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="sessions" @select="navigate(sessionRoutes.index().url)">
                     <ClockIcon />
-                    Sessions
+                    {{ t('app.nav.sessions') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Sessions') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="activity" @select="navigate(activityRoutes.index().url)">
                     <ActivityIcon />
-                    Activity
+                    {{ t('app.nav.activities') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Activity') }}</Kbd>
                     </CommandShortcut>
@@ -171,17 +172,17 @@ function triggerUpdateCheck() {
 
             <CommandSeparator />
 
-            <CommandGroup heading="Sessions">
+            <CommandGroup :heading="t('app.nav.sessions')">
                 <CommandItem value="start session" @select="startSession">
                     <PlayIcon />
-                    Start session
+                    {{ t('app.session.start') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Toggle Session') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem v-if="activeSession" value="stop session" @select="stopSession">
                     <SquareIcon />
-                    Stop session
+                    {{ t('app.session.stop') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Toggle Session') }}</Kbd>
                     </CommandShortcut>
@@ -190,17 +191,17 @@ function triggerUpdateCheck() {
 
             <CommandSeparator />
 
-            <CommandGroup heading="Create">
+            <CommandGroup :heading="t('app.common.create')">
                 <CommandItem value="new project" @select="newProject">
                     <FolderIcon />
-                    New project
+                    {{ t('app.project.new_project') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('New Project') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="new client" @select="newClient">
                     <UsersIcon />
-                    New client
+                    {{ t('app.client.new_client') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('New Client') }}</Kbd>
                     </CommandShortcut>
@@ -209,29 +210,29 @@ function triggerUpdateCheck() {
 
             <CommandSeparator />
 
-            <CommandGroup heading="Settings">
+            <CommandGroup :heading="t('app.settings.title')">
                 <CommandItem value="check for updates" @select="triggerUpdateCheck">
                     <ArrowUpCircleIcon />
-                    Check for updates
+                    {{ t('app.settings.updates.check') }}
                 </CommandItem>
                 <CommandItem value="general settings" @select="navigate(settingsRoutes.general().url)">
                     <SettingsIcon />
-                    General
+                    {{ t('app.settings.general') }}
                     <CommandShortcut>
                         <Kbd>{{ hotkey('Settings') }}</Kbd>
                     </CommandShortcut>
                 </CommandItem>
                 <CommandItem value="activity settings" @select="navigate(settingsRoutes.activity().url)">
                     <SettingsIcon />
-                    Activity
+                    {{ t('app.settings.activity') }}
                 </CommandItem>
                 <CommandItem value="sources settings" @select="navigate(settingsRoutes.sources().url)">
                     <SettingsIcon />
-                    Sources
+                    {{ t('app.settings.sources') }}
                 </CommandItem>
                 <CommandItem value="ai settings" @select="navigate(settingsRoutes.ai().url)">
                     <SettingsIcon />
-                    AI
+                    {{ t('app.settings.ai') }}
                 </CommandItem>
             </CommandGroup>
         </CommandList>
@@ -239,15 +240,15 @@ function triggerUpdateCheck() {
         <div class="flex items-center gap-4 border-t px-4 py-2.5">
             <span class="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <KbdGroup><Kbd>↑</Kbd><Kbd>↓</Kbd></KbdGroup>
-                Navigate
+                {{ t('app.command_palette.hint_navigate') }}
             </span>
             <span class="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Kbd>↵</Kbd>
-                Select
+                {{ t('app.command_palette.hint_select') }}
             </span>
             <span class="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Kbd>esc</Kbd>
-                Close
+                {{ t('app.common.close') }}
             </span>
         </div>
     </CommandDialog>

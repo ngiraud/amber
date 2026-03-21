@@ -6,6 +6,7 @@ import { toast } from 'vue-sonner';
 import RichTextEditor from '@/components/RichTextEditor.vue';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { t } from '@/composables/useTranslation';
 import { update as updateSession } from '@/routes/sessions';
 import type { Session } from '@/types';
 
@@ -45,7 +46,7 @@ function saveNotes(): void {
             preserveScroll: true,
             onSuccess: () => {
                 open.value = false;
-                toast.success('Note saved.');
+                toast.success(t('app.session.note_saved'));
             },
             onFinish: () => {
                 isSaving.value = false;
@@ -70,16 +71,16 @@ function close(): void {
             <DialogHeader>
                 <DialogTitle class="flex items-center gap-2">
                     <NotebookPenIcon class="size-4" />
-                    Session notes
+                    {{ t('app.session.notes_title') }}
                 </DialogTitle>
             </DialogHeader>
 
-            <RichTextEditor ref="editorRef" v-model="notes" placeholder="What are you working on?" class="min-h-0 flex-1" />
+            <RichTextEditor ref="editorRef" v-model="notes" :placeholder="t('app.session.notes_placeholder')" class="min-h-0 flex-1" />
 
             <DialogFooter>
-                <Button variant="outline" :disabled="isSaving" @click="close">Discard</Button>
+                <Button variant="outline" :disabled="isSaving" @click="close">{{ t('app.common.discard') }}</Button>
                 <Button :disabled="isSaving" @click="saveNotes">
-                    {{ isSaving ? 'Saving…' : 'Save note' }}
+                    {{ isSaving ? t('app.common.saving') : t('app.session.save_note') }}
                 </Button>
             </DialogFooter>
         </DialogContent>

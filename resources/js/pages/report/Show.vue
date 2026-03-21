@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
+import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
 import * as clientRoutes from '@/routes/clients';
@@ -62,7 +63,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 <template>
     <AppLayout
         :title="`Report — ${formatPeriod(report.month, report.year)}`"
-        :breadcrumb="['Reports', report.client?.name ?? '', formatPeriod(report.month, report.year)].filter(Boolean)"
+        :breadcrumb="[t('app.report.title'), report.client?.name ?? '', formatPeriod(report.month, report.year)].filter(Boolean)"
     >
         <template #header>
             <PageHeader :title="(report.client?.name ?? '') + ' — ' + formatPeriod(report.month, report.year)">
@@ -71,7 +72,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink as-child>
-                                    <Link :href="reportRoutes.index().url">Reports</Link>
+                                    <Link :href="reportRoutes.index().url">{{ t('app.report.title') }}</Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbSeparator />
@@ -111,7 +112,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                         <RegenerateSheet v-model:open="regenerateSheetOpen" :report="report" :ai-settings="aiSettings" />
                         <Button size="sm" variant="outline" @click="regenerateSheetOpen = true">
                             <RefreshCwIcon class="mr-2 size-3.5" />
-                            Regenerate
+                            {{ t('app.report.regenerate') }}
                         </Button>
                         <DropdownMenu>
                             <DropdownMenuTrigger as-child>
@@ -122,7 +123,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                             <DropdownMenuContent align="end">
                                 <DropdownMenuItem variant="destructive" :disabled="isDeleting" @click="handleDelete">
                                     <Trash2Icon class="mr-2 size-3.5" />
-                                    Delete
+                                    {{ t('app.common.delete') }}
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -135,7 +136,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         <div v-if="report.status.label === 'Generating'">
             <Card>
                 <CardHeader>
-                    <CardTitle>Generating report…</CardTitle>
+                    <CardTitle>{{ t('app.report.generating_report') }}</CardTitle>
                 </CardHeader>
                 <CardContent class="flex flex-col gap-2">
                     <div
@@ -166,7 +167,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
             <div class="grid shrink-0 grid-cols-3 gap-4">
                 <Card>
                     <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">Total time</CardTitle>
+                        <CardTitle class="text-sm font-medium text-muted-foreground">{{ t('app.report.total_time') }}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p class="font-mono text-2xl font-semibold">{{ formatMinutes(report.total_minutes) }}</p>
@@ -174,7 +175,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 </Card>
                 <Card>
                     <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">Total days</CardTitle>
+                        <CardTitle class="text-sm font-medium text-muted-foreground">{{ t('app.report.total_days') }}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p class="font-mono text-2xl font-semibold">{{ report.total_days }}</p>
@@ -182,7 +183,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                 </Card>
                 <Card v-if="report.total_amount_ht !== null">
                     <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">Amount (HT)</CardTitle>
+                        <CardTitle class="text-sm font-medium text-muted-foreground">{{ t('app.report.amount_ht') }}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p class="font-mono text-2xl font-semibold">
@@ -194,22 +195,22 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 
             <!-- Notes -->
             <div v-if="report.notes" class="shrink-0">
-                <h2 class="mb-1 text-sm font-semibold">Notes</h2>
+                <h2 class="mb-1 text-sm font-semibold">{{ t('app.common.notes') }}</h2>
                 <p class="text-sm text-muted-foreground">{{ report.notes }}</p>
             </div>
 
             <!-- Lines table -->
             <div v-if="report.lines && report.lines.length > 0" class="flex min-h-0 flex-1 flex-col">
-                <h2 class="mb-3 shrink-0 text-base font-semibold">Activity lines</h2>
+                <h2 class="mb-3 shrink-0 text-base font-semibold">{{ t('app.report.activity_lines') }}</h2>
                 <div class="min-h-0 flex-1 overflow-hidden rounded-lg border [&>[data-slot=table-container]]:h-full">
                     <Table>
                         <TableHeader class="sticky top-0 z-10 rounded-lg border bg-muted/50 backdrop-blur-sm">
                             <TableRow class="bg-muted/50">
-                                <TableHead class="w-[100px]">Date</TableHead>
-                                <TableHead>Project</TableHead>
-                                <TableHead class="text-right">Hours</TableHead>
-                                <TableHead class="text-right">Days</TableHead>
-                                <TableHead>Description</TableHead>
+                                <TableHead class="w-[100px]">{{ t('app.common.date') }}</TableHead>
+                                <TableHead>{{ t('app.csv.project') }}</TableHead>
+                                <TableHead class="text-right">{{ t('app.common.hours') }}</TableHead>
+                                <TableHead class="text-right">{{ t('app.common.days') }}</TableHead>
+                                <TableHead>{{ t('app.common.description') }}</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

@@ -10,6 +10,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { Input } from '@/components/ui/input';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Sheet, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { t } from '@/composables/useTranslation';
 import * as projectRoutes from '@/routes/projects';
 import type { Client, Project } from '@/types';
 
@@ -65,7 +66,7 @@ function removeRepo(index: number): void {
 
         <SheetContent class="sm:max-w-md">
             <SheetHeader>
-                <SheetTitle>{{ isEditing ? 'Edit project' : 'New project' }}</SheetTitle>
+                <SheetTitle>{{ isEditing ? t('app.project.edit') : t('app.project.new_project') }}</SheetTitle>
             </SheetHeader>
 
             <Form
@@ -74,20 +75,26 @@ function removeRepo(index: number): void {
                 #default="{ errors, processing }"
                 @success="() => (open = false)"
             >
-                <InputField label="Client" :error="errors.client_id" required>
+                <InputField :label="t('app.project.client')" :error="errors.client_id" required>
                     <NativeSelect name="client_id" :model-value="selectedClientId">
-                        <NativeSelectOption value="" disabled>Select a client…</NativeSelectOption>
+                        <NativeSelectOption value="" disabled>{{ t('app.common.select_client') }}</NativeSelectOption>
                         <NativeSelectOption v-for="c in clients" :key="c.id" :value="c.id">
                             {{ c.name }}
                         </NativeSelectOption>
                     </NativeSelect>
                 </InputField>
 
-                <InputField label="Name" :error="errors.name" required>
-                    <Input name="name" type="text" :default-value="project?.name" :placeholder="isEditing ? undefined : 'My project'" autofocus />
+                <InputField :label="t('app.common.name')" :error="errors.name" required>
+                    <Input
+                        name="name"
+                        type="text"
+                        :default-value="project?.name"
+                        :placeholder="isEditing ? undefined : t('app.project.name')"
+                        autofocus
+                    />
                 </InputField>
 
-                <InputField label="Color" :error="errors.color">
+                <InputField :label="t('app.project.color')" :error="errors.color">
                     <ColorPicker v-model="color" name="color" />
                 </InputField>
 
@@ -95,19 +102,22 @@ function removeRepo(index: number): void {
                 <Collapsible v-if="!isEditing" v-model:open="showRepos">
                     <CollapsibleTrigger class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
                         <ChevronDownIcon class="h-3.5 w-3.5 transition-transform duration-200" :class="{ '-rotate-90': !showRepos }" />
-                        Repositories
+                        {{ t('app.project.repositories') }}
                         <span v-if="repos.length" class="ml-1 text-xs text-foreground">({{ repos.length }})</span>
                     </CollapsibleTrigger>
 
                     <CollapsibleContent class="flex flex-col gap-3 pt-3">
                         <div v-for="(repo, i) in repos" :key="i" class="flex flex-col gap-2 rounded-md border p-3">
                             <div class="flex items-center justify-between">
-                                <span class="text-xs font-medium text-muted-foreground">Repository {{ i + 1 }}</span>
+                                <span class="text-xs font-medium text-muted-foreground">{{ t('app.project.repository_n', { n: i + 1 }) }}</span>
                                 <button type="button" class="text-muted-foreground transition-colors hover:text-destructive" @click="removeRepo(i)">
                                     <TrashIcon class="h-3.5 w-3.5" />
                                 </button>
                             </div>
-                            <InputField label="Local path" :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]">
+                            <InputField
+                                :label="t('app.project.local_path')"
+                                :error="(errors as Record<string, string>)[`repositories.${i}.local_path`]"
+                            >
                                 <FolderPathInput
                                     v-model="repo.local_path"
                                     :name="`repositories[${i}][local_path]`"
@@ -119,14 +129,14 @@ function removeRepo(index: number): void {
                                     "
                                 />
                             </InputField>
-                            <InputField label="Name" :error="(errors as Record<string, string>)[`repositories.${i}.name`]">
+                            <InputField :label="t('app.common.name')" :error="(errors as Record<string, string>)[`repositories.${i}.name`]">
                                 <Input :name="`repositories[${i}][name]`" type="text" placeholder="my-repo" v-model="repo.name" />
                             </InputField>
                         </div>
 
                         <Button type="button" variant="outline" size="sm" class="w-full" @click="addRepo">
                             <PlusIcon class="mr-1.5 h-3.5 w-3.5" />
-                            Add a repository
+                            {{ t('app.project.add_repository') }}
                         </Button>
                     </CollapsibleContent>
                 </Collapsible>
@@ -135,12 +145,12 @@ function removeRepo(index: number): void {
                 <Collapsible v-model:open="showAdvanced">
                     <CollapsibleTrigger class="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground">
                         <ChevronDownIcon class="h-3.5 w-3.5 transition-transform duration-200" :class="{ '-rotate-90': !showAdvanced }" />
-                        Advanced settings
+                        {{ t('app.project.advanced_settings') }}
                     </CollapsibleTrigger>
 
                     <CollapsibleContent class="flex flex-col gap-4 pt-3">
                         <div class="grid grid-cols-2 gap-4">
-                            <InputField label="Hourly rate (€)" :error="errors.hourly_rate">
+                            <InputField :label="t('app.project.hourly_rate')" :error="errors.hourly_rate">
                                 <Input
                                     name="hourly_rate"
                                     type="number"
@@ -151,7 +161,7 @@ function removeRepo(index: number): void {
                                 />
                             </InputField>
 
-                            <InputField label="Daily rate (€)" :error="errors.daily_rate">
+                            <InputField :label="t('app.project.daily_rate')" :error="errors.daily_rate">
                                 <Input
                                     name="daily_rate"
                                     type="number"
@@ -164,7 +174,7 @@ function removeRepo(index: number): void {
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
-                            <InputField label="Daily reference hours" :error="errors.daily_reference_hours">
+                            <InputField :label="t('app.settings.fields.daily_reference_hours')" :error="errors.daily_reference_hours">
                                 <Input
                                     name="daily_reference_hours"
                                     type="number"
@@ -174,7 +184,7 @@ function removeRepo(index: number): void {
                                 />
                             </InputField>
 
-                            <InputField label="Rounding" :error="errors.rounding">
+                            <InputField :label="t('app.settings.fields.default_rounding')" :error="errors.rounding">
                                 <NativeSelect name="rounding" :model-value="project?.rounding.value ?? defaults.default_rounding_strategy ?? 15">
                                     <NativeSelectOption v-for="option in ROUNDING_OPTIONS" :key="option.value" :value="option.value">
                                         {{ option.label }}
@@ -187,7 +197,7 @@ function removeRepo(index: number): void {
 
                 <SheetFooter class="px-0">
                     <Button type="submit" :disabled="processing">
-                        {{ processing ? (isEditing ? 'Saving…' : 'Creating…') : isEditing ? 'Save changes' : 'Create project' }}
+                        {{ processing ? t('app.common.saving') : isEditing ? t('app.common.save_changes') : t('app.project.create') }}
                     </Button>
                 </SheetFooter>
             </Form>

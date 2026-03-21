@@ -5,6 +5,7 @@ import { computed, ref } from 'vue';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { SidebarMenuButton } from '@/components/ui/sidebar';
 import { applyTheme } from '@/composables/useAppearance';
+import { t } from '@/composables/useTranslation';
 import * as generalRoutes from '@/routes/settings/general';
 import type { Appearance, GeneralSettings } from '@/types';
 
@@ -14,13 +15,13 @@ const open = ref(false);
 
 const currentTheme = computed(() => (page.props.generalSettings as GeneralSettings)?.theme || 'system');
 
-const themes = [
-    { value: 'light', Icon: Sun, label: 'Light Mode' },
-    { value: 'dark', Icon: Moon, label: 'Dark Mode' },
-    { value: 'system', Icon: Monitor, label: 'System Mode' },
-] as const;
+const themes = computed(() => [
+    { value: 'light', Icon: Sun, label: t('app.settings.theme.light') },
+    { value: 'dark', Icon: Moon, label: t('app.settings.theme.dark') },
+    { value: 'system', Icon: Monitor, label: t('app.settings.theme.system') },
+]);
 
-const currentIcon = computed(() => themes.find((t) => t.value === currentTheme.value)?.Icon ?? Monitor);
+const currentIcon = computed(() => themes.value.find((theme) => theme.value === currentTheme.value)?.Icon ?? Monitor);
 
 function select(theme: Appearance): void {
     open.value = false;
@@ -49,11 +50,11 @@ function select(theme: Appearance): void {
 </script>
 
 <template>
-    <SidebarMenuButton size="lg" class="cursor-pointer items-center justify-center" tooltip="Theme">
+    <SidebarMenuButton size="lg" class="cursor-pointer items-center justify-center" :tooltip="t('app.settings.fields.theme')">
         <Popover v-model:open="open">
             <PopoverTrigger as-child>
                 <component :is="currentIcon" />
-                <span class="sr-only">Theme</span>
+                <span class="sr-only">{{ t('app.settings.fields.theme') }}</span>
             </PopoverTrigger>
             <PopoverContent side="right" :side-offset="24" align="center" class="w-auto p-1">
                 <div class="flex items-center gap-0.5">

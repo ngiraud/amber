@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Settings;
 
 use App\Actions\Settings\UpdateGeneralSettings;
+use App\Enums\AvailableLocale;
 use App\Enums\DateFormat;
 use App\Enums\TimeFormat;
 use App\Http\Controllers\Controller;
@@ -21,6 +22,7 @@ class GeneralSettingsController extends Controller
             'timezones' => timezone_identifiers_list(),
             'dateFormats' => DateFormat::options(),
             'timeFormats' => TimeFormat::options(),
+            'locales' => AvailableLocale::options(),
         ]);
     }
 

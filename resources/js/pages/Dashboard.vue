@@ -15,6 +15,7 @@ import { Empty, EmptyDescription, EmptyTitle } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { useNow } from '@/composables/useNow';
+import { locale, t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes } from '@/lib/utils';
 import * as sessionRoutes from '@/routes/sessions';
@@ -57,8 +58,9 @@ const activeSessionMinutes = computed(() => {
 
 const dateLabel = computed(() => {
     const d = new Date(props.date + 'T00:00:00');
+    const str = d.toLocaleDateString(locale.value, { weekday: 'long', month: 'long', day: 'numeric' });
 
-    return d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    return str.charAt(0).toUpperCase() + str.slice(1);
 });
 
 const workRange = computed(() => {
@@ -71,22 +73,22 @@ const workRange = computed(() => {
 </script>
 
 <template>
-    <AppLayout title="Dashboard">
+    <AppLayout :title="t('app.dashboard.title')">
         <template #header>
-            <PageHeader title="Dashboard">
+            <PageHeader :title="t('app.dashboard.title')">
                 <template #actions>
                     <div class="flex items-center gap-2">
                         <Button variant="outline" size="sm" as-child>
                             <Link :href="timelineRoutes.index().url">
                                 <CalendarDaysIcon class="mr-1.5 size-3.5" />
-                                Timeline
+                                {{ t('app.nav.timeline') }}
                             </Link>
                         </Button>
 
                         <ReconstructDialog :has-sessions="sessions.length > 0">
                             <Button variant="outline" size="sm">
                                 <RefreshCwIcon class="mr-1.5 size-3.5" />
-                                Reconstruct today
+                                {{ t('app.dashboard.reconstruct_today') }}
                             </Button>
                         </ReconstructDialog>
                     </div>
@@ -101,7 +103,7 @@ const workRange = computed(() => {
                     <StatItem>
                         <StatItemLabel>
                             <StatItemIcon><ClockIcon /></StatItemIcon>
-                            Today
+                            {{ t('app.dashboard.today') }}
                         </StatItemLabel>
                         <StatItemValue :value="formatMinutes(session_stats.total_minutes + activeSessionMinutes)" :active="!!activeSession">
                             <Badge v-if="activeSession" class="animate-pulse">
@@ -116,7 +118,7 @@ const workRange = computed(() => {
                     <StatItem>
                         <StatItemLabel>
                             <StatItemIcon class="-mt-px"><TargetIcon /></StatItemIcon>
-                            This Week
+                            {{ t('app.dashboard.this_week') }}
                         </StatItemLabel>
                         <StatItemValue :value="formatMinutes(week_minutes + (isToday ? activeSessionMinutes : 0))" muted />
                     </StatItem>
@@ -126,7 +128,7 @@ const workRange = computed(() => {
                     <StatItem>
                         <StatItemLabel>
                             <StatItemIcon><CalendarDaysIcon /></StatItemIcon>
-                            This Month
+                            {{ t('app.dashboard.this_month') }}
                         </StatItemLabel>
                         <StatItemValue :value="formatMinutes(month_minutes + (isToday ? activeSessionMinutes : 0))" muted />
                     </StatItem>
@@ -136,7 +138,7 @@ const workRange = computed(() => {
                     <StatItem>
                         <StatItemLabel>
                             <StatItemIcon><LayersIcon /></StatItemIcon>
-                            Sessions
+                            {{ t('app.dashboard.sessions') }}
                         </StatItemLabel>
                         <StatItemValue :value="String(session_stats.session_count + (activeSession ? 1 : 0))" muted />
                     </StatItem>
@@ -146,7 +148,7 @@ const workRange = computed(() => {
                         <StatItem>
                             <StatItemLabel>
                                 <StatItemIcon><TimerIcon /></StatItemIcon>
-                                Avg session
+                                {{ t('app.dashboard.avg_session') }}
                             </StatItemLabel>
                             <StatItemValue :value="formatMinutes(session_stats.avg_session_minutes)" muted />
                         </StatItem>
@@ -157,7 +159,7 @@ const workRange = computed(() => {
                         <StatItem>
                             <StatItemLabel>
                                 <StatItemIcon><TimerResetIcon /></StatItemIcon>
-                                Work hours
+                                {{ t('app.dashboard.work_hours') }}
                             </StatItemLabel>
                             <StatItemValue :value="workRange" muted />
                         </StatItem>
@@ -176,7 +178,9 @@ const workRange = computed(() => {
                 <!-- Detail List Section -->
                 <div class="space-y-6">
                     <div class="flex items-center gap-3 px-1">
-                        <h3 class="text-[10px] font-black tracking-[0.25em] text-muted-foreground/80 uppercase">Recent Activity</h3>
+                        <h3 class="text-[10px] font-black tracking-[0.25em] text-muted-foreground/80 uppercase">
+                            {{ t('app.common.recent_activity') }}
+                        </h3>
                         <Separator class="flex-1 opacity-20" />
                     </div>
                     <div class="flex flex-col gap-2">
@@ -200,10 +204,10 @@ const workRange = computed(() => {
             </div>
 
             <Empty v-else>
-                <EmptyTitle>No activity recorded yet.</EmptyTitle>
-                <EmptyDescription>Start tracking your work by adding a session.</EmptyDescription>
+                <EmptyTitle>{{ t('app.dashboard.no_activity_yet') }}</EmptyTitle>
+                <EmptyDescription>{{ t('app.dashboard.no_activity_yet_description') }}</EmptyDescription>
                 <div class="mt-4">
-                    <Button size="sm" @click="logSessionOpen = true">Log session</Button>
+                    <Button size="sm" @click="logSessionOpen = true">{{ t('app.dashboard.log_session') }}</Button>
                 </div>
             </Empty>
         </div>
