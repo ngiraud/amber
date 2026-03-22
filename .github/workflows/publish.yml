@@ -150,9 +150,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Publish release
         run: |
-          NOTES=$(gh api repos/${{ github.repository }}/git/tags/${{ github.sha }} --jq '.message')
+          VERSION=${GITHUB_REF_NAME#v}
+          NOTES=$(awk "/^## \[${VERSION}\]/{found=1; next} found && /^---/{exit} found{print}" CHANGELOG.md)
           gh release edit ${{ github.ref_name }} --draft=false --notes "$NOTES" --title "Amber ${{ github.ref_name }}" --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
