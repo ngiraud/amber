@@ -18,7 +18,7 @@ class UpdateActivitySourceSettingsRequest extends FormRequest
         /** @var ActivityEventSourceType $source */
         $source = $this->route('source');
 
-        return Arr::mapWithKeys($source->configClass()::validationRules(), fn ($rule, $key) => [
+        return Arr::mapWithKeys($source->configClass()::validationRules(), fn (mixed $rule, string $key) => [
             "{$source->value}.{$key}" => $rule,
         ]);
     }

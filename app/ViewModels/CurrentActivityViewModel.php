@@ -47,7 +47,7 @@ class CurrentActivityViewModel implements ProvidesInertiaProperties
             ->get();
 
         return $groups
-            ->map(fn ($row) => [
+            ->map(fn (object $row) => [
                 'project' => ProjectResource::make($projects->firstWhere('id', $row->project_id)),
                 'since' => CarbonImmutable::parse($row->since)->toIso8601String(),
             ])

@@ -27,7 +27,7 @@ class StoreProjectRequest extends FormRequest
             'hourly_rate' => ['nullable', 'numeric', 'min:0'],
             'daily_rate' => ['nullable', 'numeric', 'min:0'],
             'repositories' => ['nullable', 'array'],
-            ...Arr::mapWithKeys($repoRules, fn ($rule, $key) => ["repositories.*.{$key}" => $rule]),
+            ...Arr::mapWithKeys($repoRules, fn (mixed $rule, string $key) => ["repositories.*.{$key}" => $rule]),
         ];
     }
 }

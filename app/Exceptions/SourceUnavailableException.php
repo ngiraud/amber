@@ -8,6 +8,7 @@ use App\Enums\ActivityEventSourceType;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Support\Stringable;
 use Inertia\Inertia;
 use RuntimeException;
 
@@ -19,7 +20,7 @@ class SourceUnavailableException extends RuntimeException
         $command = $instructions[0]['command'] ?? null;
 
         $message = Str::of("{$source->label()} is not available on this system.")
-            ->when($command !== null, fn ($message) => $message->append(" Install with: {$command}"))
+            ->when($command !== null, fn (Stringable $message) => $message->append(" Install with: {$command}"))
             ->toString();
 
         parent::__construct($message);

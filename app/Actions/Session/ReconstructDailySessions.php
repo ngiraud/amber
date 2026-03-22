@@ -52,7 +52,7 @@ class ReconstructDailySessions extends Action
         $existingSessions = Session::query()
             ->whereIn('project_id', $projectIds)
             ->where('started_at', '<', $date->endOfDay())
-            ->where(fn ($q) => $q->whereNull('ended_at')->orWhere('ended_at', '>', $date->startOfDay()))
+            ->where(fn (Builder $q) => $q->whereNull('ended_at')->orWhere('ended_at', '>', $date->startOfDay()))
             ->get()
             ->groupBy('project_id');
 
@@ -100,7 +100,7 @@ class ReconstructDailySessions extends Action
         $sessionIds = Session::query()
             ->where('source', SessionSource::Auto)
             ->whereDate('started_at', $date)
-            ->when($project !== null, fn ($q) => $q->where('project_id', $project->id))
+            ->when($project !== null, fn (Builder $q) => $q->where('project_id', $project->id))
             ->pluck('id');
 
         if ($sessionIds->isEmpty()) {

@@ -34,7 +34,7 @@ class FrontendTranslations
         }
 
         return collect(Arr::dot(require $path))
-            ->mapWithKeys(fn ($value, $key) => ["app.{$key}" => $value])
+            ->mapWithKeys(fn (mixed $value, string $key) => ["app.{$key}" => $value])
             ->all();
     }
 }

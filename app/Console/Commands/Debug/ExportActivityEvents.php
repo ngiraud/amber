@@ -34,7 +34,7 @@ class ExportActivityEvents extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): int
     {
         if (! app()->isLocal()) {
             return Command::FAILURE;
@@ -59,5 +59,7 @@ class ExportActivityEvents extends Command
         }, 'Exporting activity events to JSON file...');
 
         outro('Activity events table successfully exported.');
+
+        return Command::SUCCESS;
     }
 }

@@ -55,7 +55,7 @@ class TimelineIndexViewModel implements ProvidesInertiaProperties
                 'total_minutes' => $daySessions->sum('rounded_minutes'),
                 'projects' => $daySessions
                     ->groupBy('project_id')
-                    ->map(fn ($group) => [
+                    ->map(fn (Collection $group) => [
                         'id' => $group->first()->project_id,
                         'name' => $group->first()->project?->name,
                         'color' => $group->first()->project?->color,

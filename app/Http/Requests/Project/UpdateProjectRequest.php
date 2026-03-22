@@ -12,7 +12,7 @@ class UpdateProjectRequest extends StoreProjectRequest
     public function rules(): array
     {
         return collect(parent::rules())
-            ->reject(fn ($_, $key) => str_starts_with($key, 'repositories'))
+            ->reject(fn (mixed $_, string $key) => str_starts_with($key, 'repositories'))
             ->all();
     }
 }

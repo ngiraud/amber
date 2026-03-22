@@ -13,6 +13,7 @@ use App\Http\Requests\Settings\UpdateActivitySourceSettingsRequest;
 use App\Settings\ActivitySourceSettings;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -30,8 +31,8 @@ class ActivitySourceSettingsController extends Controller
                 ->map(fn (ActivityEventSourceType $type) => array_merge($type->toArray(), [
                     'config' => $settings->configFor($type)->toArray(),
                 ]))
-                ->groupBy(fn ($source) => $source['category']['value'])
-                ->map(fn ($sources, $categoryValue) => [
+                ->groupBy(fn (array $source) => $source['category']['value'])
+                ->map(fn (Collection $sources, string $categoryValue) => [
                     'category' => ActivitySourceCategory::from($categoryValue)->toArray(),
                     'sources' => $sources->values()->all(),
                 ])

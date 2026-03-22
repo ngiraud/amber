@@ -8,6 +8,7 @@ use App\Actions\Action;
 use App\Ai\Agents\ReportSummarizer;
 use App\Exceptions\AiSummarizationException;
 use App\Models\ActivityReport;
+use App\Models\ActivityReportLine;
 use App\Settings\AiSettings;
 use Illuminate\Support\Facades\DB;
 use Laravel\Ai\Exceptions\AiException;
@@ -34,7 +35,7 @@ class SummarizeReportLines extends Action
             return;
         }
 
-        $prompt = $lines->map(fn ($line) => sprintf(
+        $prompt = $lines->map(fn (ActivityReportLine $line) => sprintf(
             'ID: %s | Date: %s | Duration: %dmin | Context: %s',
             $line->id,
             $line->date->toDateString(),
