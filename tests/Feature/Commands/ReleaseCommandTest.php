@@ -131,7 +131,7 @@ describe('publish', function (): void {
             ->expectsConfirmation("Create and push tag v{$expectedVersion}?", 'yes')
             ->assertSuccessful();
 
-        Process::assertRan(fn ($p) => $p->command === ['git', 'tag', "v{$expectedVersion}"]);
+        Process::assertRan(fn ($p) => $p->command[0] === 'git' && $p->command[1] === 'tag' && $p->command[2] === '-a' && $p->command[3] === "v{$expectedVersion}");
         Process::assertRan(fn ($p) => $p->command === ['git', 'push', 'origin', "v{$expectedVersion}", '--quiet']);
     })->with([
         'patch' => ['patch', '0.1.1'],
