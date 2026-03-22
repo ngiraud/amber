@@ -152,8 +152,7 @@ jobs:
     steps:
       - name: Publish release
         run: |
-          TAG_SHA=$(gh api repos/${{ github.repository }}/git/ref/tags/${{ github.ref_name }} --jq '.object.sha')
-          NOTES=$(gh api repos/${{ github.repository }}/git/tags/$TAG_SHA --jq '.message')
+          NOTES=$(gh api repos/${{ github.repository }}/git/tags/${{ github.sha }} --jq '.message')
           gh release edit ${{ github.ref_name }} --draft=false --notes "$NOTES" --title "Amber ${{ github.ref_name }}" --repo ${{ github.repository }}
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
