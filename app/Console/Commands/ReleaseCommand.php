@@ -128,17 +128,19 @@ class ReleaseCommand extends Command
     {
         title('Release');
 
+        $notes = $this->extractUnreleasedContent();
+
         task('Update CHANGELOG.md', function () use ($version): bool {
             $this->updateChangelog($version);
 
             return true;
         });
 
-        task("Commit, tag v{$version}, and push", function () use ($version): bool {
+        task("Commit, tag v{$version}, and push", function () use ($version, $notes): bool {
             Process::run(['git', 'add', 'CHANGELOG.md']);
             Process::run(['git', 'commit', '-m', "chore: release v{$version}"]);
             Process::run(['git', 'push', 'origin', 'main', '--quiet']);
-            Process::run(['git', 'tag', "v{$version}"]);
+            Process::run(['git', 'tag', '-a', "v{$version}", '-m', $notes]);
 
             return Process::run(['git', 'push', 'origin', "v{$version}", '--quiet'])->successful();
         });
@@ -179,6 +181,17 @@ class ReleaseCommand extends Command
             'major' => ($major + 1).'.0.0',
             default => throw new InvalidArgumentException('Invalid choice'),
         };
+    }
+
+    private function extractUnreleasedContent(): string
+    {
+        $content = (string) file_get_contents($this->changelogPath());
+
+        if (preg_match('/## \[Unreleased\]\n\n(.*?)(?=\n---|\n## \[)/s', $content, $matches)) {
+            return mb_trim($matches[1]);
+        }
+
+        return '';
     }
 
     private function updateChangelog(string $version): void
