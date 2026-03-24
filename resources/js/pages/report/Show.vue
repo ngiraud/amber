@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
 import { useClipboard } from '@vueuse/core';
-import { BanknoteIcon, CalendarDaysIcon, CheckIcon, ClockIcon, ClipboardIcon, DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
+import { BanknoteIcon, CalendarDaysIcon, ClipboardIcon, ClockIcon, DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
+import { toast } from 'vue-sonner';
 import PageHeader from '@/components/PageHeader.vue';
 import RegenerateSheet from '@/components/RegenerateSheet.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
@@ -17,10 +18,16 @@ import { useNativeEvent } from '@/composables/useNativeEvent';
 import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
-import { toast } from 'vue-sonner';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportLine, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
+import type {
+    ActivityReport,
+    ActivityReportLine,
+    ActivityReportProgressPayload,
+    ActivityReportStatus,
+    ActivityReportStep,
+    AiSettings,
+} from '@/types';
 
 const props = defineProps<{
     report: ActivityReport;
