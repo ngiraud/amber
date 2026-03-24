@@ -12,7 +12,6 @@ class ClientData
         public readonly string $name,
         public readonly ?Collection $address = null,
         public readonly ?Collection $contacts = null,
-        public readonly ?string $notes = null,
     ) {}
 
     public static function fromArray(array $data): self
@@ -21,7 +20,6 @@ class ClientData
             name: $data['name'],
             address: isset($data['address']) ? Collection::wrap($data['address']) : null,
             contacts: isset($data['contacts']) ? Collection::wrap($data['contacts']) : null,
-            notes: $data['notes'] ?? null,
         );
     }
 
@@ -31,7 +29,6 @@ class ClientData
             'name' => $this->name,
             'address' => $this->address?->toArray(),
             'contacts' => $this->contacts?->toArray(),
-            'notes' => $this->notes,
         ];
     }
 }

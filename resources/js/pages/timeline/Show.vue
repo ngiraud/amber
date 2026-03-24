@@ -17,6 +17,7 @@ import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
+import StatsBar from '@/components/StatsBar.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
@@ -156,7 +157,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
         </template>
 
         <div class="flex flex-col gap-10">
-            <div class="flex items-center gap-10 rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-border/5 ring-inset">
+            <StatsBar class="flex items-center gap-10">
                 <StatItem>
                     <StatItemLabel>
                         <StatItemIcon><ClockIcon /></StatItemIcon>
@@ -201,7 +202,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
                         <StatItemValue :value="workRange" muted />
                     </StatItem>
                 </template>
-            </div>
+            </StatsBar>
 
             <div v-if="sessions.length > 0" class="grid gap-10">
                 <DaySummaryCard :sessions="sessions" :date="date" />

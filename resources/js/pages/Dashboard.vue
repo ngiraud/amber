@@ -8,6 +8,7 @@ import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
+import StatsBar from '@/components/StatsBar.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -98,7 +99,7 @@ const workRange = computed(() => {
 
         <div class="flex flex-col gap-10">
             <!-- Compact Quick Stats -->
-            <div class="flex items-center justify-between rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-border/5 ring-inset">
+            <StatsBar class="flex items-center justify-between">
                 <div class="flex items-center gap-10">
                     <StatItem>
                         <StatItemLabel>
@@ -168,7 +169,7 @@ const workRange = computed(() => {
                 <div class="text-right">
                     <p class="text-[10px] font-black tracking-widest text-muted-foreground/60 uppercase">{{ dateLabel }}</p>
                 </div>
-            </div>
+            </StatsBar>
 
             <OnboardingChecklist v-if="showChecklist" :onboarding="onboarding" />
 

@@ -52,12 +52,7 @@ defineProps<{
                 :href="clientRoutes.show(client)"
                 class="flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
             >
-                <div>
-                    <p class="text-sm font-medium">{{ client.name }}</p>
-                    <p v-if="client.notes" class="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
-                        {{ client.notes }}
-                    </p>
-                </div>
+                <p class="text-sm font-medium">{{ client.name }}</p>
 
                 <Badge variant="secondary">
                     {{ t('app.client.project_count', { count: client.projects_count ?? 0 }) }}

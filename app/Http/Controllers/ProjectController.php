@@ -15,6 +15,7 @@ use App\Http\Resources\ProjectResource;
 use App\Models\Client;
 use App\Models\Project;
 use App\ViewModels\EventsViewModel;
+use App\ViewModels\ProjectStatsViewModel;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -55,6 +56,7 @@ class ProjectController extends Controller
             'client' => fn () => ClientResource::make($project->client),
             'project' => fn () => ProjectResource::make($project->load('repositories')),
             'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
+            'project_stats' => fn () => new ProjectStatsViewModel($project),
             $eventsViewModel,
         ]);
     }

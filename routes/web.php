@@ -6,6 +6,7 @@ use App\Http\Controllers\ActivityEventController;
 use App\Http\Controllers\ActivityReportController;
 use App\Http\Controllers\ActivityReportExportController;
 use App\Http\Controllers\ClientController;
+use App\Http\Controllers\ClientNotesController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DismissOnboardingController;
 use App\Http\Controllers\FolderPickerController;
@@ -43,6 +44,7 @@ Route::get('/clients', [ClientController::class, 'index'])->name('clients.index'
 Route::post('/clients', [ClientController::class, 'store'])->name('clients.store');
 Route::get('/clients/{client}', [ClientController::class, 'show'])->name('clients.show');
 Route::patch('/clients/{client}', [ClientController::class, 'update'])->name('clients.update');
+Route::patch('/clients/{client}/notes', ClientNotesController::class)->name('clients.notes.update');
 Route::delete('/clients/{client}', [ClientController::class, 'destroy'])->name('clients.destroy');
 
 // Projects

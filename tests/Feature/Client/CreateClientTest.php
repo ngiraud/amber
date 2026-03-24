@@ -35,7 +35,7 @@ describe('create client', function () {
 
 describe('CreateClient action', function () {
     it('creates a client in the database', function () {
-        $data = new ClientData(name: 'Acme Corp', address: null, contacts: null, notes: null);
+        $data = new ClientData(name: 'Acme Corp', address: null, contacts: null);
 
         $client = CreateClient::make()->handle($data);
 

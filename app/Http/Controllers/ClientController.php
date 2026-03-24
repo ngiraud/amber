@@ -12,6 +12,7 @@ use App\Http\Requests\Client\StoreClientRequest;
 use App\Http\Requests\Client\UpdateClientRequest;
 use App\Http\Resources\ClientResource;
 use App\Models\Client;
+use App\ViewModels\ClientStatsViewModel;
 use App\ViewModels\EventsViewModel;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -49,6 +50,7 @@ class ClientController extends Controller
         return Inertia::render('client/Show', [
             'client' => fn () => ClientResource::make($client->load('projects')),
             'clients' => fn () => ClientResource::collection(Client::query()->orderBy('name')->get()),
+            'client_stats' => fn () => new ClientStatsViewModel($client),
             $eventsViewModel,
         ]);
     }

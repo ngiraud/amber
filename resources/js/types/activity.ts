@@ -34,6 +34,34 @@ export type TimelineMonthStats = {
     month_project_breakdown: ProjectBreakdown[];
 };
 
+export type ProjectStats = {
+    worked_days: number;
+    total_minutes: number;
+    avg_minutes_per_day: number;
+    first_date: string | null;
+    last_date: string | null;
+};
+
+export type ClientProjectBreakdown = {
+    id: string;
+    name: string;
+    color: string;
+    minutes: number;
+    days: number;
+    percentage: number;
+};
+
+export type ClientStats = {
+    projects_count: number;
+    active_projects_count: number;
+    worked_days: number;
+    total_minutes: number;
+    avg_minutes_per_day: number;
+    first_date: string | null;
+    last_date: string | null;
+    project_breakdown: ClientProjectBreakdown[];
+};
+
 export type SessionStats = {
     total_minutes: number;
     session_count: number;
