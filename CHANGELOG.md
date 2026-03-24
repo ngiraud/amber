@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Session reconstruction is now automatic — sessions are rebuilt every few minutes in the background; no manual "Reconstruct" action needed during normal use
+- Reconstruct actions moved to Settings > Activity with an explanatory note; removed from Dashboard and Timeline headers
+- Activity backfill (when the app was closed) now auto-reconstructs sessions and shows a toast with event and session counts instead of prompting the user to reconstruct manually
+- Manual sync from Settings > Sources now triggers a single reconstruction pass after all sources complete, preventing redundant rebuilds when syncing multiple sources in parallel
 - Reports and sessions UI improvements: layout, spacing, and interaction polish across report and session views
 - Enum options are now resolved on the backend and passed to the frontend, removing client-side enum logic
 

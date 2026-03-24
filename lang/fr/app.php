@@ -203,6 +203,10 @@ return [
             'reminder_hint' => 'Recevoir un rappel de notification lorsqu\'une session manuelle est en cours. Mettre à 0 pour désactiver.',
             'reminder_description' => 'Me rappeler d\'enregistrer une session après :minutes minutes',
             'min_suffix' => 'min',
+            'reconstruction_title' => 'Reconstruction des sessions',
+            'reconstruction_description' => 'Les sessions sont reconstruites automatiquement toutes les quelques minutes. Utilisez ces actions si vous avez importé de l\'activité passée depuis Sources et souhaitez mettre à jour les sessions immédiatement.',
+            'reconstruct_today_description' => 'Reconstruire les sessions d\'aujourd\'hui depuis l\'activité enregistrée.',
+            'reconstruct_from_date_description' => 'Reconstruire les sessions depuis une date spécifique jusqu\'à aujourd\'hui.',
         ],
 
         'ai_section' => [
@@ -466,6 +470,7 @@ return [
         'new_events' => '1 nouvel événement|:count nouveaux événements',
         'found_for' => 'trouvé pour',
         'events_description' => 'Les événements sont des données brutes — ils doivent être regroupés en sessions pour apparaître sur votre chronologie. Reconstruisez vos sessions pour les inclure.',
+        'sessions_reconstructed' => '1 session reconstruite|:count sessions reconstruites',
     ],
 
     'command_palette' => [

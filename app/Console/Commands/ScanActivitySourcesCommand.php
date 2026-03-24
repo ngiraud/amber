@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Actions\Activity\ScanActivitySources;
+use App\Actions\Session\ReconstructSessionsFromDate;
 use App\Enums\ActivityEventSourceType;
 use App\Events\ActivityBackfillCompleted;
 use App\Settings\ActivitySettings;
@@ -21,7 +22,7 @@ class ScanActivitySourcesCommand extends Command
 
     protected $description = 'Scan activity sources and record detected events';
 
-    public function handle(ScanActivitySources $scanActivitySources, ActivitySettings $settings): void
+    public function handle(ScanActivitySources $scanActivitySources, ReconstructSessionsFromDate $reconstructSessionsFromDate, ActivitySettings $settings): void
     {
         $sourceName = $this->argument('source');
         $sourceType = $sourceName ? ActivityEventSourceType::tryFrom((string) $sourceName) : null;
@@ -59,8 +60,11 @@ class ScanActivitySourcesCommand extends Command
         $this->info("Recorded {$result->count()} activity event(s).");
 
         if ($isBackfill && $result->isNotEmpty()) {
+            $sessions = $reconstructSessionsFromDate->handle($since->startOfDay());
+
             Event::dispatch(new ActivityBackfillCompleted(
                 eventsCount: $result->count(),
+                sessionsCount: $sessions->count(),
                 period: $since->diffAsCarbonInterval($until)->cascade()->forHumans(),
                 since: $since->toDateString(),
             ));

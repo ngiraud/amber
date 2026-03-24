@@ -1,12 +1,11 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import { CalendarDaysIcon, ClockIcon, LayersIcon, RadioIcon, RefreshCwIcon, TargetIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
+import { CalendarDaysIcon, ClockIcon, LayersIcon, RadioIcon, TargetIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
 import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
 import PageHeader from '@/components/PageHeader.vue';
-import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import StatsBar from '@/components/StatsBar.vue';
@@ -78,21 +77,12 @@ const workRange = computed(() => {
         <template #header>
             <PageHeader :title="t('app.dashboard.title')">
                 <template #actions>
-                    <div class="flex items-center gap-2">
-                        <Button variant="outline" size="sm" as-child>
-                            <Link :href="timelineRoutes.index().url">
-                                <CalendarDaysIcon class="mr-1.5 size-3.5" />
-                                {{ t('app.nav.timeline') }}
-                            </Link>
-                        </Button>
-
-                        <ReconstructDialog :has-sessions="sessions.length > 0">
-                            <Button variant="outline" size="sm">
-                                <RefreshCwIcon class="mr-1.5 size-3.5" />
-                                {{ t('app.dashboard.reconstruct_today') }}
-                            </Button>
-                        </ReconstructDialog>
-                    </div>
+                    <Button variant="outline" size="sm" as-child>
+                        <Link :href="timelineRoutes.index().url">
+                            <CalendarDaysIcon class="mr-1.5 size-3.5" />
+                            {{ t('app.nav.timeline') }}
+                        </Link>
+                    </Button>
                 </template>
             </PageHeader>
         </template>

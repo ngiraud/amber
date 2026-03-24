@@ -11,6 +11,7 @@ class ActivityBackfillCompleted implements ShouldBroadcastNow
 {
     public function __construct(
         public readonly int $eventsCount,
+        public readonly int $sessionsCount,
         public readonly string $period,
         public readonly string $since,
     ) {}

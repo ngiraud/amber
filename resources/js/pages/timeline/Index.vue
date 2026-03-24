@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { router } from '@inertiajs/vue3';
-import { ChevronLeftIcon, ChevronRightIcon, RefreshCwIcon } from 'lucide-vue-next';
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-vue-next';
+import { computed, onMounted, onUnmounted } from 'vue';
 import MonthCalendar from '@/components/MonthCalendar.vue';
 import PageHeader from '@/components/PageHeader.vue';
-import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import TimelineStatsBar from '@/components/TimelineStatsBar.vue';
 import { Button } from '@/components/ui/button';
 import { t } from '@/composables/useTranslation';
@@ -42,8 +41,6 @@ function selectDay(date: string): void {
     router.get(timelineRoutes.show({ date: date }).url);
 }
 
-const fromDateDialog = ref<InstanceType<typeof ReconstructDialog> | null>(null);
-
 function onKeyDown(e: KeyboardEvent): void {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
         return;
@@ -58,17 +55,7 @@ function onKeyDown(e: KeyboardEvent): void {
     }
 }
 
-onMounted(() => {
-    window.addEventListener('keydown', onKeyDown);
-
-    const params = new URLSearchParams(window.location.search);
-    const reconstructFrom = params.get('reconstruct_from');
-
-    if (reconstructFrom) {
-        fromDateDialog.value?.show(reconstructFrom);
-        window.history.replaceState({}, '', timelineRoutes.index().url);
-    }
-});
+onMounted(() => window.addEventListener('keydown', onKeyDown));
 
 onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
 </script>
@@ -79,13 +66,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
             <PageHeader :title="t('app.timeline.title')">
                 <template #actions>
                     <div class="flex items-center gap-2">
-                        <ReconstructDialog ref="fromDateDialog" batch>
-                            <Button variant="outline" size="sm">
-                                <RefreshCwIcon class="mr-1.5 size-3.5" />
-                                {{ t('app.timeline.reconstruct_since_date') }}
-                            </Button>
-                        </ReconstructDialog>
-
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
                             <ChevronLeftIcon class="size-4" />
                         </Button>

@@ -12,6 +12,7 @@ use App\Http\Controllers\DismissOnboardingController;
 use App\Http\Controllers\FolderPickerController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectRepositoryController;
+use App\Http\Controllers\ReconstructActivityController;
 use App\Http\Controllers\RegenerateActivityReportController;
 use App\Http\Controllers\SessionController;
 use App\Http\Controllers\SessionTimerController;
@@ -38,6 +39,7 @@ Route::post('/onboarding/dismiss', DismissOnboardingController::class)->name('on
 // Activity
 Route::get('/activity', ActivityEventController::class)->name('activity.index');
 Route::post('/activity/sync', SyncActivityController::class)->name('activity.sync');
+Route::post('/activity/reconstruct', ReconstructActivityController::class)->name('activity.reconstruct');
 
 // Clients
 Route::get('/clients', [ClientController::class, 'index'])->name('clients.index');

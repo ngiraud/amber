@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Actions\Activity\ScanActivitySources;
+use App\Actions\Session\ReconstructSessionsFromDate;
 use App\Data\ScanActivityResult;
 use App\Events\ActivityBackfillCompleted;
+use App\Models\Session;
 use App\Settings\ActivitySettings;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
@@ -13,9 +15,14 @@ pest()->group('commands', 'activity');
 
 beforeEach(function () {
     Event::fake();
+
     ScanActivitySources::fake()
         ->shouldReceive('handle')
         ->andReturn(new ScanActivityResult(collect(), collect()));
+
+    ReconstructSessionsFromDate::fake()
+        ->shouldReceive('handle')
+        ->andReturn(collect());
 });
 
 it('uses default interval when last_scan_completed_at is null', function () {
@@ -100,14 +107,21 @@ it('dispatches ActivityBackfillCompleted when backfill finds events', function (
     $settings->last_scan_completed_at = $lastScan;
     $settings->save();
 
+    $sessions = Session::factory()->count(3)->create();
+
     ScanActivitySources::fake()
         ->shouldReceive('handle')
         ->andReturn(new ScanActivityResult(collect(range(1, 7)), collect()));
 
+    ReconstructSessionsFromDate::fake()
+        ->shouldReceive('handle')
+        ->once()
+        ->andReturn($sessions);
+
     $this->artisan('activity:scan');
 
     Event::assertDispatched(ActivityBackfillCompleted::class, function ($event) {
-        return $event->eventsCount === 7 && str_contains($event->period, 'hour');
+        return $event->eventsCount === 7 && $event->sessionsCount === 3 && str_contains($event->period, 'hour');
     });
 });
 

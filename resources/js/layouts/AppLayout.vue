@@ -3,12 +3,10 @@ import { Head } from '@inertiajs/vue3';
 import AppSidebar from '@/components/AppSidebar.vue';
 import CommandPalette from '@/components/CommandPalette.vue';
 import FlashMessage from '@/components/FlashMessage.vue';
-import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import TitleBar from '@/components/TitleBar.vue';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/sonner';
 import { useNativeAppEvents } from '@/composables/useNativeAppEvents';
-import { useReconstructFromDialog } from '@/composables/useReconstructFromDialog';
 
 defineProps<{
     title?: string;
@@ -16,8 +14,6 @@ defineProps<{
 }>();
 
 useNativeAppEvents();
-
-const { dialogRef } = useReconstructFromDialog();
 </script>
 
 <template>
@@ -42,5 +38,4 @@ const { dialogRef } = useReconstructFromDialog();
     <CommandPalette />
     <Toaster />
     <FlashMessage />
-    <ReconstructDialog ref="dialogRef" batch />
 </template>

@@ -3,8 +3,10 @@
 declare(strict_types=1);
 
 use App\Actions\Activity\ScanActivitySources;
+use App\Actions\Session\ReconstructSessionsFromDate;
 use App\Data\ScanActivityResult;
 use App\Enums\ActivityEventSourceType;
+use App\Models\Session;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Event;
 
@@ -13,7 +15,7 @@ pest()->group('controllers', 'activity');
 describe('SyncActivityController', function () {
     beforeEach(fn () => Event::fake());
 
-    it('delegates to ScanActivitySources and returns count', function () {
+    it('delegates to ScanActivitySources and returns event count', function () {
         $since = CarbonImmutable::now()->subHour();
         $until = CarbonImmutable::now();
 
@@ -51,5 +53,25 @@ describe('SyncActivityController', function () {
             'until' => $now->subHour()->toIso8601String(),
             'source_type' => ActivityEventSourceType::Git->value,
         ])->assertUnprocessable();
+    });
+});
+
+describe('ReconstructActivityController', function () {
+    it('reconstructs sessions from a given date and returns count', function () {
+        $sessions = Session::factory()->count(4)->create();
+        $since = CarbonImmutable::now()->subDays(2)->toDateString();
+
+        ReconstructSessionsFromDate::fake()
+            ->shouldReceive('handle')
+            ->once()
+            ->andReturn($sessions);
+
+        $response = $this->postJson(route('activity.reconstruct'), ['since' => $since]);
+
+        $response->assertOk()->assertJson(['sessions_count' => 4]);
+    });
+
+    it('returns 422 when since is missing', function () {
+        $this->postJson(route('activity.reconstruct'), [])->assertUnprocessable();
     });
 });

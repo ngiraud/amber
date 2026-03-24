@@ -1,21 +1,10 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
-import {
-    ChevronLeftIcon,
-    ChevronRightIcon,
-    ClockIcon,
-    LayersIcon,
-    RadioIcon,
-    RefreshCwIcon,
-    TimerIcon,
-    TimerResetIcon,
-    CalendarDaysIcon,
-} from 'lucide-vue-next';
+import { CalendarDaysIcon, ChevronLeftIcon, ChevronRightIcon, ClockIcon, LayersIcon, RadioIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
 import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
-import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SessionRow from '@/components/SessionRow.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import StatsBar from '@/components/StatsBar.vue';
@@ -136,13 +125,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
                             </Link>
                         </Button>
 
-                        <ReconstructDialog :date="date" :has-sessions="sessions.length > 0">
-                            <Button variant="outline" size="sm">
-                                <RefreshCwIcon class="mr-1.5 size-3.5" />
-                                {{ t('app.timeline.reconstruct') }}
-                            </Button>
-                        </ReconstructDialog>
-
                         <Button size="sm" @click="logSessionOpen = true">{{ t('app.dashboard.log_session') }}</Button>
 
                         <Button variant="ghost" size="icon" @click="navigate(-1)">
@@ -239,13 +221,6 @@ onUnmounted(() => window.removeEventListener('keydown', onKeyDown));
                 <EmptyDescription>{{ t('app.timeline.no_sessions_description') }}</EmptyDescription>
 
                 <div class="mt-4 flex gap-4">
-                    <ReconstructDialog :date="date" :has-sessions="false">
-                        <Button variant="outline" size="sm">
-                            <RefreshCwIcon class="mr-1.5 size-3.5" />
-                            {{ t('app.timeline.reconstruct') }}
-                        </Button>
-                    </ReconstructDialog>
-
                     <Button size="sm" @click="logSessionOpen = true">{{ t('app.dashboard.log_session') }}</Button>
                 </div>
             </Empty>

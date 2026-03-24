@@ -10,9 +10,9 @@ use Illuminate\Http\JsonResponse;
 
 class SyncActivityController extends Controller
 {
-    public function __invoke(SyncActivityRequest $request, ScanActivitySources $action): JsonResponse
+    public function __invoke(SyncActivityRequest $request, ScanActivitySources $scanActivitySources): JsonResponse
     {
-        $result = $action->handle(
+        $result = $scanActivitySources->handle(
             $request->getSince(),
             $request->getUntil(),
             collect([$request->getSourceType()]),

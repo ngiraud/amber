@@ -203,6 +203,10 @@ return [
             'reminder_hint' => 'Get a notification reminder when a manual timer session is running. Set to 0 to disable.',
             'reminder_description' => 'Remind me to log a session after :minutes minutes',
             'min_suffix' => 'min',
+            'reconstruction_title' => 'Session Reconstruction',
+            'reconstruction_description' => 'Sessions are rebuilt automatically every few minutes. Use these actions if you have imported past activity from Sources and want to update sessions immediately.',
+            'reconstruct_today_description' => 'Rebuild sessions for today from recorded activity.',
+            'reconstruct_from_date_description' => 'Rebuild sessions from a specific date up to today.',
         ],
 
         'ai_section' => [
@@ -466,6 +470,7 @@ return [
         'new_events' => '1 new event|:count new events',
         'found_for' => 'found for',
         'events_description' => 'Events are raw data — they need to be grouped into sessions to appear on your timeline. Reconstruct your sessions to include them.',
+        'sessions_reconstructed' => '1 session rebuilt|:count sessions rebuilt',
     ],
 
     'command_palette' => [

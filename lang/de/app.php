@@ -203,6 +203,10 @@ return [
             'reminder_hint' => 'Benachrichtigungserinnerung erhalten, wenn eine manuelle Sitzung läuft. Auf 0 setzen zum Deaktivieren.',
             'reminder_description' => 'Mich nach :minutes Minuten an die Erfassung einer Sitzung erinnern',
             'min_suffix' => 'Min.',
+            'reconstruction_title' => 'Sitzungsrekonstruktion',
+            'reconstruction_description' => 'Sitzungen werden alle paar Minuten automatisch rekonstruiert. Verwenden Sie diese Aktionen, wenn Sie vergangene Aktivitäten aus Quellen importiert haben und die Sitzungen sofort aktualisieren möchten.',
+            'reconstruct_today_description' => 'Sitzungen für heute aus aufgezeichneter Aktivität rekonstruieren.',
+            'reconstruct_from_date_description' => 'Sitzungen ab einem bestimmten Datum bis heute rekonstruieren.',
         ],
 
         'ai_section' => [
@@ -466,6 +470,7 @@ return [
         'new_events' => '1 neues Ereignis|:count neue Ereignisse',
         'found_for' => 'gefunden für',
         'events_description' => 'Ereignisse sind Rohdaten — sie müssen zu Sitzungen gruppiert werden, um auf Ihrem Zeitstrahl zu erscheinen. Rekonstruieren Sie Ihre Sitzungen, um sie einzuschließen.',
+        'sessions_reconstructed' => '1 Sitzung rekonstruiert|:count Sitzungen rekonstruiert',
     ],
 
     'command_palette' => [

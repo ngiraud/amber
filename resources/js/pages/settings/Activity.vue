@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
 import InputField from '@/components/InputField.vue';
+import ReconstructDialog from '@/components/ReconstructDialog.vue';
 import SettingsLayout from '@/components/settings/SettingsLayout.vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -71,5 +72,33 @@ function submit(): void {
                 </CardContent>
             </Card>
         </form>
+
+        <Card class="mt-8">
+            <CardHeader>
+                <CardTitle>{{ t('app.settings.activity_section.reconstruction_title') }}</CardTitle>
+                <CardDescription>{{ t('app.settings.activity_section.reconstruction_description') }}</CardDescription>
+            </CardHeader>
+            <CardContent class="flex flex-col gap-3 pt-0">
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-sm font-medium">{{ t('app.dashboard.reconstruct_today') }}</span>
+                        <span class="text-xs text-muted-foreground">{{ t('app.settings.activity_section.reconstruct_today_description') }}</span>
+                    </div>
+                    <ReconstructDialog>
+                        <Button variant="outline" size="sm">{{ t('app.timeline.reconstruct') }}</Button>
+                    </ReconstructDialog>
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col gap-0.5">
+                        <span class="text-sm font-medium">{{ t('app.timeline.reconstruct_since_date') }}</span>
+                        <span class="text-xs text-muted-foreground">{{ t('app.settings.activity_section.reconstruct_from_date_description') }}</span>
+                    </div>
+                    <ReconstructDialog batch>
+                        <Button variant="outline" size="sm">{{ t('app.timeline.reconstruct') }}</Button>
+                    </ReconstructDialog>
+                </div>
+            </CardContent>
+        </Card>
     </SettingsLayout>
 </template>

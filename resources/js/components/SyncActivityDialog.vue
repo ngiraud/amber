@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { router, usePage } from '@inertiajs/vue3';
-import { ArrowRightIcon, CalendarDaysIcon, CheckCircle2Icon, CircleIcon, Loader2Icon, XCircleIcon } from 'lucide-vue-next';
+import { usePage } from '@inertiajs/vue3';
+import { CalendarDaysIcon, CheckCircle2Icon, CircleIcon, Loader2Icon, XCircleIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -10,8 +10,7 @@ import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { t } from '@/composables/useTranslation';
-import { sync as syncRoute } from '@/routes/activity';
-import * as timelineRoutes from '@/routes/timeline';
+import { reconstruct as reconstructRoute, sync as syncRoute } from '@/routes/activity';
 
 type SourceType = { value: string; label: string; color: string };
 type SourceProgress = {
@@ -37,7 +36,8 @@ const customTo = ref(new Date().toISOString().slice(0, 10));
 const selectedSources = ref<string[]>([]);
 const progress = ref<SourceProgress[]>([]);
 const totalCount = ref(0);
-const syncedSince = ref('');
+const totalSessionsCount = ref(0);
+const syncedSince = ref<string>('');
 
 const today = new Date().toISOString().slice(0, 10);
 
@@ -79,6 +79,7 @@ function show(): void {
     selectedSources.value = enabledSources.value.map((s) => s.value);
     phase.value = 'config';
     totalCount.value = 0;
+    totalSessionsCount.value = 0;
     syncedSince.value = '';
     open.value = true;
 }
@@ -166,12 +167,24 @@ async function startSync(): Promise<void> {
         }),
     );
 
-    phase.value = 'done';
-}
+    if (totalCount.value > 0) {
+        const response = await fetch(reconstructRoute().url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json',
+                'X-XSRF-TOKEN': getCsrfToken(),
+            },
+            body: JSON.stringify({ since: syncedSince.value }),
+        });
 
-function reconstructSessions(): void {
-    open.value = false;
-    router.visit(timelineRoutes.index({ query: { reconstruct_from: syncedSince.value } }));
+        if (response.ok) {
+            const data = (await response.json()) as { sessions_count: number };
+            totalSessionsCount.value = data.sessions_count;
+        }
+    }
+
+    phase.value = 'done';
 }
 
 defineExpose({ show });
@@ -297,16 +310,12 @@ defineExpose({ show });
                             <span class="text-muted-foreground">{{ periodRangeLabel }}</span>
                         </p>
                         <p class="mt-1 text-xs text-muted-foreground">
-                            {{ t('app.sync.events_description') }}
+                            {{ t('app.sync.sessions_reconstructed', { count: totalSessionsCount }) }}
                         </p>
                     </div>
 
-                    <div class="flex justify-end gap-2">
+                    <div class="flex justify-end">
                         <Button type="button" variant="ghost" size="sm" @click="open = false">{{ t('app.common.close') }}</Button>
-                        <Button type="button" size="sm" @click="reconstructSessions">
-                            <ArrowRightIcon class="mr-1.5 size-3.5" />
-                            {{ t('app.timeline.reconstruct_sessions') }}
-                        </Button>
                     </div>
                 </template>
 
