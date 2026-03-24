@@ -35,34 +35,36 @@ class SummarizeReportLines extends Action
             return;
         }
 
-        $prompt = $lines->map(fn (ActivityReportLine $line) => sprintf(
-            'ID: %s | Date: %s | Duration: %dmin | Context: %s',
-            $line->id,
-            $line->date->toDateString(),
-            $line->minutes,
-            $line->description,
-        ))->implode("\n");
-
-        try {
-            $response = $this->agent->prompt(
-                $prompt,
-                provider: $this->settings->provider?->value,
-            );
-        } catch (AiException $e) {
-            throw AiSummarizationException::fromAiException($e);
-        } catch (Throwable $e) {
-            throw AiSummarizationException::fromUnexpected($e);
-        }
-
-        /** @var array<int, array{id: string, summary: string}> $summaries */
-        $summaries = $response['summaries'] ?? [];
-
         $linesById = $lines->keyBy('id');
 
-        DB::transaction(function () use ($summaries, $linesById) {
-            foreach ($summaries as $item) {
-                $linesById->get($item['id'])?->update(['summary' => $item['summary']]);
+        foreach ($lines->chunk(7) as $chunk) {
+            $prompt = $chunk->map(fn (ActivityReportLine $line) => sprintf(
+                'ID: %s | Date: %s | Duration: %dmin | Context: %s',
+                $line->id,
+                $line->date->toDateString(),
+                $line->minutes,
+                $line->description,
+            ))->implode("\n");
+
+            try {
+                $response = $this->agent->prompt(
+                    $prompt,
+                    provider: $this->settings->provider?->value,
+                );
+            } catch (AiException $e) {
+                throw AiSummarizationException::fromAiException($e);
+            } catch (Throwable $e) {
+                throw AiSummarizationException::fromUnexpected($e);
             }
-        });
+
+            /** @var array<int, array{id: string, summary: string}> $summaries */
+            $summaries = $response['summaries'] ?? [];
+
+            DB::transaction(function () use ($summaries, $linesById) {
+                foreach ($summaries as $item) {
+                    $linesById->get($item['id'])?->update(['summary' => $item['summary']]);
+                }
+            });
+        }
     }
 }

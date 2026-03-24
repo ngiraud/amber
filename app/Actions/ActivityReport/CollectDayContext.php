@@ -6,10 +6,10 @@ namespace App\Actions\ActivityReport;
 
 use App\Actions\Action;
 use App\Data\DayContext;
-use App\Enums\ActivityEventType;
 use App\Models\ActivityEvent;
 use App\Models\Project;
 use Carbon\CarbonImmutable;
+use Illuminate\Support\Collection;
 
 class CollectDayContext extends Action
 {
@@ -19,14 +19,22 @@ class CollectDayContext extends Action
             ->where('project_id', $project->id)
             ->whereNotNull('session_id')
             ->whereBetween('occurred_at', [$date->startOfDay(), $date->endOfDay()])
+            ->orderBy('occurred_at')
             ->get();
 
         $labels = [];
         $details = [];
         $filesChanged = 0;
 
+        $promptEvents = $events->filter(fn (ActivityEvent $e) => $e->type->isUserPrompt());
+        $sampledPromptIds = $this->sampleEventIds($promptEvents, 10);
+
         foreach ($events as $event) {
             /** @var ActivityEvent $event */
+            if ($event->type->isUserPrompt() && ! in_array($event->id, $sampledPromptIds, true)) {
+                continue;
+            }
+
             $parts = $event->type->toContextParts($event->metadata);
 
             if ($parts['label'] !== null) {
@@ -37,7 +45,7 @@ class CollectDayContext extends Action
                 $details[] = $parts['detail'];
             }
 
-            if (in_array($event->type, [ActivityEventType::FileChange, ActivityEventType::ClaudeFileTouch], true)) {
+            if ($event->type->isFileTouch()) {
                 $filesChanged++;
             }
         }
@@ -47,5 +55,26 @@ class CollectDayContext extends Action
             details: $details,
             filesChanged: $filesChanged,
         );
+    }
+
+    /**
+     * Picks up to $max events evenly distributed across the chronologically ordered collection,
+     * so the sample represents the spread of the day rather than clustering at one end.
+     *
+     * @param  Collection<int, ActivityEvent>  $events
+     * @return array<int, string>
+     */
+    private function sampleEventIds(Collection $events, int $max): array
+    {
+        if ($events->count() <= $max) {
+            return $events->pluck('id')->all();
+        }
+
+        $indices = array_map(
+            fn (int $i) => (int) round($i * ($events->count() - 1) / ($max - 1)),
+            range(0, $max - 1),
+        );
+
+        return $events->values()->only($indices)->pluck('id')->all();
     }
 }

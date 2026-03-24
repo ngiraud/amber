@@ -19,7 +19,7 @@ describe('index', function () {
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
                 ->component('report/Index')
-                ->has('reports.data', 3)
+                ->has('reports', 3)
                 ->has('clients', 2)
             );
     });
@@ -31,7 +31,7 @@ describe('index', function () {
         $this->get(route('reports.index'))
             ->assertSuccessful()
             ->assertInertia(fn ($page) => $page
-                ->where('reports.data.0.lines_count', 2)
+                ->where('reports.0.lines_count', 2)
             );
     });
 });

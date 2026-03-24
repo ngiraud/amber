@@ -49,6 +49,27 @@ enum ActivityEventType: string
         };
     }
 
+    public function isUserPrompt(): bool
+    {
+        return in_array($this, [
+            self::ClaudeUserPrompt,
+            self::GeminiUserPrompt,
+            self::VibeUserPrompt,
+            self::OpencodeUserPrompt,
+        ], true);
+    }
+
+    public function isFileTouch(): bool
+    {
+        return in_array($this, [
+            self::FileChange,
+            self::ClaudeFileTouch,
+            self::GeminiFileTouch,
+            self::VibeFileTouch,
+            self::OpencodeFileTouch,
+        ], true);
+    }
+
     /**
      * @param  array<string, mixed>  $metadata
      * @return array{label: ?string, detail: ?string}
