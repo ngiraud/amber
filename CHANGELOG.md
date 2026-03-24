@@ -5,12 +5,33 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Stats, tabs, and client notes on project and client detail pages — each now shows time tracked, billable amounts, recent sessions, and notes
+- Context menu on report lines — right-click individual entries to perform quick actions directly from the report view
+
+### Changed
+
+- Reports and sessions UI improvements: layout, spacing, and interaction polish across report and session views
+- Enum options are now resolved on the backend and passed to the frontend, removing client-side enum logic
+
+### Fixed
+
+- AI report summarization now limits context size and batches requests to prevent token overflow on large datasets
+- Release notes are now read directly from `CHANGELOG.md` instead of the GitHub tag API
+- PHPStan errors in ViewModels resolved by using `toArray()` for raw query results
+
+---
+
 ## [0.5.0] — 2026-03-22
 
 ### Added
 
 - Screen lock/wake handling: active manual sessions are automatically stopped when the screen locks, preventing idle time from being billed during sleep or absence
 - fswatch is restarted on screen unlock to ensure file activity is tracked correctly after wake
+- `php artisan release` now creates annotated Git tags and populates GitHub release notes from the corresponding `CHANGELOG.md` section
 
 ---
 
