@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Form, useForm } from '@inertiajs/vue3';
+import { Form, useForm, usePage } from '@inertiajs/vue3';
 import { Check, Loader2, XIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import InputField from '@/components/InputField.vue';
@@ -13,24 +13,22 @@ import { useSpotlight } from '@/composables/useSpotlight';
 import { t } from '@/composables/useTranslation';
 import * as aiRoutes from '@/routes/settings/ai';
 import type { AiProviderOption, AiSettings } from '@/types';
+import type { LocaleOption } from '@/types/enums';
 
 const { spotlightClass } = useSpotlight();
+const page = usePage();
 
 const props = defineProps<{
     aiSettings: AiSettings;
     providers: AiProviderOption[];
+    summaryLanguages: LocaleOption[];
 }>();
-
-const languageOptions = computed(() => [
-    { value: 'fr', label: t('app.locales.fr') },
-    { value: 'en', label: t('app.locales.en') },
-]);
 
 const form = useForm({
     enabled: props.aiSettings.enabled,
     provider: props.aiSettings.provider ?? '',
     api_key: props.aiSettings.api_key ?? '',
-    summary_language: props.aiSettings.summary_language,
+    summary_language: props.aiSettings.summary_language ?? page.props.display_locale,
 });
 
 const selectedProvider = computed(() => props.providers.find((p) => p.value === form.provider) ?? null);
@@ -129,7 +127,7 @@ async function handleTest(): Promise<void> {
 
                     <InputField :label="t('app.settings.ai_section.summary_language')" :error="form.errors.summary_language">
                         <NativeSelect v-model="form.summary_language" class="w-full">
-                            <NativeSelectOption v-for="lang in languageOptions" :key="lang.value" :value="lang.value">
+                            <NativeSelectOption v-for="lang in summaryLanguages" :key="lang.value" :value="lang.value">
                                 {{ lang.label }}
                             </NativeSelectOption>
                         </NativeSelect>

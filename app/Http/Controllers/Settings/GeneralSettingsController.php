@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Settings;
 use App\Actions\Settings\UpdateGeneralSettings;
 use App\Enums\AvailableLocale;
 use App\Enums\DateFormat;
+use App\Enums\RoundingStrategy;
 use App\Enums\TimeFormat;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\UpdateGeneralSettingsRequest;
@@ -23,6 +24,7 @@ class GeneralSettingsController extends Controller
             'dateFormats' => DateFormat::options(),
             'timeFormats' => TimeFormat::options(),
             'locales' => AvailableLocale::options(),
+            'roundingStrategies' => RoundingStrategy::options(),
         ]);
     }
 

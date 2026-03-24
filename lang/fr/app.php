@@ -102,7 +102,7 @@ return [
         'select_project' => 'Sélectionner un projet…',
         'navigate' => 'Naviguer',
         'select' => 'Sélectionner',
-        'pick_date_time' => 'Choisir une date et une heure',
+        'pick_date_time' => 'Choisir une date / heure',
     ],
 
     'settings' => [

@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Enums;
 
 use App\Enums\Concerns\EnhanceEnum;
-use Illuminate\Support\Str;
 
 enum RoundingStrategy: int
 {
@@ -17,7 +16,11 @@ enum RoundingStrategy: int
 
     public function label(): string
     {
-        return Str::headline($this->name);
+        return match ($this) {
+            self::Quarter => __('app.settings.rounding.quarter_hour'),
+            self::HalfHour => __('app.settings.rounding.half_hour'),
+            self::Hour => __('app.settings.rounding.hour'),
+        };
     }
 
     public function round(int $rawMinutes): int

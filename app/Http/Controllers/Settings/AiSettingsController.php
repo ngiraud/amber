@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Settings;
 use App\Actions\Settings\TestAiConnection;
 use App\Actions\Settings\UpdateAiSettings;
 use App\Enums\AiProvider;
+use App\Enums\AvailableLocale;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Settings\UpdateAiSettingsRequest;
 use App\Settings\AiSettings;
@@ -22,6 +23,7 @@ class AiSettingsController extends Controller
         return Inertia::render('settings/Ai', [
             'aiSettings' => $settings->toArray(),
             'providers' => AiProvider::options(),
+            'summaryLanguages' => AvailableLocale::options(),
         ]);
     }
 

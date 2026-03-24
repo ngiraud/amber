@@ -41,6 +41,7 @@ import {
 import * as settingsRoutes from '@/routes/settings';
 import * as generalRoutes from '@/routes/settings/general';
 import type { GeneralSettings } from '@/types';
+import type { RoundingStrategyOption } from '@/types/enums';
 
 const { spotlightClass } = useSpotlight();
 const { formatDate } = useDateFormat();
@@ -58,18 +59,13 @@ const props = defineProps<{
     dateFormats: { value: string; label: string }[];
     timeFormats: { value: string; label: string }[];
     locales: { value: string; label: string }[];
+    roundingStrategies: RoundingStrategyOption[];
 }>();
 
 const page = usePage();
 const appVersion = computed(() => page.props.appVersion);
 const updaterEnabled = computed(() => page.props.updaterEnabled);
 const appName = computed(() => page.props.name);
-
-const roundingOptions = computed(() => [
-    { value: 15, label: t('app.settings.rounding.quarter_hour') },
-    { value: 30, label: t('app.settings.rounding.half_hour') },
-    { value: 60, label: t('app.settings.rounding.hour') },
-]);
 
 const form = useForm({
     company_name: props.generalSettings.company_name ?? '',
@@ -214,7 +210,7 @@ function submit(): void {
 
                                 <InputField :label="t('app.settings.fields.default_rounding')" :error="form.errors.default_rounding_strategy">
                                     <NativeSelect v-model.number="form.default_rounding_strategy" class="w-full">
-                                        <NativeSelectOption v-for="option in roundingOptions" :key="option.value" :value="option.value">
+                                        <NativeSelectOption v-for="option in roundingStrategies" :key="option.value" :value="option.value">
                                             {{ option.label }}
                                         </NativeSelectOption>
                                     </NativeSelect>

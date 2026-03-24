@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import type { DateValue } from 'reka-ui'
-import { parseDate } from '@internationalized/date'
-import { CalendarIcon } from 'lucide-vue-next'
-import { computed, ref } from 'vue'
-import { Button } from '@/components/ui/button'
-import { Calendar } from '@/components/ui/calendar'
-import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useDateFormat } from '@/composables/useDateFormat'
-import { t } from '@/composables/useTranslation'
+import type { DateValue } from 'reka-ui';
+import { parseDate } from '@internationalized/date';
+import { CalendarIcon } from 'lucide-vue-next';
+import { computed, ref } from 'vue';
+import { Button } from '@/components/ui/button';
+import { Calendar } from '@/components/ui/calendar';
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useDateFormat } from '@/composables/useDateFormat';
+import { t } from '@/composables/useTranslation';
 
 const props = defineProps<{
     modelValue?: string
@@ -68,7 +68,7 @@ function onMinuteChange(event: Event): void {
                 class="w-full justify-start text-left font-normal dark:bg-input/30 dark:hover:bg-input/50"
                 :class="{ 'text-muted-foreground': !modelValue }"
             >
-                <CalendarIcon class="mr-2 size-4 shrink-0" />
+                <CalendarIcon class="size-4 shrink-0" />
                 {{ displayValue }}
             </Button>
         </PopoverTrigger>
