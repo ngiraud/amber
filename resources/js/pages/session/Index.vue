@@ -2,7 +2,6 @@
 import { Deferred, InfiniteScroll, router } from '@inertiajs/vue3';
 import { CalendarRangeIcon, ClockIcon, LayersIcon, TimerIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
-import { Skeleton } from '@/components/ui/skeleton';
 import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import PageHeader from '@/components/PageHeader.vue';
 import SessionRow from '@/components/SessionRow.vue';
@@ -10,6 +9,7 @@ import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/componen
 import { Button } from '@/components/ui/button';
 import { Empty, EmptyTitle } from '@/components/ui/empty';
 import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useDateFormat } from '@/composables/useDateFormat';
 import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';

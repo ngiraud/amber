@@ -4,12 +4,12 @@ import { BanknoteIcon, CalendarDaysIcon, ClockIcon, DownloadIcon, EllipsisIcon, 
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import RegenerateSheet from '@/components/RegenerateSheet.vue';
+import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
-import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
 import { t } from '@/composables/useTranslation';
@@ -165,7 +165,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         <!-- Draft / ready state -->
         <div v-else class="flex min-h-0 flex-1 flex-col gap-6">
             <!-- Totals -->
-            <div class="flex flex-wrap items-center gap-8 rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-inset ring-border/5">
+            <div class="flex flex-wrap items-center gap-8 rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-border/5 ring-inset">
                 <StatItem>
                     <StatItemLabel>
                         <StatItemIcon><ClockIcon /></StatItemIcon>

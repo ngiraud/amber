@@ -6,6 +6,7 @@ namespace App\Ai\Agents;
 
 use App\Settings\AiSettings;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\JsonSchema\Types\Type;
 use Laravel\Ai\Attributes\MaxTokens;
 use Laravel\Ai\Attributes\Temperature;
 use Laravel\Ai\Attributes\UseCheapestModel;
@@ -33,7 +34,7 @@ Do not mention commit hashes, branch names, or file paths unless meaningful to t
     }
 
     /**
-     * @return array<string, \Illuminate\JsonSchema\Types\Type>
+     * @return array<string, Type>
      */
     public function schema(JsonSchema $schema): array
     {

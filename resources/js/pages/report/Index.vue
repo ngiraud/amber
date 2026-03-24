@@ -91,7 +91,10 @@ const reportsByClient = computed<ClientGroup[]>(() => {
                         </div>
 
                         <div class="flex items-center gap-4">
-                            <span v-if="report.status.value !== 5" class="font-mono text-xs text-muted-foreground group-hover:text-accent-foreground/70">
+                            <span
+                                v-if="report.status.value !== 5"
+                                class="font-mono text-xs text-muted-foreground group-hover:text-accent-foreground/70"
+                            >
                                 {{ formatMinutes(report.total_minutes) }}
                                 <span class="mx-1 opacity-40">·</span>
                                 {{ report.total_days }}j

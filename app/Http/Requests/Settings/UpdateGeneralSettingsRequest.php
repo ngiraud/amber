@@ -8,6 +8,7 @@ use App\Enums\AvailableLocale;
 use App\Enums\DateFormat;
 use App\Enums\RoundingStrategy;
 use App\Enums\TimeFormat;
+use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Native\Desktop\Enums\SystemThemesEnum;
@@ -15,7 +16,7 @@ use Native\Desktop\Enums\SystemThemesEnum;
 class UpdateGeneralSettingsRequest extends FormRequest
 {
     /**
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

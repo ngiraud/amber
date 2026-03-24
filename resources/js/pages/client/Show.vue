@@ -4,14 +4,14 @@ import { CalendarDaysIcon, CalendarRangeIcon, ClockIcon, TimerIcon } from 'lucid
 import { computed, ref } from 'vue';
 import ActivityLog from '@/components/ActivityLog.vue';
 import ClientNotesDialog from '@/components/ClientNotesDialog.vue';
-import RichTextEditor from '@/components/RichTextEditor.vue';
 import ClientSheet from '@/components/ClientSheet.vue';
-import ProjectBreakdownItem from '@/components/ProjectBreakdownItem.vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
 import PageHeader from '@/components/PageHeader.vue';
+import ProjectBreakdownItem from '@/components/ProjectBreakdownItem.vue';
 import ProjectSheet from '@/components/ProjectSheet.vue';
-import StatsBar from '@/components/StatsBar.vue';
+import RichTextEditor from '@/components/RichTextEditor.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
+import StatsBar from '@/components/StatsBar.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';

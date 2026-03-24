@@ -8,11 +8,13 @@ use App\Actions\Session\StopSession;
 use App\Actions\Session\SwitchSessionProject;
 use App\Data\ScanActivityResult;
 use App\Listeners\HandleDeepLink;
+use App\Models\ActivityEvent;
 use App\Models\Project;
 use App\Models\Session;
 use Native\Desktop\Contracts\WindowManager;
 use Native\Desktop\Events\App\OpenedFromURL;
 use Native\Desktop\Facades\Window;
+use Native\Desktop\Notification;
 use Native\Desktop\Windows\Window as WindowInstance;
 
 pest()->group('deeplink', 'session', 'listeners');
@@ -239,20 +241,20 @@ describe('navigate/unknown', function () {
 
 describe('activity/sync', function () {
     it('shows a starting notification then scans and shows a completion notification with the event count', function () {
-        $events = App\Models\ActivityEvent::factory()->count(3)->create();
+        $events = ActivityEvent::factory()->count(3)->create();
 
         ScanActivitySources::fake()
             ->shouldReceive('handle')
             ->once()
             ->andReturn(new ScanActivityResult(events: $events, errors: collect()));
 
-        $notificationMock = Mockery::mock(Native\Desktop\Notification::class);
+        $notificationMock = Mockery::mock(Notification::class);
         $notificationMock->shouldReceive('title')->with('Activity Sync')->once()->andReturnSelf();
         $notificationMock->shouldReceive('message')->with('Scanning activity sources…')->once()->andReturnSelf();
         $notificationMock->shouldReceive('title')->with('Activity Sync Complete')->once()->andReturnSelf();
         $notificationMock->shouldReceive('message')->with('Recorded 3 new activity event(s).')->once()->andReturnSelf();
         $notificationMock->shouldReceive('show')->twice()->andReturnSelf();
-        app()->instance(Native\Desktop\Notification::class, $notificationMock);
+        app()->instance(Notification::class, $notificationMock);
 
         $listener = app(HandleDeepLink::class);
         $listener->handle(new OpenedFromURL('amber://activity/sync'));
@@ -264,12 +266,12 @@ describe('activity/sync', function () {
             ->once()
             ->andReturn(new ScanActivityResult(events: collect(), errors: collect()));
 
-        $notificationMock = Mockery::mock(Native\Desktop\Notification::class);
+        $notificationMock = Mockery::mock(Notification::class);
         $notificationMock->shouldReceive('title')->andReturnSelf();
         $notificationMock->shouldReceive('message')->with('No new activity events found.')->once()->andReturnSelf();
         $notificationMock->shouldReceive('message')->with('Scanning activity sources…')->once()->andReturnSelf();
         $notificationMock->shouldReceive('show')->twice()->andReturnSelf();
-        app()->instance(Native\Desktop\Notification::class, $notificationMock);
+        app()->instance(Notification::class, $notificationMock);
 
         $listener = app(HandleDeepLink::class);
         $listener->handle(new OpenedFromURL('amber://activity/sync'));

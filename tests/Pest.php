@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use Mockery\MockInterface;
+use Native\Desktop\Facades\Notification;
+use Tests\TestCase;
+
 /*
 |--------------------------------------------------------------------------
 | Test Case
@@ -13,7 +17,7 @@ declare(strict_types=1);
 |
 */
 
-pest()->extend(Tests\TestCase::class)
+pest()->extend(TestCase::class)
     ->in('Feature');
 
 /*
@@ -42,9 +46,9 @@ expect()->extend('toBeOne', function () {
 |
 */
 
-function fakeNotification(): Mockery\MockInterface
+function fakeNotification(): MockInterface
 {
-    $mock = Native\Desktop\Facades\Notification::shouldReceive('title')
+    $mock = Notification::shouldReceive('title')
         ->withAnyArgs()->andReturnSelf()->zeroOrMoreTimes()
         ->getMock();
 

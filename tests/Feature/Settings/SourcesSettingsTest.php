@@ -5,6 +5,8 @@ declare(strict_types=1);
 use App\Actions\Settings\TestActivitySourceConnection;
 use App\Actions\Settings\UpdateActivitySourceSettings;
 use App\Data\ActivitySourceConfigs\FswatchSourceConfig;
+use App\Data\ActivitySourceConfigs\GitHubSourceConfig;
+use App\Data\ActivitySourceConfigs\GitSourceConfig;
 use App\Enums\ActivityEventSourceType;
 use App\Services\ActivitySources\ClaudeCodeActivitySource;
 use App\Services\ActivitySources\GitActivitySource;
@@ -12,6 +14,7 @@ use App\Services\ActivitySources\GitHubActivitySource;
 use App\Services\FileWatcherService;
 use App\Settings\ActivitySourceSettings;
 use Illuminate\Support\Facades\Process;
+use Illuminate\Validation\ValidationException;
 
 pest()->group('settings', 'sources');
 
@@ -212,7 +215,7 @@ describe('UpdateActivitySourceSettings action', function () {
 
     it('throws a validation error when enabling a source whose tool is not installed', function () {
         $sourceSettings = app(ActivitySourceSettings::class);
-        $sourceSettings->git = new App\Data\ActivitySourceConfigs\GitSourceConfig(false, []);
+        $sourceSettings->git = new GitSourceConfig(false, []);
         $sourceSettings->save();
 
         TestActivitySourceConnection::fake()
@@ -224,11 +227,11 @@ describe('UpdateActivitySourceSettings action', function () {
         UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
             'enabled' => true, 'author_emails' => [],
         ]);
-    })->throws(Illuminate\Validation\ValidationException::class);
+    })->throws(ValidationException::class);
 
     it('does not save settings when availability check fails', function () {
         $sourceSettings = app(ActivitySourceSettings::class);
-        $sourceSettings->git = new App\Data\ActivitySourceConfigs\GitSourceConfig(false, []);
+        $sourceSettings->git = new GitSourceConfig(false, []);
         $sourceSettings->save();
 
         TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(false);
@@ -237,7 +240,7 @@ describe('UpdateActivitySourceSettings action', function () {
             UpdateActivitySourceSettings::make()->handle(ActivityEventSourceType::Git, [
                 'enabled' => true, 'author_emails' => ['new@example.com'],
             ]);
-        } catch (Illuminate\Validation\ValidationException) {
+        } catch (ValidationException) {
             // expected
         }
 
@@ -267,7 +270,7 @@ describe('UpdateActivitySourceSettings action', function () {
 
     it('returns a validation error keyed by source field when tool is unavailable', function () {
         $sourceSettings = app(ActivitySourceSettings::class);
-        $sourceSettings->github = new App\Data\ActivitySourceConfigs\GitHubSourceConfig(false, null);
+        $sourceSettings->github = new GitHubSourceConfig(false, null);
         $sourceSettings->save();
 
         TestActivitySourceConnection::fake()->shouldReceive('handle')->andReturn(false);
@@ -277,7 +280,7 @@ describe('UpdateActivitySourceSettings action', function () {
                 'enabled' => true, 'username' => 'octocat'],
             );
             expect(true)->toBeFalse('expected ValidationException');
-        } catch (Illuminate\Validation\ValidationException $e) {
+        } catch (ValidationException $e) {
             expect($e->errors())->toHaveKey('github.enabled');
         }
     });
