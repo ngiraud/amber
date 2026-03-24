@@ -14,6 +14,7 @@ use App\Http\Resources\SessionResource;
 use App\Models\Project;
 use App\Models\Session;
 use App\ViewModels\EventsViewModel;
+use App\ViewModels\GlobalSessionStatsViewModel;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -28,6 +29,7 @@ class SessionController extends Controller
                     Session::with('project.client')->latest('started_at')->cursorPaginate()
                 )
             ),
+            'session_stats' => Inertia::defer(fn () => new GlobalSessionStatsViewModel),
         ]);
     }
 

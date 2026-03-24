@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
-import { DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
+import { BanknoteIcon, CalendarDaysIcon, ClockIcon, DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import RegenerateSheet from '@/components/RegenerateSheet.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
+import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNativeEvent } from '@/composables/useNativeEvent';
@@ -164,33 +165,38 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
         <!-- Draft / ready state -->
         <div v-else class="flex min-h-0 flex-1 flex-col gap-6">
             <!-- Totals -->
-            <div class="grid shrink-0 grid-cols-3 gap-4">
-                <Card>
-                    <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">{{ t('app.report.total_time') }}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="font-mono text-2xl font-semibold">{{ formatMinutes(report.total_minutes) }}</p>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">{{ t('app.report.total_days') }}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="font-mono text-2xl font-semibold">{{ report.total_days }}</p>
-                    </CardContent>
-                </Card>
-                <Card v-if="report.total_amount_ht !== null">
-                    <CardHeader class="pb-2">
-                        <CardTitle class="text-sm font-medium text-muted-foreground">{{ t('app.report.amount_ht') }}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p class="font-mono text-2xl font-semibold">
-                            {{ (report.total_amount_ht / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) }}
-                        </p>
-                    </CardContent>
-                </Card>
+            <div class="flex flex-wrap items-center gap-8 rounded-xl border bg-card px-6 py-4 shadow-sm ring-1 ring-inset ring-border/5">
+                <StatItem>
+                    <StatItemLabel>
+                        <StatItemIcon><ClockIcon /></StatItemIcon>
+                        {{ t('app.report.total_time') }}
+                    </StatItemLabel>
+                    <StatItemValue :value="formatMinutes(report.total_minutes)" />
+                </StatItem>
+
+                <Separator orientation="vertical" class="h-8 opacity-0" />
+
+                <StatItem>
+                    <StatItemLabel>
+                        <StatItemIcon><CalendarDaysIcon /></StatItemIcon>
+                        {{ t('app.report.total_days') }}
+                    </StatItemLabel>
+                    <StatItemValue :value="String(report.total_days)" muted />
+                </StatItem>
+
+                <template v-if="report.total_amount_ht !== null">
+                    <Separator orientation="vertical" class="h-8 opacity-0" />
+                    <StatItem>
+                        <StatItemLabel>
+                            <StatItemIcon><BanknoteIcon /></StatItemIcon>
+                            {{ t('app.report.amount_ht') }}
+                        </StatItemLabel>
+                        <StatItemValue
+                            :value="(report.total_amount_ht / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })"
+                            muted
+                        />
+                    </StatItem>
+                </template>
             </div>
 
             <!-- Notes -->

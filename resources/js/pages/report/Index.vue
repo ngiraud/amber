@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
 import { FileTextIcon } from 'lucide-vue-next';
+import { computed } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import ReportSheet from '@/components/ReportSheet.vue';
 import { Badge } from '@/components/ui/badge';
@@ -12,34 +13,41 @@ import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportProgressPayload, AiSettings, Client, Paginator } from '@/types';
+import type { ActivityReport, ActivityReportProgressPayload, AiSettings, Client } from '@/types';
 
-defineProps<{
-    reports: Paginator<ActivityReport>;
+const props = defineProps<{
+    reports: ActivityReport[];
     clients: Client[];
     aiSettings: AiSettings;
 }>();
-
-function statusVariant(status: ActivityReport['status']): 'default' | 'secondary' | 'outline' | 'destructive' {
-    if (status.value === 5) {
-        return 'outline';
-    } // Generating
-
-    if (status.value === 10) {
-        return 'secondary';
-    } // Draft
-
-    if (status.value === 20) {
-        return 'default';
-    } // Finalized
-
-    return 'default'; // Sent
-}
 
 const { spotlightClass } = useSpotlight();
 
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', () => {
     router.reload({ only: ['reports'] });
+});
+
+type ClientGroup = {
+    client: Client;
+    reports: ActivityReport[];
+};
+
+const reportsByClient = computed<ClientGroup[]>(() => {
+    const map = new Map<string, ClientGroup>();
+
+    for (const report of props.reports) {
+        if (!report.client) {
+            continue;
+        }
+
+        if (!map.has(report.client_id)) {
+            map.set(report.client_id, { client: report.client, reports: [] });
+        }
+
+        map.get(report.client_id)!.reports.push(report);
+    }
+
+    return [...map.values()];
 });
 </script>
 
@@ -55,7 +63,7 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
             </PageHeader>
         </template>
 
-        <Empty v-if="reports.data.length === 0" class="mt-6">
+        <Empty v-if="reports.length === 0" class="mt-6">
             <EmptyTitle>{{ t('app.report.no_reports') }}</EmptyTitle>
             <EmptyDescription>{{ t('app.report.no_reports_description_2') }}</EmptyDescription>
             <ReportSheet :clients="clients" :ai-settings="aiSettings">
@@ -63,47 +71,41 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
             </ReportSheet>
         </Empty>
 
-        <div v-else class="flex flex-col gap-1.5">
-            <Link
-                v-for="report in reports.data"
-                :key="report.id"
-                :href="reportRoutes.show(report)"
-                class="group flex items-center justify-between rounded-lg border bg-card px-5 py-4 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
-            >
-                <div class="flex items-center gap-3">
-                    <FileTextIcon class="size-4 shrink-0 text-muted-foreground" />
-                    <div>
-                        <p class="text-sm font-medium">{{ report.client?.name }}</p>
-                        <p class="mt-0.5 text-xs text-muted-foreground group-hover:text-accent-foreground/70">
-                            {{ formatPeriod(report.month, report.year) }}
-                        </p>
-                    </div>
+        <div v-else class="flex flex-col gap-8">
+            <div v-for="group in reportsByClient" :key="group.client.id">
+                <div class="mb-3 flex items-center gap-3">
+                    <h2 class="text-sm font-semibold">{{ group.client.name }}</h2>
+                    <span class="text-xs text-muted-foreground">{{ group.reports.length }} {{ t('app.report.title').toLowerCase() }}</span>
                 </div>
 
-                <div class="flex items-center gap-3">
-                    <span v-if="report.status.value !== 5" class="text-xs text-muted-foreground group-hover:text-accent-foreground/70">
-                        {{ formatMinutes(report.total_minutes) }} · {{ report.total_days }}j
-                    </span>
-                    <Badge :variant="statusVariant(report.status)" :class="report.status.value === 5 ? 'animate-pulse' : ''">
-                        {{ report.status.label }}
-                    </Badge>
+                <div class="flex flex-col gap-1.5">
+                    <Link
+                        v-for="report in group.reports"
+                        :key="report.id"
+                        :href="reportRoutes.show(report)"
+                        class="group flex items-center justify-between rounded-lg border bg-card px-5 py-3.5 text-card-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
+                    >
+                        <div class="flex items-center gap-3">
+                            <FileTextIcon class="size-4 shrink-0 text-muted-foreground group-hover:text-accent-foreground/60" />
+                            <span class="text-sm font-medium">{{ formatPeriod(report.month, report.year) }}</span>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <span v-if="report.status.value !== 5" class="font-mono text-xs text-muted-foreground group-hover:text-accent-foreground/70">
+                                {{ formatMinutes(report.total_minutes) }}
+                                <span class="mx-1 opacity-40">·</span>
+                                {{ report.total_days }}j
+                                <template v-if="report.total_amount_ht !== null">
+                                    <span class="mx-1 opacity-40">·</span>
+                                    {{ (report.total_amount_ht / 100).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' }) }}
+                                </template>
+                            </span>
+                            <Badge :variant="report.status.variant" :class="report.status.value === 5 ? 'animate-pulse' : ''">
+                                {{ report.status.label }}
+                            </Badge>
+                        </div>
+                    </Link>
                 </div>
-            </Link>
-
-            <div v-if="reports.last_page > 1" class="mt-4 flex items-center justify-between">
-                <Button v-if="reports.prev_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="reports.prev_page_url">← {{ t('app.common.previous') }}</Link>
-                </Button>
-                <span v-else class="text-sm text-muted-foreground/40">← {{ t('app.common.previous') }}</span>
-
-                <span class="text-xs text-muted-foreground">{{
-                    t('app.common.page_of', { current: reports.current_page, total: reports.last_page })
-                }}</span>
-
-                <Button v-if="reports.next_page_url" variant="ghost" size="sm" as-child>
-                    <Link :href="reports.next_page_url">{{ t('app.common.next') }} →</Link>
-                </Button>
-                <span v-else class="text-sm text-muted-foreground/40">{{ t('app.common.next') }} →</span>
             </div>
         </div>
     </AppLayout>

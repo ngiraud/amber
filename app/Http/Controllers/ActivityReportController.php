@@ -26,10 +26,14 @@ class ActivityReportController extends Controller
         return Inertia::render('report/Index', [
             'reports' => ActivityReportResource::collection(
                 ActivityReport::query()
+                    ->select('activity_reports.*')
                     ->with('client')
                     ->withCount('lines')
-                    ->latest()
-                    ->paginate()
+                    ->join('clients', 'clients.id', '=', 'activity_reports.client_id')
+                    ->orderBy('clients.name')
+                    ->orderByDesc('activity_reports.year')
+                    ->orderByDesc('activity_reports.month')
+                    ->get()
             ),
             'clients' => ClientResource::collection(Client::query()->orderBy('name')->get()),
             'aiSettings' => $aiSettings->toArray(),
