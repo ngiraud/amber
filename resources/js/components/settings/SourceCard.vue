@@ -109,7 +109,9 @@ const indicatorClass = computed(() => {
             </ItemMedia>
 
             <ItemContent class="flex-1 gap-1">
-                <ItemTitle class="text-base font-semibold">{{ source.label }}</ItemTitle>
+                <div class="flex items-baseline gap-2">
+                    <ItemTitle class="text-base font-semibold">{{ source.label }}</ItemTitle>
+                </div>
                 <ItemDescription class="line-clamp-none text-xs leading-relaxed opacity-85 dark:opacity-75">
                     {{ source.description }}
                 </ItemDescription>

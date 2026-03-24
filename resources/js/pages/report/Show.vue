@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Link, router } from '@inertiajs/vue3';
-import { BanknoteIcon, CalendarDaysIcon, ClockIcon, DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
+import { useClipboard } from '@vueuse/core';
+import { BanknoteIcon, CalendarDaysIcon, CheckIcon, ClockIcon, ClipboardIcon, DownloadIcon, EllipsisIcon, RefreshCwIcon, Trash2Icon } from 'lucide-vue-next';
 import { ref } from 'vue';
 import PageHeader from '@/components/PageHeader.vue';
 import RegenerateSheet from '@/components/RegenerateSheet.vue';
@@ -8,6 +9,7 @@ import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/componen
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,9 +17,10 @@ import { useNativeEvent } from '@/composables/useNativeEvent';
 import { t } from '@/composables/useTranslation';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { formatMinutes, formatPeriod } from '@/lib/utils';
+import { toast } from 'vue-sonner';
 import * as clientRoutes from '@/routes/clients';
 import * as reportRoutes from '@/routes/reports';
-import type { ActivityReport, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
+import type { ActivityReport, ActivityReportLine, ActivityReportProgressPayload, ActivityReportStatus, ActivityReportStep, AiSettings } from '@/types';
 
 const props = defineProps<{
     report: ActivityReport;
@@ -40,6 +43,40 @@ function handleDelete(): void {
             isDeleting.value = false;
         },
     });
+}
+
+const { copy } = useClipboard();
+
+function copyLine(line: ActivityReportLine): void {
+    const parts = [line.date, line.project?.name ?? '—', formatMinutes(line.minutes), line.display_description ?? '—'];
+    copy(parts.join('  '));
+    toast.success(t('app.report.lines_copied'));
+}
+
+function copyLineDescription(line: ActivityReportLine): void {
+    copy(line.display_description ?? '');
+    toast.success(t('app.report.lines_copied'));
+}
+
+function copyLines(): void {
+    if (!props.report.lines?.length) {
+        return;
+    }
+
+    const header = `${props.report.client?.name ?? ''} — ${formatPeriod(props.report.month, props.report.year)}`;
+
+    const lines = props.report.lines
+        .map((line) => {
+            const parts = [line.date, line.project?.name ?? '—', formatMinutes(line.minutes), line.display_description ?? '—'];
+
+            return parts.join('  ');
+        })
+        .join('\n');
+
+    const footer = `Total : ${props.report.total_days}j · ${formatMinutes(props.report.total_minutes)}`;
+
+    copy([header, '', lines, '', footer].join('\n'));
+    toast.success(t('app.report.lines_copied'));
 }
 
 useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgress', (payload) => {
@@ -207,7 +244,13 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
 
             <!-- Lines table -->
             <div v-if="report.lines && report.lines.length > 0" class="flex min-h-0 flex-1 flex-col">
-                <h2 class="mb-3 shrink-0 text-base font-semibold">{{ t('app.report.activity_lines') }}</h2>
+                <div class="mb-3 flex shrink-0 items-center justify-between">
+                    <h2 class="text-base font-semibold">{{ t('app.report.activity_lines') }}</h2>
+                    <Button variant="ghost" size="sm" class="gap-1.5 text-muted-foreground" @click="copyLines">
+                        <ClipboardIcon class="size-3.5" />
+                        {{ t('app.report.copy_lines') }}
+                    </Button>
+                </div>
                 <div class="min-h-0 flex-1 overflow-hidden rounded-lg border [&>[data-slot=table-container]]:h-full">
                     <Table>
                         <TableHeader class="sticky top-0 z-10 rounded-lg border bg-muted/50 backdrop-blur-sm">
@@ -220,22 +263,30 @@ useNativeEvent<ActivityReportProgressPayload>('App\\Events\\ActivityReportProgre
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            <TableRow v-for="line in report.lines" :key="line.id">
-                                <TableCell class="font-mono font-medium">{{ line.date }}</TableCell>
-                                <TableCell>
-                                    <div class="flex items-center gap-1.5">
-                                        <span
-                                            v-if="line.project?.color"
-                                            class="size-2 shrink-0 rounded-full"
-                                            :style="{ backgroundColor: line.project.color }"
-                                        />
-                                        {{ line.project?.name ?? '—' }}
-                                    </div>
-                                </TableCell>
-                                <TableCell class="text-right font-mono">{{ (line.minutes / 60).toFixed(2) }}</TableCell>
-                                <TableCell class="text-right font-mono">{{ line.days.toFixed(2) }}</TableCell>
-                                <TableCell class="whitespace-normal">{{ line.display_description ?? '—' }}</TableCell>
-                            </TableRow>
+                            <ContextMenu v-for="line in report.lines" :key="line.id">
+                                <ContextMenuTrigger as-child>
+                                    <TableRow>
+                                        <TableCell class="font-mono font-medium">{{ line.date }}</TableCell>
+                                        <TableCell>
+                                            <div class="flex items-center gap-1.5">
+                                                <span
+                                                    v-if="line.project?.color"
+                                                    class="size-2 shrink-0 rounded-full"
+                                                    :style="{ backgroundColor: line.project.color }"
+                                                />
+                                                {{ line.project?.name ?? '—' }}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell class="text-right font-mono">{{ (line.minutes / 60).toFixed(2) }}</TableCell>
+                                        <TableCell class="text-right font-mono">{{ line.days.toFixed(2) }}</TableCell>
+                                        <TableCell class="whitespace-normal">{{ line.display_description ?? '—' }}</TableCell>
+                                    </TableRow>
+                                </ContextMenuTrigger>
+                                <ContextMenuContent>
+                                    <ContextMenuItem @click="copyLine(line)">{{ t('app.report.copy_line') }}</ContextMenuItem>
+                                    <ContextMenuItem @click="copyLineDescription(line)">{{ t('app.report.copy_description') }}</ContextMenuItem>
+                                </ContextMenuContent>
+                            </ContextMenu>
                         </TableBody>
                     </Table>
                 </div>
