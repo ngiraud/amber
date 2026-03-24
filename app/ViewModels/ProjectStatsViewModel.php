@@ -22,17 +22,18 @@ class ProjectStatsViewModel implements ProvidesInertiaProperty
             ->where('project_id', $this->project->id)
             ->whereNotNull('ended_at')
             ->selectRaw('COUNT(DISTINCT date) as worked_days, SUM(rounded_minutes) as total_minutes, MIN(date) as first_date, MAX(date) as last_date')
-            ->first();
+            ->first()
+            ?->toArray() ?? [];
 
-        $workedDays = (int) ($stats?->worked_days ?? 0);
-        $totalMinutes = (int) ($stats?->total_minutes ?? 0);
+        $workedDays = (int) ($stats['worked_days'] ?? 0);
+        $totalMinutes = (int) ($stats['total_minutes'] ?? 0);
 
         return [
             'worked_days' => $workedDays,
             'total_minutes' => $totalMinutes,
             'avg_minutes_per_day' => $workedDays > 0 ? (int) round($totalMinutes / $workedDays) : 0,
-            'first_date' => $stats?->first_date,
-            'last_date' => $stats?->last_date,
+            'first_date' => $stats['first_date'] ?? null,
+            'last_date' => $stats['last_date'] ?? null,
         ];
     }
 }
