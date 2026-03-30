@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Link, router, usePage } from '@inertiajs/vue3';
 import { CalendarDaysIcon, ClockIcon, LayersIcon, RadioIcon, TargetIcon, TimerIcon, TimerResetIcon } from 'lucide-vue-next';
-import { computed, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import DaySummaryCard from '@/components/DaySummaryCard.vue';
 import LogPastSessionSheet from '@/components/LogPastSessionSheet.vue';
 import OnboardingChecklist from '@/components/OnboardingChecklist.vue';
@@ -35,6 +35,19 @@ const onboarding = computed(() => page.props.onboarding as OnboardingState);
 const showChecklist = computed(() => !onboarding.value?.dismissed && !onboarding.value?.all_complete);
 
 const logSessionOpen = ref(false);
+
+let pollTimer: ReturnType<typeof setInterval>;
+
+onMounted(() => {
+    pollTimer = setInterval(() => {
+        router.reload({ only: ['sessions', 'session_stats', 'week_minutes', 'month_minutes', 'activeSession'] });
+    }, 30 * 1000);
+});
+
+onUnmounted(() => {
+    clearInterval(pollTimer);
+});
+
 const { now, isToday: isTodayFn } = useNow();
 const { formatTime } = useDateFormat();
 

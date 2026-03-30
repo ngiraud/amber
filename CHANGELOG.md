@@ -5,6 +5,14 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Dashboard now polls the server every 30 seconds so sessions, stats, and the project breakdown reflect recent changes without requiring a manual page navigation
+
+---
+
 ## [0.7.0] — 2026-03-24
 
 ### Changed
