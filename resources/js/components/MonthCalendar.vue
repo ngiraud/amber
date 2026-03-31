@@ -114,7 +114,7 @@ function isFuture(date: string): boolean {
         <!-- Calendar body -->
         <div class="flex gap-2">
             <!-- Day cells -->
-            <div class="min-w-0 flex-1 overflow-hidden rounded-lg border bg-border">
+            <div class="min-w-0 flex-1 rounded-lg border bg-border">
                 <div class="grid grid-cols-7 gap-px">
                     <template v-for="(weekRow, wi) in calendarWeeksWithStats" :key="`w${wi}`">
                         <template v-for="(cell, ci) in weekRow.cells" :key="`${wi}-${ci}`">
@@ -123,8 +123,12 @@ function isFuture(date: string): boolean {
                                     <div
                                         class="group min-h-20 cursor-pointer bg-card p-1.5 transition-colors hover:bg-accent"
                                         :class="{
+                                            'rounded-tl-lg': wi === 0 && ci === 0,
+                                            'rounded-tr-lg': wi === 0 && ci === 6,
+                                            'rounded-bl-lg': wi === calendarWeeksWithStats.length - 1 && ci === 0,
+                                            'rounded-br-lg': wi === calendarWeeksWithStats.length - 1 && ci === 6,
                                             'opacity-40': isFuture(cell.date),
-                                            'ring-1 ring-primary ring-inset': cell.date === today,
+                                            'relative z-10 ring-1 ring-primary ring-inset': cell.date === today,
                                         }"
                                         @click="!isFuture(cell.date) && emit('select', cell.date)"
                                     >
@@ -171,9 +175,13 @@ function isFuture(date: string): boolean {
                                 v-else
                                 class="group min-h-20 bg-card p-1.5"
                                 :class="{
+                                    'rounded-tl-lg': wi === 0 && ci === 0,
+                                    'rounded-tr-lg': wi === 0 && ci === 6,
+                                    'rounded-bl-lg': wi === calendarWeeksWithStats.length - 1 && ci === 0,
+                                    'rounded-br-lg': wi === calendarWeeksWithStats.length - 1 && ci === 6,
                                     'cursor-pointer transition-colors hover:bg-accent': cell.date !== null && !isFuture(cell.date),
                                     'opacity-40': cell.date === null || isFuture(cell.date),
-                                    'ring-1 ring-primary ring-inset': cell.date === today,
+                                    'relative z-10 ring-1 ring-primary ring-inset': cell.date === today,
                                 }"
                                 @click="cell.date && !isFuture(cell.date) && emit('select', cell.date)"
                             >
@@ -195,11 +203,17 @@ function isFuture(date: string): boolean {
             </div>
 
             <!-- Week summary column -->
-            <div v-if="weeks !== undefined" class="flex w-36 shrink-0 flex-col gap-px overflow-hidden rounded-lg border bg-border">
+            <div v-if="weeks !== undefined" class="flex w-36 shrink-0 flex-col gap-px rounded-lg border bg-border">
                 <template v-for="(weekRow, wi) in calendarWeeksWithStats" :key="`ws${wi}`">
                     <Tooltip v-if="weekRow.stats" :delay-duration="150">
                         <TooltipTrigger as-child>
-                            <div class="flex min-h-20 flex-1 cursor-default flex-col justify-center gap-1.5 bg-card p-2.5">
+                            <div
+                                class="flex min-h-20 flex-1 cursor-default flex-col justify-center gap-1.5 bg-card p-2.5"
+                                :class="{
+                                    'rounded-t-lg': wi === 0,
+                                    'rounded-b-lg': wi === calendarWeeksWithStats.length - 1,
+                                }"
+                            >
                                 <p class="font-mono text-sm leading-none font-black tracking-tighter">
                                     {{ formatMinutes(weekRow.stats.total_minutes) }}
                                 </p>
@@ -240,7 +254,14 @@ function isFuture(date: string): boolean {
                     </Tooltip>
 
                     <!-- Inactive week row: same as padding day cell -->
-                    <div v-else class="min-h-20 flex-1 bg-card opacity-40" />
+                    <div
+                        v-else
+                        class="min-h-20 flex-1 bg-card opacity-40"
+                        :class="{
+                            'rounded-t-lg': wi === 0,
+                            'rounded-b-lg': wi === calendarWeeksWithStats.length - 1,
+                        }"
+                    />
                 </template>
             </div>
         </div>

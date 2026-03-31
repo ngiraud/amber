@@ -5,6 +5,23 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+- Day timeline now zooms adaptively to the visible session range instead of always showing the full 24-hour grid
+- Sessions are grouped by project and assigned stable tracks — a project's sessions always appear on the same row(s) within a day
+- Timeline layout is now flex-based; height adjusts naturally to the number of tracks without fixed calculations
+- Session bars now display the project name and duration inline; text color adapts automatically for contrast against the project color
+- Active sessions show an animated stripe pattern instead of a pulse
+- Clicking a session bar navigates directly to the session detail page
+
+### Fixed
+
+- Today's date ring in MonthCalendar was clipped at corner cells due to `overflow-hidden` on the container — fixed by applying border-radius directly to corner cells
+
+---
+
 ## [0.8.0] — 2026-03-30
 
 ### Fixed
