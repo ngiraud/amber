@@ -3,10 +3,10 @@ import { router, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useDateFormat } from '@/composables/useDateFormat';
+import { t } from '@/composables/useTranslation';
 import { formatMinutes } from '@/lib/utils';
 import * as sessionRoutes from '@/routes/sessions';
 import type { Session } from '@/types';
-import { t } from '@/composables/useTranslation';
 
 const props = defineProps<{
     sessions: Session[];
@@ -186,7 +186,10 @@ const sessionsByTrack = computed(() => {
     const tracks: (typeof sessionsWithPositions.value)[] = [];
 
     for (const session of sessionsWithPositions.value) {
-        while (tracks.length <= session.track) tracks.push([]);
+        while (tracks.length <= session.track) {
+            tracks.push([]);
+        }
+
         tracks[session.track].push(session);
     }
 
@@ -242,7 +245,7 @@ function navigateToSession(session: Session) {
                             <Tooltip>
                                 <TooltipTrigger as-child>
                                     <div
-                                        class="absolute inset-y-0 flex cursor-pointer items-center overflow-hidden rounded-lg border border-white/10 p-1 shadow-sm transition-all hover:z-20 hover:scale-[1.02] hover:brightness-110 hover:shadow-md active:scale-[0.98]"
+                                        class="absolute inset-y-0 flex cursor-pointer items-center overflow-hidden rounded-lg border border-white/10 p-1 shadow-sm transition-all hover:z-20 hover:scale-[1.02] hover:shadow-md hover:brightness-110 active:scale-[0.98]"
                                         :class="[!session.ended_at ? 'active-session-stripes ring-2 ring-primary/20' : '']"
                                         :style="{
                                             left: session.left,
