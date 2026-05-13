@@ -20,9 +20,11 @@ class SessionData
      */
     public static function fromArray(array $data): self
     {
+        $timezone = config('app.display_timezone');
+
         return new self(
-            startedAt: isset($data['started_at']) ? CarbonImmutable::parse($data['started_at']) : null,
-            endedAt: isset($data['ended_at']) ? CarbonImmutable::parse($data['ended_at']) : null,
+            startedAt: isset($data['started_at']) ? CarbonImmutable::parse($data['started_at'], $timezone)->utc() : null,
+            endedAt: isset($data['ended_at']) ? CarbonImmutable::parse($data['ended_at'], $timezone)->utc() : null,
             description: $data['description'] ?? null,
             notes: $data['notes'] ?? null,
         );

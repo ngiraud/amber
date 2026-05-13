@@ -51,6 +51,9 @@ function submit(): void {
             open.value = false;
             form.reset();
         },
+        onError: () => {
+            router.reload({ only: ['projects'] });
+        },
     });
 }
 </script>

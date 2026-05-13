@@ -97,6 +97,20 @@ describe('CreateSession action', function () {
             ->and($session->notes)->toBe('in progress');
     });
 
+    it('parses naive datetime strings in the display timezone and converts to UTC', function () {
+        config(['app.display_timezone' => 'Europe/Paris']);
+
+        $data = SessionData::fromArray([
+            'started_at' => '2026-05-13T11:10',
+            'ended_at' => '2026-05-13T11:30',
+        ]);
+
+        // 11:10 Europe/Paris in May (CEST, +02:00) == 09:10 UTC
+        expect($data->startedAt?->getTimezone()->getName())->toBe('UTC')
+            ->and($data->startedAt?->format('H:i'))->toBe('09:10')
+            ->and($data->endedAt?->format('H:i'))->toBe('09:30');
+    });
+
     it('sets source to Auto', function () {
         $project = Project::factory()->create();
 

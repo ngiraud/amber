@@ -5,6 +5,16 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Weekly totals in the month timeline excluded Monday sessions because the iterator's `$current` carried the previous week's end-of-day time, causing the `gte()` filter to drop sessions dated at 00:00:00
+- Manually logged past sessions were stored two hours off (Paris vs UTC) because naive datetime strings from the picker were parsed as UTC; they are now parsed in the user's display timezone and converted to UTC before storage
+- The project dropdown in the "Log past session" sheet became empty after a validation error because `projects` is an optional Inertia prop not re-sent on redirect-back; it is now reloaded explicitly on submit error
+
+---
+
 ## [0.9.0] — 2026-03-31
 
 ### Changed

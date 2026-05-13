@@ -173,6 +173,37 @@ describe('timeline index stats', function () {
                 ->where('weeks.0.total_minutes', 60)
             );
     });
+
+    it('includes Monday sessions in their week total', function () {
+        $project = Project::factory()->create();
+
+        // May 2026: Fri 1 is first day of month, then Mon 4, Tue 5, Wed 6 in week 2.
+        Session::factory()->create([
+            'project_id' => $project->id,
+            'date' => CarbonImmutable::create(2026, 5, 4),
+            'rounded_minutes' => 195,
+            'ended_at' => now(),
+        ]);
+        Session::factory()->create([
+            'project_id' => $project->id,
+            'date' => CarbonImmutable::create(2026, 5, 6),
+            'rounded_minutes' => 435,
+            'ended_at' => now(),
+        ]);
+        Session::factory()->create([
+            'project_id' => $project->id,
+            'date' => CarbonImmutable::create(2026, 5, 7),
+            'rounded_minutes' => 405,
+            'ended_at' => now(),
+        ]);
+
+        $this->get(route('timeline.index', ['year' => 2026, 'month' => 5]))
+            ->assertOk()
+            ->assertInertia(fn ($page) => $page
+                ->where('weeks.0.total_minutes', 1035)
+                ->where('weeks.0.worked_days', 3)
+            );
+    });
 });
 
 describe('timeline day show', function () {

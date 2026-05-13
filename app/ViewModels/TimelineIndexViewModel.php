@@ -138,7 +138,7 @@ class TimelineIndexViewModel implements ProvidesInertiaProperties
             }
 
             $weekIndex++;
-            $current = $clampedEnd->addDay();
+            $current = $clampedEnd->addDay()->startOfDay();
         }
 
         return $weeks;
