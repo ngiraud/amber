@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Link } from '@inertiajs/vue3';
-import { CalendarDaysIcon, CalendarRangeIcon, ClockIcon, TimerIcon } from 'lucide-vue-next';
+import { CalendarDaysIcon, CalendarRangeIcon, TimerIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import ActivityLog from '@/components/ActivityLog.vue';
 import ClientNotesDialog from '@/components/ClientNotesDialog.vue';
@@ -12,6 +12,7 @@ import ProjectSheet from '@/components/ProjectSheet.vue';
 import RichTextEditor from '@/components/RichTextEditor.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import StatsBar from '@/components/StatsBar.vue';
+import TotalHoursStat from '@/components/TotalHoursStat.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
@@ -98,13 +99,12 @@ const period = computed(() => {
 
             <Separator orientation="vertical" class="h-8 opacity-0" />
 
-            <StatItem>
-                <StatItemLabel>
-                    <StatItemIcon><ClockIcon /></StatItemIcon>
-                    {{ t('app.stats.total_hours') }}
-                </StatItemLabel>
-                <StatItemValue :value="formatMinutes(client_stats.total_minutes)" muted />
-            </StatItem>
+            <TotalHoursStat
+                :total-minutes="client_stats.total_minutes"
+                :real-minutes="client_stats.total_real_minutes"
+                :total-days="client_stats.total_days"
+                :real-days="client_stats.total_real_days"
+            />
 
             <Separator orientation="vertical" class="h-8 opacity-0" />
 

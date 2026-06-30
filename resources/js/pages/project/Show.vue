@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Form, Link, router } from '@inertiajs/vue3';
-import { CalendarDaysIcon, CalendarRangeIcon, ClockIcon, TimerIcon } from 'lucide-vue-next';
+import { CalendarDaysIcon, CalendarRangeIcon, TimerIcon } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 import ActivityLog from '@/components/ActivityLog.vue';
 import ConfirmDialog from '@/components/ConfirmDialog.vue';
@@ -10,6 +10,7 @@ import RepositorySheet from '@/components/RepositorySheet.vue';
 import { StatItem, StatItemIcon, StatItemLabel, StatItemValue } from '@/components/stat';
 import StatsBar from '@/components/StatsBar.vue';
 import ToggleProjectStatusDialog from '@/components/ToggleProjectStatusDialog.vue';
+import TotalHoursStat from '@/components/TotalHoursStat.vue';
 import { Badge } from '@/components/ui/badge';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Button } from '@/components/ui/button';
@@ -132,13 +133,12 @@ function removeRepo(): void {
 
             <Separator orientation="vertical" class="h-8 opacity-0" />
 
-            <StatItem>
-                <StatItemLabel>
-                    <StatItemIcon><ClockIcon /></StatItemIcon>
-                    {{ t('app.stats.total_hours') }}
-                </StatItemLabel>
-                <StatItemValue :value="formatMinutes(project_stats.total_minutes)" muted />
-            </StatItem>
+            <TotalHoursStat
+                :total-minutes="project_stats.total_minutes"
+                :real-minutes="project_stats.total_real_minutes"
+                :total-days="project_stats.total_days"
+                :real-days="project_stats.total_real_days"
+            />
 
             <Separator orientation="vertical" class="h-8 opacity-0" />
 

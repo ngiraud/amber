@@ -5,6 +5,15 @@ All notable changes to Amber will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Project and client stats now expose the actual worked time (raw, un-rounded session duration) alongside the rounded total, shown in a tooltip on the "Total hours" stat
+- The "Total hours" tooltip also converts both the rounded and actual time into an equivalent number of work days, based on each project's daily reference hours
+
+---
+
 ## [0.10.0] — 2026-05-13
 
 ### Fixed

@@ -494,6 +494,8 @@ return [
         'activity' => 'Activity',
         'worked_days' => 'Days worked',
         'total_hours' => 'Total hours',
+        'real_hours' => 'Actual hours',
+        'days_equivalent' => '≈ :count d',
         'avg_per_day' => 'Avg. / day',
         'period' => 'Period',
         'rounding' => 'Rounding',

@@ -37,6 +37,9 @@ export type TimelineMonthStats = {
 export type ProjectStats = {
     worked_days: number;
     total_minutes: number;
+    total_real_minutes: number;
+    total_days: number;
+    total_real_days: number;
     avg_minutes_per_day: number;
     first_date: string | null;
     last_date: string | null;
@@ -56,6 +59,9 @@ export type ClientStats = {
     active_projects_count: number;
     worked_days: number;
     total_minutes: number;
+    total_real_minutes: number;
+    total_days: number;
+    total_real_days: number;
     avg_minutes_per_day: number;
     first_date: string | null;
     last_date: string | null;

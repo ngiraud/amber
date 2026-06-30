@@ -20,6 +20,9 @@ class ClientStatsViewModel implements ProvidesInertiaProperty
      *   active_projects_count: int,
      *   worked_days: int,
      *   total_minutes: int,
+     *   total_real_minutes: int,
+     *   total_days: float,
+     *   total_real_days: float,
      *   avg_minutes_per_day: int,
      *   first_date: string|null,
      *   last_date: string|null,
@@ -30,34 +33,43 @@ class ClientStatsViewModel implements ProvidesInertiaProperty
     {
         $projects = Project::query()
             ->where('client_id', $this->client->id)
-            ->get(['id', 'name', 'color', 'is_active']);
+            ->get(['id', 'name', 'color', 'is_active', 'daily_reference_hours']);
 
         $projectIds = $projects->pluck('id');
 
         $stats = Session::query()
             ->whereIn('project_id', $projectIds)
             ->whereNotNull('ended_at')
-            ->selectRaw('COUNT(DISTINCT date) as worked_days, SUM(rounded_minutes) as total_minutes, MIN(date) as first_date, MAX(date) as last_date')
+            ->selectRaw('COUNT(DISTINCT date) as worked_days, SUM(rounded_minutes) as total_minutes, SUM(duration_minutes) as total_real_minutes, MIN(date) as first_date, MAX(date) as last_date')
             ->first()
             ?->toArray() ?? [];
 
         $workedDays = (int) ($stats['worked_days'] ?? 0);
         $totalMinutes = (int) ($stats['total_minutes'] ?? 0);
+        $totalRealMinutes = (int) ($stats['total_real_minutes'] ?? 0);
 
         $perProject = Session::query()
             ->whereIn('project_id', $projectIds)
             ->whereNotNull('ended_at')
-            ->selectRaw('project_id, SUM(rounded_minutes) as minutes, COUNT(DISTINCT date) as days')
+            ->selectRaw('project_id, SUM(rounded_minutes) as minutes, SUM(duration_minutes) as real_minutes, COUNT(DISTINCT date) as days')
             ->groupBy('project_id')
             ->get()
             ->mapWithKeys(fn (Session $row) => [
                 $row->project_id => $row->toArray(),
             ]);
 
+        $totalDays = 0.0;
+        $totalRealDays = 0.0;
+
         $breakdown = $projects
-            ->map(function (Project $project) use ($perProject, $totalMinutes): array {
+            ->map(function (Project $project) use ($perProject, $totalMinutes, &$totalDays, &$totalRealDays): array {
                 $row = $perProject->get($project->id) ?? [];
                 $minutes = (int) ($row['minutes'] ?? 0);
+                $realMinutes = (int) ($row['real_minutes'] ?? 0);
+                $dailyReferenceMinutes = $project->daily_reference_hours * 60;
+
+                $totalDays += $minutes / $dailyReferenceMinutes;
+                $totalRealDays += $realMinutes / $dailyReferenceMinutes;
 
                 return [
                     'id' => $project->id,
@@ -78,6 +90,9 @@ class ClientStatsViewModel implements ProvidesInertiaProperty
             'active_projects_count' => $projects->where('is_active', true)->count(),
             'worked_days' => $workedDays,
             'total_minutes' => $totalMinutes,
+            'total_real_minutes' => $totalRealMinutes,
+            'total_days' => round($totalDays, 2),
+            'total_real_days' => round($totalRealDays, 2),
             'avg_minutes_per_day' => $workedDays > 0 ? (int) round($totalMinutes / $workedDays) : 0,
             'first_date' => $stats['first_date'] ?? null,
             'last_date' => $stats['last_date'] ?? null,

@@ -36,3 +36,7 @@ export function formatMinutes(minutes: number): string {
 
     return `${h}h${String(m).padStart(2, '0')}m`;
 }
+
+export function formatDays(days: number): string {
+    return new Intl.NumberFormat(locale.value, { maximumFractionDigits: 1 }).format(days);
+}

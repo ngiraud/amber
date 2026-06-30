@@ -494,6 +494,8 @@ return [
         'activity' => 'Aktivität',
         'worked_days' => 'Arbeitstage',
         'total_hours' => 'Gesamtstunden',
+        'real_hours' => 'Tatsächliche Stunden',
+        'days_equivalent' => '≈ :count Tg',
         'avg_per_day' => 'Ø / Tag',
         'period' => 'Zeitraum',
         'rounding' => 'Rundung',
